@@ -1,6 +1,14 @@
+    // In this code, we have a class called  GetDataViaSpotifyAPI that fetches the genre of artists from the Spotify API and saves it to a PostgreSQL database. 
+    // The  main  method of this class fetches the names of artists whose genre is not yet known from the database and iterates over them. For each artist, it calls the  getGenreFromSpotify  method to fetch the genre from the Spotify API. 
+    // The  getGenreFromSpotify  method sends a request to the Spotify API to search for the artist by name and fetches the genre of the first artist in the search results. It then calls the  getArtistGenre  method to fetch the genre of the artist using the artist's ID. 
+    // The  getArtistGenre  method sends a request to the Spotify API to fetch the genre of the artist using the artist's ID. It then returns the genre of the artist. 
+    // The  saveGenreToDatabase  method saves the genre of the artist to the database. 
+    // The  saveArtistIdToDatabase  method saves the artist's ID to the database. 
+    // The  SpotifyAccessToken  class is a utility class that fetches an access token from the Spotify API. 
+    // The  DB_URL ,  DB_USER , and  DB_PASSWORD  constants contain the URL, username, and password of the PostgreSQL database, respectively. 
+    // The  SPOTIFY_API_URL  constant contains the base URL of the Spotify API.
 
-//Set genre to every song in the database by using Spotify API
-//can be used without user having spotify account (I hope so)
+package services;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,39 +22,35 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.utils.CreateSpotifyAccessToken;
-
-package services;
+import java.utils.SpotifyAccessToken;
 
 public class GetDataViaSpotifyAPI {
 
     private static final String SPOTIFY_API_URL = "https://api.spotify.com/v1/search";
-    private static final String ACCESS_TOKEN = CreateSpotifyAccessToken.getAccessToken();
-    private static final String DB_URL = "jdbc:mysql://localhost:5432/MusicPlaylistGenerator";
+    private static final SpotifyAccessToken ACCESS_TOKEN = SpotifyAccessToken.getAccessToken();
+    private static final String DB_URL = "jdbc:postgresql://db.ovinvbshhlfiazazcsaw.supabase.co:5432/postgres";
     private static final String DB_USER = "postgres";
     private static final String DB_PASSWORD = "somepassword";
 
     public static void main(String[] args) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String selectSql = "SELECT artist_name FROM artists WHERE genre IS NULL";
-            PreparedStatement selectStatement = connection.prepareStatement(selectSql);
-            ResultSet resultSet = selectStatement.executeQuery();
+            String selectSql = "SELECT name FROM artists WHERE genre IS NULL";
+            try (PreparedStatement selectStatement = connection.prepareStatement(selectSql);
+                 ResultSet resultSet = selectStatement.executeQuery()) {
 
-            while (resultSet.next()) {
-                String artistName = resultSet.getString("artist_name");
+                while (resultSet.next()) {
+                    String artistName = resultSet.getString("name");
 
-                try {
-                    String genre = getGenreFromSpotify(artistName);
-                    if (genre != null) {
-                        saveGenreToDatabase(artistName, genre);
+                    try {
+                        String genre = getGenreFromSpotify(artistName);
+                        if (genre != null) {
+                            saveGenreToDatabase(connection, artistName, genre);
+                        }
+                    } catch (IOException | InterruptedException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
-
-            resultSet.close();
-            selectStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -74,26 +78,24 @@ public class GetDataViaSpotifyAPI {
         return null;
     }
 
-    private static void saveGenreToDatabase(String artistName, String genre) throws SQLException {
-        Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-        String sql = "UPDATE artists SET genre = ? WHERE artist_name = ?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, genre);
-        statement.setString(2, artistName);
-        statement.executeUpdate();
-        statement.close();
-        connection.close();
+    private static void saveGenreToDatabase(Connection connection, String artistName, String genre) throws SQLException {
+        String sql = "UPDATE artists SET genre = ? WHERE name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, genre);
+            statement.setString(2, artistName);
+            statement.executeUpdate();
+        }
     }
 
     private static void saveArtistIdToDatabase(String artistName, String artistId) throws SQLException {
-        Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-        String sql = "UPDATE artists SET artist_id = ? WHERE artist_name = ?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, artistId);
-        statement.setString(2, artistName);
-        statement.executeUpdate();
-        statement.close();
-        connection.close();
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String sql = "UPDATE artists SET id = ? WHERE name = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, artistId);
+                statement.setString(2, artistName);
+                statement.executeUpdate();
+            }
+        }
     }
 
     private static String getArtistGenre(String artistId) throws IOException, InterruptedException {
@@ -108,7 +110,7 @@ public class GetDataViaSpotifyAPI {
         JSONArray genres = jsonResponse.getJSONArray("genres");
 
         if (genres.length() > 0) {
-            return genres.getString(0);
+            return String.join(", ", genres.toList().stream().map(Object::toString).toArray(String[]::new));
         }
         return null;
     }

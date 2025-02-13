@@ -1,3 +1,4 @@
+//works for google sheets, but need to convert to work with database instead
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;

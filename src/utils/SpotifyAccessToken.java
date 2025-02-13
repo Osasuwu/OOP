@@ -8,7 +8,7 @@ import java.util.Scanner;
 package utils;
 
 
-public class CreateSpotifyAccessToken {
+public class SpotifyAccessToken {
 
     private static final String CLIENT_ID = "a058f1bb72fb4456a1930dcdd3da5391";
     private static final String CLIENT_SECRET = "2155520c26ba404ab695f42c27e896e1";
