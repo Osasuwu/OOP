@@ -40,9 +40,9 @@ public class GetDataViaSpotifyAPI {
         }
         ACCESS_TOKEN = token;
     }
-    private static final String DB_URL = "jdbc:postgresql://db.ovinvbshhlfiazazcsaw.supabase.co:5432/postgres";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "Pk-21152SUPABASE";
+    private static final String DB_URL = "jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:6543/postgres";
+    private static final String DB_USER = "postgres.ovinvbshhlfiazazcsaw";
+    private static final String DB_PASSWORD = "BS1l7MtXTDZ2pfd5";
 
     public static void main(String[] args) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
