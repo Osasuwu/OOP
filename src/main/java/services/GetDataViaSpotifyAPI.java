@@ -91,7 +91,8 @@ public class GetDataViaSpotifyAPI {
     }
 
     private static void saveGenreToDatabase(Connection connection, String artistName, String genre) throws SQLException {
-        String sql = "UPDATE artists SET genre = ? WHERE name = ?";
+        String sql = "UPDATE artists SET genre = ? WHERE name = ?
+                    UPDATE artists SET genre = 'placeholder' where genre = '0'";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, genre);
             statement.setString(2, artistName);
