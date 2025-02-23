@@ -1,36 +1,36 @@
-    // In this code, we have a class called  GetDataViaSpotifyAPI that fetches the genre of artists from the Spotify API and saves it to a PostgreSQL database. 
-    // The  main  method of this class fetches the names of artists whose genre is not yet known from the database and iterates over them. For each artist, it calls the  getGenreFromSpotify  method to fetch the genre from the Spotify API. 
-    // The  getGenreFromSpotify  method sends a request to the Spotify API to search for the artist by name and fetches the genre of the first artist in the search results. It then calls the  getArtistGenre  method to fetch the genre of the artist using the artist's ID. 
-    // The  getArtistGenre  method sends a request to the Spotify API to fetch the genre of the artist using the artist's ID. It then returns the genre of the artist. 
-    // The  saveGenreToDatabase  method saves the genre of the artist to the database. 
-    // The  saveArtistIdToDatabase  method saves the artist's ID to the database. 
-    // The  SpotifyAccessToken  class is a utility class that fetches an access token from the Spotify API. 
-    // The  DB_URL ,  DB_USER , and  DB_PASSWORD  constants contain the URL, username, and password of the PostgreSQL database, respectively. 
-    // The  SPOTIFY_API_URL  constant contains the base URL of the Spotify API.
-
 package services;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import utils.SpotifyAccessToken;
-import java.net.URISyntaxException;
+import utils.GenreMapper;
 
-
+// This class is responsible for fetching essential artist and song data for playlist generation
 public class GetDataViaSpotifyAPI {
 
     private static final String SPOTIFY_API_URL = "https://api.spotify.com/v1/search";
+    private static final String MUSICBRAINZ_API_URL = "https://musicbrainz.org/ws/2/artist/";
+    private static final String LASTFM_API_URL = "http://ws.audioscrobbler.com/2.0/";
+    private static final String LASTFM_API_KEY = "c37d56d0eec9000538301510740a3ca8";
     private static final String ACCESS_TOKEN;
+    private static final int MAX_RETRIES = 3;
+    private static final int RETRY_DELAY_MS = 1000;
 
+    // Fetch Spotify access token
     static {
         String token = "";
         try {
@@ -40,37 +40,126 @@ public class GetDataViaSpotifyAPI {
         }
         ACCESS_TOKEN = token;
     }
-    private static final String DB_URL = "jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:6543/postgres";
+
+    // Database connection details
+    private static final String DB_URL = "jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres";
     private static final String DB_USER = "postgres.ovinvbshhlfiazazcsaw";
     private static final String DB_PASSWORD = "BS1l7MtXTDZ2pfd5";
 
     public static void main(String[] args) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String selectSql = "SELECT name FROM artists WHERE genre IS NULL";
-            try (PreparedStatement selectStatement = connection.prepareStatement(selectSql);
-                 ResultSet resultSet = selectStatement.executeQuery()) {
-
-                while (resultSet.next()) {
-                    String artistName = resultSet.getString("name");
-
-                    try {
-                        String genre = getGenreFromSpotify(artistName);
-                        if (genre != null) {
-                            saveGenreToDatabase(connection, artistName, genre);
-                        }
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+            // Ensure database schema is up to date
+            ensureDatabaseSchema(connection);
+            
+            // Process data
+            processArtists(connection);
+            processSongs(connection);
         } catch (SQLException e) {
+            System.err.println("Database connection error");
             e.printStackTrace();
         }
     }
 
-    private static String getGenreFromSpotify(String artistName) throws IOException, InterruptedException, SQLException {
+    private static void processArtists(Connection connection) throws SQLException {
+        String selectSql = "SELECT name FROM artists WHERE spotify_id IS NULL OR popularity IS NULL OR spotify_link IS NULL";
+            try (PreparedStatement selectStatement = connection.prepareStatement(selectSql);
+                 ResultSet resultSet = selectStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                try {
+                    getArtistData(connection, resultSet.getString("name"));
+                    Thread.sleep(1000); // Rate limiting
+                    } catch (IOException | InterruptedException e) {
+                    System.err.println("Error processing artist: " + resultSet.getString("name"));
+                        e.printStackTrace();
+                    }
+            }
+        }
+    }
+
+    private static void processSongs(Connection connection) throws SQLException {
+        String selectSql = "SELECT title, artist_name FROM songs WHERE " +
+                          "spotify_id IS NULL OR popularity IS NULL OR duration_ms IS NULL OR " +
+                          "spotify_link IS NULL OR album_name IS NULL OR release_date IS NULL";
+        try (PreparedStatement selectStatement = connection.prepareStatement(selectSql);
+             ResultSet resultSet = selectStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                try {
+                    getSongData(connection, resultSet.getString("title"), resultSet.getString("artist_name"));
+                    Thread.sleep(1000); // Rate limiting
+                } catch (IOException | InterruptedException e) {
+                    System.err.println("Error processing song: " + resultSet.getString("title"));
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static void getArtistData(Connection connection, String artistName) throws IOException, InterruptedException, SQLException {
+        System.out.println("\nProcessing artist: " + artistName);
+        
+        String spotifyId = null;
+        String spotifyLink = null;
+        String imageUrl = null;
+        Integer popularity = null;
+        Set<String> genres = new HashSet<>();
+
+        // Try Spotify first
+        try {
+            SpotifyData spotifyData = getSpotifyData(artistName);
+            if (spotifyData != null) {
+                spotifyId = spotifyData.id;
+                spotifyLink = "https://open.spotify.com/artist/" + spotifyId;
+                popularity = spotifyData.popularity;
+                imageUrl = spotifyData.imageUrl;
+                genres.addAll(spotifyData.genres);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching Spotify data: " + e.getMessage());
+        }
+
+        // Try MusicBrainz and Last.fm for additional genres
+        try {
+            List<String> mbGenres = getGenresFromMusicBrainz(artistName);
+            genres.addAll(mbGenres);
+        } catch (Exception e) {
+            System.err.println("Error fetching MusicBrainz data: " + e.getMessage());
+        }
+
+        try {
+            List<String> lastfmGenres = getGenresFromLastFm(artistName);
+            genres.addAll(lastfmGenres);
+        } catch (Exception e) {
+            System.err.println("Error fetching Last.fm data: " + e.getMessage());
+        }
+
+        // Normalize and categorize genres
+        Set<String> normalizedGenres = normalizeGenres(genres);
+        
+        // Save all the data
+        saveArtistDataToDatabase(connection, artistName, spotifyId, spotifyLink, imageUrl, popularity, normalizedGenres);
+    }
+
+    private static class SpotifyData {
+        String id;
+        int popularity;
+        List<String> genres;
+        String imageUrl;
+
+        SpotifyData(String id, int popularity, List<String> genres, String imageUrl) {
+            this.id = id;
+            this.popularity = popularity;
+            this.genres = genres;
+            this.imageUrl = imageUrl;
+        }
+    }
+
+    private static SpotifyData getSpotifyData(String artistName) throws IOException, InterruptedException {
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
         HttpClient client = HttpClient.newHttpClient();
-        String query = String.format("q=artist:%s&type=artist", artistName);
+        String query = String.format("q=artist:%s&type=artist", URLEncoder.encode(artistName, StandardCharsets.UTF_8));
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(SPOTIFY_API_URL + "?" + query))
                 .header("Authorization", "Bearer " + ACCESS_TOKEN)
@@ -81,49 +170,311 @@ public class GetDataViaSpotifyAPI {
         JSONArray artists = jsonResponse.getJSONObject("artists").getJSONArray("items");
 
         if (artists.length() > 0) {
-            JSONObject artist = artists.getJSONObject(0);
-            String artistId = artist.getString("id");
-            String genre = getArtistGenre(artistId);
-            saveArtistIdToDatabase(artistName, artistId);
-            return genre;
+                    JSONObject artist = artists.getJSONObject(0);
+                    String id = artist.getString("id");
+                    int popularity = artist.getInt("popularity");
+                    
+                    // Get image URL from images array
+                    String imageUrl = null;
+                    if (artist.has("images") && artist.getJSONArray("images").length() > 0) {
+                        imageUrl = artist.getJSONArray("images").getJSONObject(0).getString("url");
+                    }
+
+                    List<String> genres = new ArrayList<>();
+                    JSONArray genreArray = artist.getJSONArray("genres");
+                    for (int i = 0; i < genreArray.length(); i++) {
+                        genres.add(genreArray.getString(i));
+                    }
+                    
+                    return new SpotifyData(id, popularity, genres, imageUrl);
+                }
+                return null;
+            } catch (Exception e) {
+                if (attempt == MAX_RETRIES) throw e;
+                Thread.sleep(RETRY_DELAY_MS * attempt);
+            }
         }
         return null;
     }
 
-    private static void saveGenreToDatabase(Connection connection, String artistName, String genre) throws SQLException {
-        String sql = "UPDATE artists SET genre = ? WHERE name = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, genre);
-            statement.setString(2, artistName);
-            statement.executeUpdate();
-        }
-    }
-
-    private static void saveArtistIdToDatabase(String artistName, String artistId) throws SQLException {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String sql = "UPDATE artists SET id = ? WHERE name = ?";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, artistId);
-                statement.setString(2, artistName);
-                statement.executeUpdate();
-            }
-        }
-    }
-
-    private static String getArtistGenre(String artistId) throws IOException, InterruptedException {
+    private static List<String> getGenresFromMusicBrainz(String artistName) throws IOException, InterruptedException {
+        List<String> genres = new ArrayList<>();
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
         HttpClient client = HttpClient.newHttpClient();
+        String query = String.format("query=artist:%s&fmt=json", URLEncoder.encode(artistName, StandardCharsets.UTF_8));
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.spotify.com/v1/artists/" + artistId))
-                .header("Authorization", "Bearer " + ACCESS_TOKEN)
+                .uri(URI.create(MUSICBRAINZ_API_URL + "?" + query))
+                .header("User-Agent", "GetDataViaSpotifyAPI/1.0 ( petrkudr2@gmail.com )")
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         JSONObject jsonResponse = new JSONObject(response.body());
-        JSONArray genres = jsonResponse.getJSONArray("genres");
-
-        if (genres.length() > 0) {
-            return String.join(", ", genres.toList().stream().map(Object::toString).toArray(String[]::new));
+        if (jsonResponse.has("artists")) {
+            JSONArray artists = jsonResponse.getJSONArray("artists");
+                    if (artists.length() > 0) {
+                        JSONObject artist = artists.getJSONObject(0);
+                        if (artist.has("tags")) {
+                            JSONArray tags = artist.getJSONArray("tags");
+                            for (int i = 0; i < tags.length(); i++) {
+                                genres.add(tags.getJSONObject(i).getString("name"));
+                            }
+                        }
+                    }
+                }
+                return genres;
+            } catch (Exception e) {
+                if (attempt == MAX_RETRIES) throw e;
+                Thread.sleep(RETRY_DELAY_MS * attempt);
+            }
         }
-        return null;
+        return genres;
+    }
+
+    private static List<String> getGenresFromLastFm(String artistName) throws IOException, InterruptedException {
+        List<String> genres = new ArrayList<>();
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                String query = String.format("method=artist.getinfo&artist=%s&api_key=%s&format=json",
+                        URLEncoder.encode(artistName, StandardCharsets.UTF_8),
+                        LASTFM_API_KEY);
+                
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(LASTFM_API_URL + "?" + query))
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                JSONObject jsonResponse = new JSONObject(response.body());
+                
+                if (jsonResponse.has("artist") && !jsonResponse.isNull("artist")) {
+                    JSONObject artist = jsonResponse.getJSONObject("artist");
+                    if (artist.has("tags") && !artist.isNull("tags")) {
+                        JSONObject tags = artist.getJSONObject("tags");
+                        if (tags.has("tag")) {
+                            JSONArray tagArray = tags.getJSONArray("tag");
+                            for (int i = 0; i < tagArray.length(); i++) {
+                                genres.add(tagArray.getJSONObject(i).getString("name"));
+                            }
+                        }
+                    }
+                }
+                return genres;
+            } catch (Exception e) {
+                if (attempt == MAX_RETRIES) throw e;
+                Thread.sleep(RETRY_DELAY_MS * attempt);
+            }
+        }
+        return genres;
+    }
+
+    private static Set<String> normalizeGenres(Set<String> genres) {
+        return GenreMapper.normalizeGenres(genres);
+    }
+
+    private static void saveArtistDataToDatabase(Connection connection, String artistName, 
+            String spotifyId, String spotifyLink, String imageUrl, Integer popularity, Set<String> genres) 
+            throws SQLException {
+        // Update main artist record
+        String mainSql = "UPDATE artists SET spotify_id = ?, spotify_link = ?, image_url = ?, popularity = ? WHERE name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(mainSql)) {
+            statement.setObject(1, spotifyId);
+            statement.setObject(2, spotifyLink);
+            statement.setObject(3, imageUrl);
+            statement.setObject(4, popularity);
+            statement.setString(5, artistName);
+            statement.executeUpdate();
+        }
+
+        // Handle genres with genre categories
+        if (!genres.isEmpty()) {
+            // Delete existing genres
+            String deleteSql = "DELETE FROM artist_genres WHERE artist_name = ?";
+            try (PreparedStatement statement = connection.prepareStatement(deleteSql)) {
+                statement.setString(1, artistName);
+                statement.executeUpdate();
+            }
+
+            // Insert new genres and ensure they exist in genre_categories
+            String insertGenreCatSql = "INSERT INTO genre_categories (genre) VALUES (?) ON CONFLICT (genre) DO NOTHING";
+            String insertArtistGenreSql = "INSERT INTO artist_genres (artist_name, genre) VALUES (?, ?)";
+            
+            try (PreparedStatement genreCatStmt = connection.prepareStatement(insertGenreCatSql);
+                 PreparedStatement artistGenreStmt = connection.prepareStatement(insertArtistGenreSql)) {
+                
+                for (String genre : genres) {
+                    // Ensure genre exists in genre_categories
+                    genreCatStmt.setString(1, genre);
+                    genreCatStmt.addBatch();
+
+                    // Add to artist_genres
+                    artistGenreStmt.setString(1, artistName);
+                    artistGenreStmt.setString(2, genre);
+                    artistGenreStmt.addBatch();
+                }
+                
+                genreCatStmt.executeBatch();
+                artistGenreStmt.executeBatch();
+            }
+        }
+
+        System.out.println("Artist data saved for: " + artistName + 
+                          (spotifyId != null ? " (Spotify ID found)" : "") +
+                          (imageUrl != null ? " (Image found)" : "") +
+                          (popularity != null ? " (popularity: " + popularity + ")" : "") +
+                          (!genres.isEmpty() ? " (genres: " + String.join(", ", genres) + ")" : ""));
+    }
+
+    private static void getSongData(Connection connection, String title, String artistName) 
+            throws IOException, InterruptedException, SQLException {
+        System.out.println("\nProcessing song: " + title + " by " + artistName);
+        
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                String query = String.format("q=track:%s artist:%s&type=track", 
+                    URLEncoder.encode(title, StandardCharsets.UTF_8),
+                    URLEncoder.encode(artistName, StandardCharsets.UTF_8));
+                
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(SPOTIFY_API_URL + "?" + query))
+                        .header("Authorization", "Bearer " + ACCESS_TOKEN)
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                JSONObject jsonResponse = new JSONObject(response.body());
+                JSONArray tracks = jsonResponse.getJSONObject("tracks").getJSONArray("items");
+
+                if (tracks.length() > 0) {
+                    JSONObject track = tracks.getJSONObject(0);
+                    String trackId = track.getString("id");
+                    String spotifyLink = "https://open.spotify.com/track/" + trackId;
+                    int popularity = track.getInt("popularity");
+                    int durationMs = track.getInt("duration_ms");
+                    boolean isExplicit = track.getBoolean("explicit");
+                    String previewUrl = track.isNull("preview_url") ? null : track.getString("preview_url");
+                    
+                    // Get album info
+                    JSONObject album = track.getJSONObject("album");
+                    String albumName = album.getString("name");
+                    String releaseDate = album.getString("release_date");
+                    
+                    // Get image URL
+                    String imageUrl = null;
+                    if (album.has("images") && album.getJSONArray("images").length() > 0) {
+                        imageUrl = album.getJSONArray("images").getJSONObject(0).getString("url");
+                    }
+
+                    saveSongDataToDatabase(connection, title, artistName, trackId, spotifyLink, 
+                        popularity, durationMs, isExplicit, previewUrl, albumName, releaseDate, imageUrl);
+                    
+                    // Get and save audio features if needed
+                    // saveAudioFeatures(connection, trackId);
+                } else {
+                    System.out.println("No song found on Spotify: " + title + " by " + artistName);
+                    saveSongDataToDatabase(connection, title, artistName, null, null, 
+                        null, null, null, null, null, null, null);
+                }
+                return;
+            } catch (Exception e) {
+                if (attempt == MAX_RETRIES) throw e;
+                Thread.sleep(RETRY_DELAY_MS * attempt);
+            }
+        }
+    }
+
+    private static void saveSongDataToDatabase(Connection connection, String title, String artistName,
+            String spotifyId, String spotifyLink, Integer popularity, Integer durationMs, 
+            Boolean isExplicit, String previewUrl, String albumName, String releaseDate, String imageUrl) 
+            throws SQLException {
+        String sql = "UPDATE songs SET spotify_id = ?, spotify_link = ?, popularity = ?, " +
+                    "duration_ms = ?, is_explicit = ?, preview_url = ?, " +
+                    "album_name = ?, release_date = ?, image_url = ? " +
+                    "WHERE title = ? AND artist_name = ?";
+        
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setObject(1, spotifyId);
+            statement.setObject(2, spotifyLink);
+            statement.setObject(3, popularity);
+            statement.setObject(4, durationMs);
+            statement.setObject(5, isExplicit);
+            statement.setObject(6, previewUrl);
+            statement.setObject(7, albumName);
+            statement.setObject(8, releaseDate);
+            statement.setObject(9, imageUrl);
+            statement.setString(10, title);
+            statement.setString(11, artistName);
+            statement.executeUpdate();
+        }
+
+        System.out.println("Song data saved for: " + title + " by " + artistName +
+                          (spotifyId != null ? " (Spotify ID found)" : "") +
+                          (popularity != null ? " (popularity: " + popularity + ")" : "") +
+                          (durationMs != null ? " (duration: " + durationMs/1000 + "s)" : "") +
+                          (albumName != null ? " (album: " + albumName + ")" : ""));
+    }
+
+    private static void ensureDatabaseSchema(Connection connection) throws SQLException {
+        // Check if genre_categories table exists and create if not
+        String createGenreCategoriesTable = """
+            CREATE TABLE IF NOT EXISTS genre_categories (
+                genre varchar(255) PRIMARY KEY,
+                parent_genre varchar(255),
+                category varchar(255),
+                CONSTRAINT valid_parent_genre FOREIGN KEY (parent_genre) 
+                REFERENCES genre_categories(genre)
+            )""";
+
+        // Check if artist_genres table exists and create if not
+        String createArtistGenresTable = """
+            CREATE TABLE IF NOT EXISTS artist_genres (
+                artist_name varchar(255),
+                genre varchar(255),
+                PRIMARY KEY (artist_name, genre),
+                FOREIGN KEY (genre) REFERENCES genre_categories(genre)
+            )""";
+
+        // Add new columns to artists table if they don't exist
+        String alterArtistsTable = """
+            DO $$ 
+            BEGIN 
+                BEGIN
+                    ALTER TABLE artists ADD COLUMN IF NOT EXISTS spotify_link text;
+                    ALTER TABLE artists ADD COLUMN IF NOT EXISTS image_url text;
+                EXCEPTION WHEN OTHERS THEN 
+                    NULL;
+                END;
+            END $$;
+            """;
+
+        // Add new columns to songs table if they don't exist
+        String alterSongsTable = """
+            DO $$ 
+            BEGIN 
+                BEGIN
+                    ALTER TABLE songs ADD COLUMN IF NOT EXISTS spotify_link text;
+                    ALTER TABLE songs ADD COLUMN IF NOT EXISTS album_name text;
+                    ALTER TABLE songs ADD COLUMN IF NOT EXISTS release_date date;
+                    ALTER TABLE songs ADD COLUMN IF NOT EXISTS is_explicit boolean;
+                    ALTER TABLE songs ADD COLUMN IF NOT EXISTS preview_url text;
+                    ALTER TABLE songs ADD COLUMN IF NOT EXISTS image_url text;
+                EXCEPTION WHEN OTHERS THEN 
+                    NULL;
+                END;
+            END $$;
+            """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(createGenreCategoriesTable)) {
+            stmt.execute();
+        }
+        try (PreparedStatement stmt = connection.prepareStatement(createArtistGenresTable)) {
+            stmt.execute();
+        }
+        try (PreparedStatement stmt = connection.prepareStatement(alterArtistsTable)) {
+            stmt.execute();
+        }
+        try (PreparedStatement stmt = connection.prepareStatement(alterSongsTable)) {
+            stmt.execute();
+        }
     }
 }
