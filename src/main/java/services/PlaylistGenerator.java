@@ -51,4 +51,25 @@ public class PlaylistGenerator {
         // Implementation
         return new Playlist();
     }
-}
+
+    private List<Song> fetchSongsByGenre(String genre) {
+        List<Song> songs = new ArrayList<>();
+        String sql = "SELECT title, artist, genre FROM songs WHERE genre = ?"; //fetch the songs from the databass
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, genre);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String title = resultSet.getString("title");
+                String artist = resultSet.getString("artist");
+                String genreFromDB = resultSet.getString("genre");
+                songs.add(new Song(title, artist, genreFromDB));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return songs;
+    }
+} 
