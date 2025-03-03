@@ -1,35 +1,55 @@
 package services;
 
-import models.User;
-import models.Song;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import models.UserMusicData;
+import models.Playlist;
+import models.PlaylistPreferences;
 
 public class PlaylistGenerator {
-    private Connection connection;
 
-    
-    public PlaylistGenerator(Connection connection) {
-        this.connection = connection;
+    public Playlist generatePlaylist(UserMusicData userData, PlaylistPreferences preferences) {
+        // Generate based on available data
+        if (!userData.getPlayHistory().isEmpty()) {
+            return generateFromHistory(userData, preferences);
+        } else if (!userData.getSongs().isEmpty()) {
+            return generateFromSongs(userData, preferences);
+        } else if (!userData.getArtists().isEmpty()) {
+            return generateFromArtists(userData, preferences);
+        }
+        
+        return generateFromUserInput(preferences);
     }
 
-    public List<Song> generatePlaylist(User user) { //creates an empty list to store everything
-        List<Song> playlist = new ArrayList<>();
-        Random random = new Random(); //random selection
+    private Playlist generateFromHistory(UserMusicData userData, PlaylistPreferences prefs) {
+        // Analyze play history patterns
+        // Consider:
+        // 1. Most played artists/songs
+        // 2. Time of day preferences
+        // 3. Genre distribution
+        // 4. Recent vs old plays
+        return new Playlist();
+    }
 
-        for (String genre : user.getFavoriteGenres()) {
-            List<Song> genreSongs = fetchSongsByGenre(genre); //loop through all the favorite songs of the user
-            
-            if (!genreSongs.isEmpty()) {
-                
-                Song randomSong = genreSongs.get(random.nextInt(genreSongs.size())); //pick a random song from the genre that listner prefurs
-                playlist.add(randomSong);
-            }
-        }
-        return playlist;
+    private Playlist generateFromSongs(UserMusicData userData, PlaylistPreferences prefs) {
+        // Use available song data to find similar songs
+        // Consider:
+        // 1. Genre matching
+        // 2. Popularity ranges
+        // 3. Audio features if available
+        return new Playlist();
+    }
+
+    private Playlist generateFromArtists(UserMusicData userData, PlaylistPreferences prefs) {
+        // Use artist data to find similar artists and their songs
+        // Consider:
+        // 1. Genre overlap
+        // 2. Popularity ranges
+        // 3. Related artists from Spotify
+        return new Playlist();
+    }
+
+    private Playlist generateFromUserInput(PlaylistPreferences prefs) {
+        // Implementation
+        return new Playlist();
     }
 
     private List<Song> fetchSongsByGenre(String genre) {

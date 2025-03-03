@@ -37,8 +37,6 @@ public class SpotifyAccessToken {
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (Scanner scanner = new Scanner(connection.getInputStream())) {
                 String responseBody = scanner.useDelimiter("\\A").next();
-                // Extract the access token from the response body
-                // Assuming the response is in JSON format
                 String accessToken = responseBody.split("\"access_token\":\"")[1].split("\"")[0];
                 return accessToken;
             }
