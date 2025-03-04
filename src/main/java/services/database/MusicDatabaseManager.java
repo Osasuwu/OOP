@@ -214,7 +214,7 @@ public class MusicDatabaseManager {
 
     public List<Map<String, Object>> getRecommendedSongs(int limit) throws SQLException {
         if (!isOnline) {
-            return getRecommendedSongsFromCache(limit);
+            return offlineManager.getRecommendedSongs(limit);
         }
 
         String sql = """
@@ -302,7 +302,7 @@ public class MusicDatabaseManager {
 
     public List<Map<String, Object>> getSimilarArtists(String artistName, int limit) throws SQLException {
         if (!isOnline) {
-            return getSimilarArtistsFromCache(artistName, limit);
+            return offlineManager.getSimilarArtists(artistName, limit);
         }
 
         String sql = """
