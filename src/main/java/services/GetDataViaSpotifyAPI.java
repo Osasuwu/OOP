@@ -18,6 +18,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import utils.SpotifyAccessToken;
 import utils.GenreMapper;
+import java.io.File;
+import java.io.FileWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
 
 // This class is responsible for fetching essential artist and song data for playlist generation
 public class GetDataViaSpotifyAPI {
@@ -29,6 +34,12 @@ public class GetDataViaSpotifyAPI {
     private static final String ACCESS_TOKEN;
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 1000;
+    private static final String OFFLINE_CACHE_DIR = "offline_cache";
+    private static final String ARTISTS_CACHE_FILE = "artists_cache.json";
+    private static final String SONGS_CACHE_FILE = "songs_cache.json";
+    private static final String LOCAL_DB_FILE = "local_music_data.json";
+    private static boolean isOnline = true;
+    private static JSONObject localDatabase;
 
     // Fetch Spotify access token
     static {
@@ -47,17 +58,141 @@ public class GetDataViaSpotifyAPI {
     private static final String DB_PASSWORD = "BS1l7MtXTDZ2pfd5";
 
     public static void main(String[] args) {
+        // Create offline cache directory if it doesn't exist
+        createOfflineCacheDirectory();
+        
+        // Load or initialize local database
+        loadLocalDatabase();
+        
+        // Check internet connectivity
+        isOnline = checkInternetConnectivity();
+        
+        if (isOnline) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            // Ensure database schema is up to date
-            ensureDatabaseSchema(connection);
-            
-            // Process data
-            processArtists(connection);
-            processSongs(connection);
-        } catch (SQLException e) {
-            System.err.println("Database connection error");
-            e.printStackTrace();
+                // Online mode - sync with server and update local cache
+                syncWithServer(connection);
+                saveToOfflineCache();
+            } catch (SQLException e) {
+                System.err.println("Database connection error");
+                e.printStackTrace();
+            }
+        } else {
+            // Offline mode - use local data only
+            System.out.println("Working in offline mode. Using local data...");
+            processLocalData();
         }
+    }
+
+    private static void createOfflineCacheDirectory() {
+        File cacheDir = new File(OFFLINE_CACHE_DIR);
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs();
+        }
+    }
+
+    private static boolean checkInternetConnectivity() {
+        try {
+            URL url = new URL("https://api.spotify.com");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            int responseCode = connection.getResponseCode();
+            connection.disconnect();
+            return responseCode == 200;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static void loadLocalDatabase() {
+        File localDbFile = new File(OFFLINE_CACHE_DIR, LOCAL_DB_FILE);
+        if (localDbFile.exists()) {
+            try {
+                String content = new String(Files.readAllBytes(localDbFile.toPath()));
+                localDatabase = new JSONObject(content);
+            } catch (Exception e) {
+                System.err.println("Error loading local database: " + e.getMessage());
+                localDatabase = new JSONObject();
+            }
+        } else {
+            localDatabase = new JSONObject();
+            localDatabase.put("artists", new JSONObject());
+            localDatabase.put("songs", new JSONObject());
+        }
+    }
+
+    private static void saveLocalDatabase() {
+        try (FileWriter writer = new FileWriter(new File(OFFLINE_CACHE_DIR, LOCAL_DB_FILE))) {
+            writer.write(localDatabase.toString(2));
+        } catch (Exception e) {
+            System.err.println("Error saving local database: " + e.getMessage());
+        }
+    }
+
+    private static void syncWithServer(Connection connection) throws SQLException {
+        // Sync artists
+        String artistSql = "SELECT name, spotify_id, spotify_link, image_url, popularity FROM artists";
+        try (PreparedStatement stmt = connection.prepareStatement(artistSql);
+             ResultSet rs = stmt.executeQuery()) {
+            JSONObject artists = localDatabase.getJSONObject("artists");
+            while (rs.next()) {
+                JSONObject artist = new JSONObject();
+                artist.put("name", rs.getString("name"));
+                artist.put("spotify_id", rs.getString("spotify_id"));
+                artist.put("spotify_link", rs.getString("spotify_link"));
+                artist.put("image_url", rs.getString("image_url"));
+                artist.put("popularity", rs.getInt("popularity"));
+                artists.put(rs.getString("name"), artist);
+            }
+        }
+
+        // Sync songs
+        String songSql = "SELECT title, artist_name, spotify_id, spotify_link, popularity, duration_ms, album_name, release_date FROM songs";
+        try (PreparedStatement stmt = connection.prepareStatement(songSql);
+             ResultSet rs = stmt.executeQuery()) {
+            JSONObject songs = localDatabase.getJSONObject("songs");
+            while (rs.next()) {
+                JSONObject song = new JSONObject();
+                song.put("title", rs.getString("title"));
+                song.put("artist_name", rs.getString("artist_name"));
+                song.put("spotify_id", rs.getString("spotify_id"));
+                song.put("spotify_link", rs.getString("spotify_link"));
+                song.put("popularity", rs.getInt("popularity"));
+                song.put("duration_ms", rs.getInt("duration_ms"));
+                song.put("album_name", rs.getString("album_name"));
+                song.put("release_date", rs.getString("release_date"));
+                songs.put(rs.getString("title") + "|" + rs.getString("artist_name"), song);
+            }
+        }
+
+        saveLocalDatabase();
+    }
+
+    private static void processLocalData() {
+        // Process artists from local database
+        JSONObject artists = localDatabase.getJSONObject("artists");
+        for (String artistName : artists.keySet()) {
+            JSONObject artist = artists.getJSONObject(artistName);
+            if (artist.isNull("spotify_id") || artist.isNull("popularity") || artist.isNull("spotify_link")) {
+                System.out.println("Artist needs updating: " + artistName);
+                // Mark for update when online
+                artist.put("needs_update", true);
+            }
+        }
+
+        // Process songs from local database
+        JSONObject songs = localDatabase.getJSONObject("songs");
+        for (String key : songs.keySet()) {
+            JSONObject song = songs.getJSONObject(key);
+            if (song.isNull("spotify_id") || song.isNull("popularity") || song.isNull("duration_ms")) {
+                System.out.println("Song needs updating: " + song.getString("title"));
+                // Mark for update when online
+                song.put("needs_update", true);
+            }
+        }
+
+        saveLocalDatabase();
     }
 
     private static void processArtists(Connection connection) throws SQLException {
@@ -73,8 +208,8 @@ public class GetDataViaSpotifyAPI {
                     System.err.println("Error processing artist: " + resultSet.getString("name"));
                         e.printStackTrace();
                     }
+                }
             }
-        }
     }
 
     private static void processSongs(Connection connection) throws SQLException {
@@ -90,15 +225,20 @@ public class GetDataViaSpotifyAPI {
                     Thread.sleep(1000); // Rate limiting
                 } catch (IOException | InterruptedException e) {
                     System.err.println("Error processing song: " + resultSet.getString("title"));
-                    e.printStackTrace();
-                }
-            }
+            e.printStackTrace();
+        }
+    }
         }
     }
 
     private static void getArtistData(Connection connection, String artistName) throws IOException, InterruptedException, SQLException {
         System.out.println("\nProcessing artist: " + artistName);
         
+        if (!isOnline) {
+            System.out.println("Offline mode: Using local data for artist: " + artistName);
+            return;
+        }
+
         String spotifyId = null;
         String spotifyLink = null;
         String imageUrl = null;
@@ -292,8 +432,8 @@ public class GetDataViaSpotifyAPI {
             String deleteSql = "DELETE FROM artist_genres WHERE artist_name = ?";
             try (PreparedStatement statement = connection.prepareStatement(deleteSql)) {
                 statement.setString(1, artistName);
-                statement.executeUpdate();
-            }
+            statement.executeUpdate();
+        }
 
             // Insert new genres and ensure they exist in genre_categories
             String insertGenreCatSql = "INSERT INTO genre_categories (genre) VALUES (?) ON CONFLICT (genre) DO NOTHING";
@@ -329,6 +469,11 @@ public class GetDataViaSpotifyAPI {
             throws IOException, InterruptedException, SQLException {
         System.out.println("\nProcessing song: " + title + " by " + artistName);
         
+        if (!isOnline) {
+            System.out.println("Offline mode: Using local data for song: " + title);
+            return;
+        }
+
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 HttpClient client = HttpClient.newHttpClient();
