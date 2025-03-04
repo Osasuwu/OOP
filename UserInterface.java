@@ -1,4 +1,3 @@
-ن‌‌‌ج, [3/4/2025 9:33 AM]
 package com.spotifyapp;
 
 import java.util.*;
@@ -118,7 +117,6 @@ public class UserInterface {
         System.out.println("Playlist '" + newPlaylist + "' created successfully.");
     }
 
-ن‌‌‌ج, [3/4/2025 9:33 AM]
 private void addSongToPlaylist() {
         System.out.print("Enter playlist name: ");
         String playlistName = scanner.nextLine();
@@ -195,7 +193,8 @@ private void addSongToPlaylist() {
 }
 
 
-ن‌‌‌ج, [3/4/2025 9:33 AM]
+
+
 import java.io.*;
 import java.util.*;
 
@@ -310,7 +309,6 @@ public class SpotifyCLI {
         }
     }
 
-ن‌‌‌ج, [3/4/2025 9:33 AM]
 private static void loadUsers() {
         try (BufferedReader reader = new BufferedReader(new FileReader(USERS_FILE))) {
             String line;
