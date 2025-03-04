@@ -367,6 +367,7 @@ public class GetDataViaSpotifyAPI {
                 if (attempt == MAX_RETRIES) throw e;
                 Thread.sleep(RETRY_DELAY_MS * attempt);
             }
+
         }
         return genres;
     }
