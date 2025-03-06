@@ -1,6 +1,11 @@
 package interfaces;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 public class UserInterface {
     private final Scanner scanner;
@@ -181,31 +186,11 @@ private void addSongToPlaylist() {
             }
         }
 
-        if (!found) {
-            System.out.println("Song not found in any playlist.");
-        }
-    }
-
     public static void main(String[] args) {
         UserInterface ui = new UserInterface();
         ui.start();
     }
 }
-
-
-
-
-import java.io.*;
-import java.util.*;
-
-class User {
-    String username;
-    String password;
-    List<String> playlists;
-
-    User(String username, String password) {
-        this.username = username;
-        this.password = password;
         this.playlists = new ArrayList<>();
     }
 }
