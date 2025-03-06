@@ -1,4 +1,4 @@
-package com.spotifyapp;
+package interfaces;
 
 import java.util.*;
 

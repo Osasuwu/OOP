@@ -1,4 +1,4 @@
-package com.spotify;
+
 
 import com.spotify.auth.AuthManager;
 

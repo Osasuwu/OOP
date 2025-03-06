@@ -1,4 +1,4 @@
-package com.spotify.auth;
+package utils;
 
 import java.security.SecureRandom;
 import java.util.Base64;
