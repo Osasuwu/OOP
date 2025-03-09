@@ -34,7 +34,7 @@ public class MusicBrainzAPIManager {
                 
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(MUSICBRAINZ_API_URL + ARTIST_ENDPOINT + "?" + query))
-                    .header("User-Agent", "PlaylistGeneratorApp/1.0 (petrkudr2@gmail.com"))
+                    .header("User-Agent", "PlaylistGeneratorApp/1.0 (petrkudr2@gmail.com")
                     .GET()
                     .build();
                 

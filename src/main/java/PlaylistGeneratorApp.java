@@ -1,10 +1,11 @@
-import services.database.MusicDatabaseManager;
-import services.offline.OfflineDataManager;
-import services.api.SpotifyAPIManager;
-import services.api.MusicBrainzAPIManager;
-import services.api.LastFmAPIManager;
-import utils.GenreMapper;
-import utils.SpotifyAccessToken;
+import services.*;
+import services.api.*;
+import services.database.*;
+import services.datasources.*;
+import services.offline.*;
+import services.output.*;
+import services.ui.*;
+import utils.*;
 import java.util.*;
 
 public class PlaylistGeneratorApp {
@@ -15,6 +16,7 @@ public class PlaylistGeneratorApp {
     private final LastFmAPIManager lastFmManager;
     private final GenreMapper genreMapper;
     private final String userId;
+    private final UserInterface userInterface;
     private boolean isOnline;
 
     public PlaylistGeneratorApp(String userId) {
@@ -30,6 +32,26 @@ public class PlaylistGeneratorApp {
         this.spotifyManager = new SpotifyAPIManager();
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
+        this.userInterface = new UserInterface();
+    }
+
+    public static void main(String[] args) {
+        // Example usage
+        String userId = "user123"; // Replace with actual user ID
+        PlaylistGeneratorApp app = new PlaylistGeneratorApp(userId);
+        
+        // Generate a playlist
+        app.generatePlaylist("My Playlist", 20);
+        
+        // Update user preferences
+        Map<String, Object> preferences = new HashMap<>();
+        preferences.put("favorite_genres", new String[]{"rock", "pop"});
+        preferences.put("favorite_artists", new String[]{"The Beatles", "Queen"});
+        preferences.put("preferred_energy", 0.8);
+        app.updateUserPreferences(preferences);
+        
+        // Sync offline data when back online
+        app.syncOfflineData();
     }
 
     private boolean checkInternetConnectivity() {
@@ -185,23 +207,4 @@ public class PlaylistGeneratorApp {
             }
         }
     }
-
-    public static void main(String[] args) {
-        // Example usage
-        String userId = "user123"; // Replace with actual user ID
-        PlaylistGeneratorApp app = new PlaylistGeneratorApp(userId);
-        
-        // Generate a playlist
-        app.generatePlaylist("My Playlist", 20);
-        
-        // Update user preferences
-        Map<String, Object> preferences = new HashMap<>();
-        preferences.put("favorite_genres", new String[]{"rock", "pop"});
-        preferences.put("favorite_artists", new String[]{"The Beatles", "Queen"});
-        preferences.put("preferred_energy", 0.8);
-        app.updateUserPreferences(preferences);
-        
-        // Sync offline data when back online
-        app.syncOfflineData();
-    }
-} 
+}
