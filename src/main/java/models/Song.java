@@ -4,31 +4,94 @@ import java.util.List;
 
 public class Song {
     private String title;
-    private String artist;
-    private String filePath;
+    private String artistName;
+    private String album;
+    private long durationMs;
+    private int playCount;
     private String spotifyId;
-    private Integer duration;
-    private Integer popularity;
+    private String imageUrl;
+    private int popularity;
     private List<String> genres;
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public Song(String title, String artistName) {
+        this.title = title;
+        this.artistName = artistName;
+    }
 
-    public String getArtist() { return artist; }
-    public void setArtist(String artist) { this.artist = artist; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getFilePath() { return filePath; }
-    public void setFilePath(String filePath) { this.filePath = filePath; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public String getSpotifyId() { return spotifyId; }
-    public void setSpotifyId(String spotifyId) { this.spotifyId = spotifyId; }
+    public String getArtistName() {
+        return artistName;
+    }
 
-    public Integer getDuration() { return duration; }
-    public void setDuration(Integer duration) { this.duration = duration; }
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
 
-    public Integer getPopularity() { return popularity; }
-    public void setPopularity(Integer popularity) { this.popularity = popularity; }
+    public String getAlbum() {
+        return album;
+    }
 
-    public List<String> getGenres() { return genres; }
-    public void setGenres(List<String> genres) { this.genres = genres; }
-} 
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
+    public long getDurationMs() {
+        return durationMs;
+    }
+
+    public void setDurationMs(long durationMs) {
+        this.durationMs = durationMs;
+    }
+
+    public int getPlayCount() {
+        return playCount;
+    }
+
+    public void setPlayCount(int playCount) {
+        this.playCount = playCount;
+    }
+
+    public String getSpotifyId() {
+        return spotifyId;
+    }
+
+    public void setSpotifyId(String spotifyId) {
+        this.spotifyId = spotifyId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public int getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(int popularity) {
+        this.popularity = popularity;
+    }
+
+    public List<String> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
+    @Override
+    public String toString() {
+        return title + " by " + artistName;
+    }
+}
