@@ -61,6 +61,10 @@ public class Artist {
         }
     }
 
+    public void setId(String spotifyId) {
+        this.spotifyId = spotifyId;
+    }
+
     @Override
     public String toString() {
         return name;

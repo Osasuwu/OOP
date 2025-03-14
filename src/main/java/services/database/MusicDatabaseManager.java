@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+
+import models.UserMusicData;
 import services.database.OfflineDataManager;
 
 public class MusicDatabaseManager {
@@ -64,5 +66,25 @@ public class MusicDatabaseManager {
             }
         }
         return new HashMap<>();
+    }
+
+    public void saveUserData(UserMusicData userData) throws SQLException {
+        if (!isOnline) {
+            offlineManager.saveUserData(userData);
+            return;
+        }
+
+        String sql = """
+            INSERT INTO user_data (user_id, data)
+            VALUES (?, ?)
+            ON CONFLICT (user_id) DO UPDATE SET data = EXCLUDED.data
+        """;
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, userId);
+            stmt.setObject(2, userData);
+            stmt.executeUpdate();
+        }
     }
 }

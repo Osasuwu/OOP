@@ -9,6 +9,7 @@ public class Song {
     private long durationMs;
     private int playCount;
     private String spotifyId;
+    private String ArtistSpotifyId;
     private String imageUrl;
     private int popularity;
     private List<String> genres;
@@ -33,6 +34,15 @@ public class Song {
     public void setArtistName(String artistName) {
         this.artistName = artistName;
     }
+
+    public void setArtist(Artist artist) {
+        this.artistName = artist.getName();
+        this.ArtistSpotifyId = artist.getSpotifyId();
+        this.popularity = artist.getPopularity();
+        this.imageUrl = artist.getImageUrl();
+        this.genres = artist.getGenres();
+    } 
+    
 
     public String getAlbum() {
         return album;

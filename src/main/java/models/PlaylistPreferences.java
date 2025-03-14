@@ -1,27 +1,72 @@
 package models;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * User preferences for playlist generation
+ */
 public class PlaylistPreferences {
-    private List<String> preferredGenres = new ArrayList<>();
-    private Integer minPopularity;
-    private Integer maxPopularity;
-    private Integer targetDuration;
-    private Integer songCount;
+    private String name;
+    private int songCount;
+    private List<String> genres;
+    private List<String> excludeArtists;
+    private PlaylistParameters.PlaylistSelectionStrategy selectionStrategy;
+    
+    public PlaylistPreferences() {
+        this.name = "New Playlist";
+        this.songCount = 20;
+        this.genres = new ArrayList<>();
+        this.excludeArtists = new ArrayList<>();
+        this.selectionStrategy = PlaylistParameters.PlaylistSelectionStrategy.BALANCED;
+    }
+    
+    // Constructor from PlaylistParameters
+    public PlaylistPreferences(PlaylistParameters params) {
+        this.name = params.getName();
+        this.songCount = params.getSongCount();
+        this.genres = new ArrayList<>(params.getGenres());
+        this.excludeArtists = new ArrayList<>(params.getExcludeArtists());
+        this.selectionStrategy = params.getSelectionStrategy();
+    }
 
-    public List<String> getPreferredGenres() { return preferredGenres; }
-    public void setPreferredGenres(List<String> preferredGenres) { this.preferredGenres = preferredGenres; }
+    public String getName() {
+        return name;
+    }
 
-    public Integer getMinPopularity() { return minPopularity; }
-    public void setMinPopularity(Integer minPopularity) { this.minPopularity = minPopularity; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public Integer getMaxPopularity() { return maxPopularity; }
-    public void setMaxPopularity(Integer maxPopularity) { this.maxPopularity = maxPopularity; }
+    public int getSongCount() {
+        return songCount;
+    }
 
-    public Integer getTargetDuration() { return targetDuration; }
-    public void setTargetDuration(Integer targetDuration) { this.targetDuration = targetDuration; }
+    public void setSongCount(int songCount) {
+        this.songCount = songCount;
+    }
 
-    public Integer getSongCount() { return songCount; }
-    public void setSongCount(Integer songCount) { this.songCount = songCount; }
-} 
+    public List<String> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
+    public List<String> getExcludeArtists() {
+        return excludeArtists;
+    }
+
+    public void setExcludeArtists(List<String> excludeArtists) {
+        this.excludeArtists = excludeArtists;
+    }
+
+    public PlaylistParameters.PlaylistSelectionStrategy getSelectionStrategy() {
+        return selectionStrategy;
+    }
+
+    public void setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy selectionStrategy) {
+        this.selectionStrategy = selectionStrategy;
+    }
+}
