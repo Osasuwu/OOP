@@ -1,7 +1,6 @@
 package services;
 import services.api.*;
 import services.database.*;
-import services.datasources.*;
 import services.output.*;
 import services.ui.*;
 import models.*;
@@ -18,14 +17,16 @@ public class PlaylistGeneratorApp {
     private final GenreMapper genreMapper;
     private final String userId;
     private final UserInterface userInterface;
+    private final PlaylistGenerator playlistGenerator;
     private boolean isOnline;
 
     public PlaylistGeneratorApp(String userId) {
         this.userId = userId;
         this.genreMapper = new GenreMapper();
+        this.playlistGenerator = new PlaylistGenerator();
         
         // Check internet connectivity
-        this.isOnline = checkInternetConnectivity();
+        this.isOnline = checkInternetConnectivity(); //done
         
         // Initialize managers
         this.dbManager = new MusicDatabaseManager(isOnline, userId);
@@ -34,25 +35,6 @@ public class PlaylistGeneratorApp {
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
         this.userInterface = new UserInterface();
-    }
-
-    public static void main(String[] args) {
-        // Example usage
-        String userId = "user123"; // Replace with actual user ID
-        PlaylistGeneratorApp app = new PlaylistGeneratorApp(userId);
-        
-        // Generate a playlist
-        app.generatePlaylist("My Playlist", 20);
-        
-        // Update user preferences
-        Map<String, Object> preferences = new HashMap<>();
-        preferences.put("favorite_genres", new String[]{"rock", "pop"});
-        preferences.put("favorite_artists", new String[]{"The Beatles", "Queen"});
-        preferences.put("preferred_energy", 0.8);
-        app.updateUserPreferences(preferences);
-        
-        // Sync offline data when back online
-        app.syncOfflineData();
     }
 
     private boolean checkInternetConnectivity() {
@@ -67,7 +49,52 @@ public class PlaylistGeneratorApp {
     }
 
     public void generatePlaylist(PlaylistParameters params) {
-        //implementation
+        try {
+            // Retrieve user data
+            UserMusicData userData;
+            if (isOnline) {
+                userData = dbManager.getUserData(userId);
+            } else {
+                userData = offlineManager.getUserData(userId);
+            }
+            
+            // Convert parameters to playlist preferences
+            PlaylistPreferences preferences = convertToPreferences(params);
+            
+            // Generate playlist using the generator
+            Playlist playlist = playlistGenerator.generatePlaylist(userData, preferences);
+            
+            // Create the playlist in Spotify or save locally
+            createPlaylist(playlist.getName(), convertPlaylistToSongMaps(playlist));
+            
+            System.out.println("Playlist generated successfully!");
+        } catch (Exception e) {
+            System.err.println("Error generating playlist: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private PlaylistPreferences convertToPreferences(PlaylistParameters params) {
+        PlaylistPreferences prefs = new PlaylistPreferences();
+        prefs.setName(params.getPlaylistName());
+        prefs.setSongCount(params.getSongCount());
+        prefs.setGenres(params.getGenres());
+        prefs.setExcludeArtists(params.getExcludedArtists());
+        // Set other parameters as needed
+        return prefs;
+    }
+    
+    private List<Map<String, Object>> convertPlaylistToSongMaps(Playlist playlist) {
+        List<Map<String, Object>> songMaps = new ArrayList<>();
+        for (Song song : playlist.getSongs()) {
+            Map<String, Object> songMap = new HashMap<>();
+            songMap.put("name", song.getTitle());
+            songMap.put("artist", song.getArtistName());
+            songMap.put("id", song.getId());
+            // Add other properties as needed
+            songMaps.add(songMap);
+        }
+        return songMaps;
     }
 
     private List<Map<String, Object>> getSongsFromSimilarArtists(Map<String, Object> userPrefs, int count) throws Exception {
