@@ -12,6 +12,6 @@ It's written in java/maven
 
 For reviewing:
 Documentation: https://docs.google.com/document/d/1HmiU3K5FwmotXQXvEziftxJVFBoebTi-P-WMv3ZpfZc/edit?usp=sharing
-Mindmap/UML: https://docs.google.com/document/d/1HmiU3K5FwmotXQXvEziftxJVFBoebTi-P-WMv3ZpfZc/edit?usp=sharing
+Mindmap/UML: https://www.figma.com/board/QSAptueuWuEk41zZyFRuEm/Playlist-Generator?node-id=0-1&t=xgtQASUFyZ6ys2Ro-1
 
 !!!Don't change anything. We don't know how to give certain people access to editing while keeping everyone else as viewers!!!
