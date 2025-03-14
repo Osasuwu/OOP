@@ -1,10 +1,10 @@
-import services.*;
+package services;
 import services.api.*;
 import services.database.*;
-import services.datasources.*;
-import services.offline.*;
 import services.output.*;
 import services.ui.*;
+import models.*;
+import interfaces.*;
 import utils.*;
 import java.util.*;
 
@@ -17,14 +17,16 @@ public class PlaylistGeneratorApp {
     private final GenreMapper genreMapper;
     private final String userId;
     private final UserInterface userInterface;
+    private final PlaylistGenerator playlistGenerator;
     private boolean isOnline;
 
     public PlaylistGeneratorApp(String userId) {
         this.userId = userId;
         this.genreMapper = new GenreMapper();
+        this.playlistGenerator = new PlaylistGenerator();
         
         // Check internet connectivity
-        this.isOnline = checkInternetConnectivity();
+        this.isOnline = checkInternetConnectivity(); //done
         
         // Initialize managers
         this.dbManager = new MusicDatabaseManager(isOnline, userId);
@@ -33,25 +35,6 @@ public class PlaylistGeneratorApp {
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
         this.userInterface = new UserInterface();
-    }
-
-    public static void main(String[] args) {
-        // Example usage
-        String userId = "user123"; // Replace with actual user ID
-        PlaylistGeneratorApp app = new PlaylistGeneratorApp(userId);
-        
-        // Generate a playlist
-        app.generatePlaylist("My Playlist", 20);
-        
-        // Update user preferences
-        Map<String, Object> preferences = new HashMap<>();
-        preferences.put("favorite_genres", new String[]{"rock", "pop"});
-        preferences.put("favorite_artists", new String[]{"The Beatles", "Queen"});
-        preferences.put("preferred_energy", 0.8);
-        app.updateUserPreferences(preferences);
-        
-        // Sync offline data when back online
-        app.syncOfflineData();
     }
 
     private boolean checkInternetConnectivity() {
@@ -65,32 +48,53 @@ public class PlaylistGeneratorApp {
         }
     }
 
-    public void generatePlaylist(String playlistName, int songCount) {
+    public void generatePlaylist(PlaylistParameters params) {
         try {
-            // Get user preferences
-            Map<String, Object> userPrefs = dbManager.getUserPreferences();
-            
-            // Get recommended songs based on preferences
-            List<Map<String, Object>> recommendedSongs = dbManager.getRecommendedSongs(songCount);
-            
-            // If we have enough songs, create the playlist
-            if (recommendedSongs.size() >= songCount) {
-                createPlaylist(playlistName, recommendedSongs);
+            // Retrieve user data
+            UserMusicData userData;
+            if (isOnline) {
+                userData = dbManager.getUserData(userId);
             } else {
-                // If we don't have enough songs, try to get more from similar artists
-                List<Map<String, Object>> similarArtistsSongs = getSongsFromSimilarArtists(userPrefs, songCount - recommendedSongs.size());
-                recommendedSongs.addAll(similarArtistsSongs);
-                
-                if (recommendedSongs.size() >= songCount) {
-                    createPlaylist(playlistName, recommendedSongs);
-                } else {
-                    System.out.println("Not enough songs available to create playlist. Please try again later.");
-                }
+                userData = offlineManager.getUserData(userId);
             }
+            
+            // Convert parameters to playlist preferences
+            PlaylistPreferences preferences = convertToPreferences(params);
+            
+            // Generate playlist using the generator
+            Playlist playlist = playlistGenerator.generatePlaylist(userData, preferences);
+            
+            // Create the playlist in Spotify or save locally
+            createPlaylist(playlist.getName(), convertPlaylistToSongMaps(playlist));
+            
+            System.out.println("Playlist generated successfully!");
         } catch (Exception e) {
             System.err.println("Error generating playlist: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    
+    private PlaylistPreferences convertToPreferences(PlaylistParameters params) {
+        PlaylistPreferences prefs = new PlaylistPreferences();
+        prefs.setName(params.getPlaylistName());
+        prefs.setSongCount(params.getSongCount());
+        prefs.setGenres(params.getGenres());
+        prefs.setExcludeArtists(params.getExcludedArtists());
+        // Set other parameters as needed
+        return prefs;
+    }
+    
+    private List<Map<String, Object>> convertPlaylistToSongMaps(Playlist playlist) {
+        List<Map<String, Object>> songMaps = new ArrayList<>();
+        for (Song song : playlist.getSongs()) {
+            Map<String, Object> songMap = new HashMap<>();
+            songMap.put("name", song.getTitle());
+            songMap.put("artist", song.getArtistName());
+            songMap.put("id", song.getId());
+            // Add other properties as needed
+            songMaps.add(songMap);
+        }
+        return songMaps;
     }
 
     private List<Map<String, Object>> getSongsFromSimilarArtists(Map<String, Object> userPrefs, int count) throws Exception {
@@ -176,6 +180,16 @@ public class PlaylistGeneratorApp {
             System.out.println("Offline data synced successfully!");
         } catch (Exception e) {
             System.err.println("Error syncing offline data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void saveUserData(UserMusicData userData) {
+        try {
+            dbManager.saveUserData(userData);
+            System.out.println("User data saved successfully!");
+        } catch (Exception e) {
+            System.err.println("Error saving user data: " + e.getMessage());
             e.printStackTrace();
         }
     }

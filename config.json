@@ -1,0 +1,21 @@
+{
+  "databaseType": "sqlite",
+  "offlineMode": false,
+  "firstRun": false,
+  "databasePath": "./data/musicdb.sqlite",
+  "dataDirectory": "./data",
+  "defaultUserId": "default",
+  "collectAnonymousStats": false,
+  "playerType": "system",
+  "uiPreferences": {
+    "showNotifications": true,
+    "fontScale": 1,
+    "theme": "system"
+  },
+  "apiKeys": {
+    "lastfm": "",
+    "spotify": "",
+    "musicbrainz": ""
+  },
+  "importPaths": []
+}

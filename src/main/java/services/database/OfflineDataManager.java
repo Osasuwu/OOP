@@ -5,6 +5,9 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.*;
 import org.json.JSONObject;
+
+import models.UserMusicData;
+
 import org.json.JSONArray;
 
 public class OfflineDataManager {
@@ -73,6 +76,33 @@ public class OfflineDataManager {
         }
         JSONObject userData = users.getJSONObject(userId);
         mapToJson(preferences, userData);
+        saveCache();
+    }
+
+    //CHECK!!!
+    public List<Map<String, Object>> getArtistSongs(String artistName, int limit) {
+        
+        JSONObject artists = cache.getJSONObject("artists");
+        if (!artists.has(artistName)) {
+            return new ArrayList<>();
+        }
+        JSONObject artistData = artists.getJSONObject(artistName);
+        if (!artistData.has("songs")) {
+            return new ArrayList<>();
+        }
+        JSONArray songs = artistData.getJSONArray("songs");
+        List<Map<String, Object>> songList = new ArrayList<>();
+        for (int i = 0; i < Math.min(limit, songs.length()); i++) {
+            songList.add(jsonToMap(songs.getJSONObject(i)));
+        }
+        return songList;
+    }
+
+    public void saveUserData(UserMusicData userData) {
+        JSONObject users = cache.getJSONObject("users");
+        if (!users.has(userId)) {
+            users.put(userId, new JSONObject());
+        }
         saveCache();
     }
 
