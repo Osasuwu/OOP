@@ -1,10 +1,11 @@
-import services.*;
+package services;
 import services.api.*;
 import services.database.*;
 import services.datasources.*;
-import services.offline.*;
 import services.output.*;
 import services.ui.*;
+import models.*;
+import interfaces.*;
 import utils.*;
 import java.util.*;
 
@@ -65,32 +66,8 @@ public class PlaylistGeneratorApp {
         }
     }
 
-    public void generatePlaylist(String playlistName, int songCount) {
-        try {
-            // Get user preferences
-            Map<String, Object> userPrefs = dbManager.getUserPreferences();
-            
-            // Get recommended songs based on preferences
-            List<Map<String, Object>> recommendedSongs = dbManager.getRecommendedSongs(songCount);
-            
-            // If we have enough songs, create the playlist
-            if (recommendedSongs.size() >= songCount) {
-                createPlaylist(playlistName, recommendedSongs);
-            } else {
-                // If we don't have enough songs, try to get more from similar artists
-                List<Map<String, Object>> similarArtistsSongs = getSongsFromSimilarArtists(userPrefs, songCount - recommendedSongs.size());
-                recommendedSongs.addAll(similarArtistsSongs);
-                
-                if (recommendedSongs.size() >= songCount) {
-                    createPlaylist(playlistName, recommendedSongs);
-                } else {
-                    System.out.println("Not enough songs available to create playlist. Please try again later.");
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error generating playlist: " + e.getMessage());
-            e.printStackTrace();
-        }
+    public void generatePlaylist(PlaylistParameters params) {
+        //implementation
     }
 
     private List<Map<String, Object>> getSongsFromSimilarArtists(Map<String, Object> userPrefs, int count) throws Exception {
@@ -176,6 +153,16 @@ public class PlaylistGeneratorApp {
             System.out.println("Offline data synced successfully!");
         } catch (Exception e) {
             System.err.println("Error syncing offline data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void saveUserData(UserMusicData userData) {
+        try {
+            dbManager.saveUserData(userData);
+            System.out.println("User data saved successfully!");
+        } catch (Exception e) {
+            System.err.println("Error saving user data: " + e.getMessage());
             e.printStackTrace();
         }
     }

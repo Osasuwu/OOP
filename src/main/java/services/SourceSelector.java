@@ -1,7 +1,8 @@
 package services;
 
-import interfaces.MusicDataSource;
+import interfaces.*;
 import services.datasources.*;
+
 import java.util.Scanner;
 import java.nio.file.Path;
 import java.nio.file.Paths;

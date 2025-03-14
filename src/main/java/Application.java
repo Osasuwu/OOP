@@ -5,6 +5,7 @@ import services.database.*;
 import services.datasources.*;
 import services.output.*;
 import services.ui.*;
+import services.importer.*;
 import models.*;
 import interfaces.*;
 import utils.*;
@@ -128,7 +129,8 @@ public class Application {
         if (userId == null || userId.isEmpty()) {
             userId = config.getDefaultUserId();
         }
-        
+    
+
         // Create playlist generator app
         PlaylistGeneratorApp app = new PlaylistGeneratorApp(userId);
         
@@ -149,19 +151,61 @@ public class Application {
     
     private static void importUserData(PlaylistGeneratorApp app, String filePath) {
         try {
-            DataImportService importService = new DataImportService();
-            UserMusicData importedData = importService.importFromFile(filePath);
+            Path path = Paths.get(filePath);
+            DataImportFactory importFactory = new DataImportFactory();
+            DataImportAdapter importAdapter;
+            
+            try {
+                // Get appropriate adapter based on file extension
+                importAdapter = importFactory.getAdapter(path);
+            } catch (ImportException e) {
+                // Fallback to CSV adapter if no specific adapter is found
+                importAdapter = new CsvDataImportAdapter();
+                if (!importAdapter.canHandle(path)) {
+                    System.err.println("Unsupported file format for: " + filePath);
+                    return;
+                }
+            }
+            
+            UserMusicData importedData = importAdapter.importFromFile(path);
             
             if (importedData != null && !importedData.isEmpty()) {
                 System.out.println("Successfully imported data from " + filePath);
                 System.out.println("Songs: " + importedData.getSongs().size());
                 System.out.println("Artists: " + importedData.getArtists().size());
+                System.out.println("Play history entries: " + importedData.getPlayHistory().size());
+                
+                // Normalize genres using GenreMapper
+                normalizeGenres(importedData);
                 
                 // Store imported data
                 app.saveUserData(importedData);
+            } else {
+                System.err.println("No usable data found in file: " + filePath);
             }
-        } catch (Exception e) {
+        } catch (ImportException e) {
             System.err.println("Error importing data: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error during import: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private static void normalizeGenres(UserMusicData data) {
+        GenreMapper genreMapper = new GenreMapper();
+        
+        // Process songs with genres
+        for (Song song : data.getSongs()) {
+            if (song.getGenres() != null && !song.getGenres().isEmpty()) {
+                Set<String> genres = new HashSet<>(song.getGenres());
+                song.setGenres(new ArrayList<>(genreMapper.normalizeGenres(genres)));
+            }
+        }
+        
+        // Process user's favorite genres
+        if (data.getFavoriteGenres() != null && !data.getFavoriteGenres().isEmpty()) {
+            Set<String> genres = new HashSet<>(data.getFavoriteGenres());
+            data.setFavoriteGenres(new ArrayList<>(genreMapper.normalizeGenres(genres)));
         }
     }
     
@@ -169,6 +213,9 @@ public class Application {
         PlaylistParameters params = new PlaylistParameters();
         params.setName("Quick Playlist");
         params.setSongCount(20);
+        
+        // If in import mode, prefer imported music
+        params.setPreferImportedMusic(true);
         
         // Use default parameters
         app.generatePlaylist(params);
