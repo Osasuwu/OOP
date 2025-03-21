@@ -1,9 +1,8 @@
-package interfaces;
+package services.importer;
 
 import models.UserMusicData;
 import java.io.InputStream;
 import java.nio.file.Path;
-import services.importer.ImportException;
 
 /**
  * Interface for data import adapters supporting different data formats.

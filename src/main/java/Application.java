@@ -1,12 +1,11 @@
 import services.*;
 import services.api.*;
-import services.config.*;
+import services.config.ApplicationConfig;
 import services.database.*;
 import services.output.*;
 import services.ui.*;
 import services.importer.*;
 import models.*;
-import interfaces.*;
 import utils.*;
 
 import java.util.*;
@@ -125,9 +124,22 @@ public class Application {
     private static void launchCli(CommandLineOptions options) {
         // Set default user ID if not specified
         String userId = options.getUserId();
+        
         if (userId == null || userId.isEmpty()) {
-            userId = config.getDefaultUserId();
+            System.out.println("No user ID provided. Please log in or sign up.");
+            AuthenticationService authService = new AuthenticationService();
+            userId = authService.promptLoginOrSignup();
+            
+            if (userId != null && !userId.isEmpty()) {
+                // Save the user ID in config for future use
+                config.setDefaultUserId(userId);
+                saveConfig(config);
+            } else {
+                System.err.println("Authentication failed. Exiting application.");
+                System.exit(1);
+            }
         }
+        
     
 
         // Create playlist generator app
@@ -178,7 +190,7 @@ public class Application {
                 normalizeGenres(importedData);
                 
                 // Store imported data
-                app.saveUserData(importedData);
+                app.importUserData(importedData);
             } else {
                 System.err.println("No usable data found in file: " + filePath);
             }

@@ -16,20 +16,184 @@ import org.json.JSONObject;
 
 public class SpotifyAPIManager {
     private static final String SPOTIFY_API_URL = "https://api.spotify.com/v1";
-    private static final String SEARCH_ENDPOINT = "/search";
-    private static final String RECOMMENDATIONS_ENDPOINT = "/recommendations";
-    private static final String PLAYLISTS_ENDPOINT = "/users/{user_id}/playlists";
-    private static final String TRACKS_ENDPOINT = "/tracks";
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 1000;
     
     private String accessToken;
+    private final HttpClient client;
     
     public SpotifyAPIManager() {
         try {
             this.accessToken = SpotifyAccessToken.getAccessToken();
         } catch (IOException | URISyntaxException e) {
             System.err.println("Failed to get Spotify access token: " + e.getMessage());
+        }
+        this.client = HttpClient.newHttpClient();
+    }
+    
+    /**
+     * Get track information by Spotify track ID
+     * @param trackId Spotify track ID
+     * @return Map containing track data
+     */
+    public Map<String, Object> getTrackInfo(String trackId) throws Exception {
+        Map<String, Object> trackData = new HashMap<>();
+        
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                String endpoint = SPOTIFY_API_URL + "/tracks/" + trackId;
+                
+                HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Authorization", "Bearer " + accessToken)
+                    .GET()
+                    .build();
+                
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                
+                if (response.statusCode() == 200) {
+                    JSONObject jsonResponse = new JSONObject(response.body());
+                    
+                    // Extract track name
+                    trackData.put("title", jsonResponse.getString("name"));
+                    
+                    // Extract album
+                    if (jsonResponse.has("album") && !jsonResponse.isNull("album")) {
+                        JSONObject album = jsonResponse.getJSONObject("album");
+                        trackData.put("album", album.getString("name"));
+                    }
+                    
+                    // Extract duration
+                    if (jsonResponse.has("duration_ms")) {
+                        trackData.put("duration_ms", jsonResponse.getInt("duration_ms"));
+                    }
+                    
+                    // Extract artists
+                    if (jsonResponse.has("artists") && jsonResponse.getJSONArray("artists").length() > 0) {
+                        JSONArray artists = jsonResponse.getJSONArray("artists");
+                        JSONObject artist = artists.getJSONObject(0);
+                        trackData.put("artist", artist.getString("name"));
+                        
+                        // Get artist details including genres
+                        String artistId = artist.getString("id");
+                        Map<String, Object> artistInfo = getArtistInfo(artistId);
+                        if (artistInfo.containsKey("genres")) {
+                            trackData.put("genres", artistInfo.get("genres"));
+                        }
+                    }
+                }
+                break;
+            } catch (Exception e) {
+                if (attempt == MAX_RETRIES) throw e;
+                Thread.sleep(RETRY_DELAY_MS * attempt);
+            }
+        }
+        
+        return trackData;
+    }
+    
+    /**
+     * Search for a track by title and artist
+     * @param title Track title
+     * @param artist Artist name
+     * @return Map containing track data
+     */
+    public Map<String, Object> searchTrack(String title, String artist) throws Exception {
+        Map<String, Object> trackData = new HashMap<>();
+        
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                String query = URLEncoder.encode("track:" + title + " artist:" + artist, StandardCharsets.UTF_8);
+                String endpoint = SPOTIFY_API_URL + "/search?q=" + query + "&type=track&limit=1";
+                
+                HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Authorization", "Bearer " + accessToken)
+                    .GET()
+                    .build();
+                
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                
+                if (response.statusCode() == 200) {
+                    JSONObject jsonResponse = new JSONObject(response.body());
+                    
+                    if (jsonResponse.has("tracks") && 
+                        jsonResponse.getJSONObject("tracks").has("items") &&
+                        jsonResponse.getJSONObject("tracks").getJSONArray("items").length() > 0) {
+                        
+                        JSONObject track = jsonResponse.getJSONObject("tracks")
+                                                       .getJSONArray("items")
+                                                       .getJSONObject(0);
+                        
+                        // Extract track ID and get full details
+                        String trackId = track.getString("id");
+                        return getTrackInfo(trackId);
+                    }
+                }
+                break;
+            } catch (Exception e) {
+                if (attempt == MAX_RETRIES) throw e;
+                Thread.sleep(RETRY_DELAY_MS * attempt);
+            }
+        }
+        
+        return trackData;
+    }
+    
+    /**
+     * Get artist information by Spotify artist ID
+     * @param artistId Spotify artist ID
+     * @return Map containing artist data
+     */
+    public Map<String, Object> getArtistInfo(String artistId) throws Exception {
+        Map<String, Object> artistData = new HashMap<>();
+        
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                String endpoint = SPOTIFY_API_URL + "/artists/" + artistId;
+                
+                HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Authorization", "Bearer " + accessToken)
+                    .GET()
+                    .build();
+                
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                
+                if (response.statusCode() == 200) {
+                    JSONObject jsonResponse = new JSONObject(response.body());
+                    
+                    // Extract artist name
+                    artistData.put("name", jsonResponse.getString("name"));
+                    
+                    // Extract genres
+                    if (jsonResponse.has("genres") && jsonResponse.getJSONArray("genres").length() > 0) {
+                        JSONArray genresArray = jsonResponse.getJSONArray("genres");
+                        List<String> genres = new ArrayList<>();
+                        for (int i = 0; i < genresArray.length(); i++) {
+                            genres.add(genresArray.getString(i));
+                        }
+                        artistData.put("genres", genres);
+                    }
+                }
+                break;
+            } catch (Exception e) {
+                if (attempt == MAX_RETRIES) throw e;
+                Thread.sleep(RETRY_DELAY_MS * attempt);
+            }
+        }
+        
+        return artistData;
+    }
+    
+    /**
+     * Updates the access token
+     */
+    public void refreshAccessToken() {
+        try {
+            this.accessToken = SpotifyAccessToken.getAccessToken();
+        } catch (IOException | URISyntaxException e) {
+            System.err.println("Failed to refresh Spotify access token: " + e.getMessage());
         }
     }
     
@@ -52,7 +216,6 @@ public class SpotifyAPIManager {
         // Then get their top tracks
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(SPOTIFY_API_URL + "/artists/" + artistId + "/top-tracks?market=US"))
                     .header("Authorization", "Bearer " + accessToken)
@@ -111,12 +274,11 @@ public class SpotifyAPIManager {
     private String getArtistId(String artistName) throws Exception {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                HttpClient client = HttpClient.newHttpClient();
                 String query = String.format("q=artist:%s&type=artist&limit=1", 
                     URLEncoder.encode(artistName, StandardCharsets.UTF_8));
                 
                 HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(SPOTIFY_API_URL + SEARCH_ENDPOINT + "?" + query))
+                    .uri(URI.create(SPOTIFY_API_URL + "/search?" + query))
                     .header("Authorization", "Bearer " + accessToken)
                     .GET()
                     .build();
@@ -215,9 +377,8 @@ public class SpotifyAPIManager {
         
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(SPOTIFY_API_URL + RECOMMENDATIONS_ENDPOINT + "?" + queryBuilder.toString()))
+                    .uri(URI.create(SPOTIFY_API_URL + "/recommendations?" + queryBuilder.toString()))
                     .header("Authorization", "Bearer " + accessToken)
                     .GET()
                     .build();
