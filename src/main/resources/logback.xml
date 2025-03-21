@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Suppress HikariCP spammy logs but keep warnings/errors -->
+    <logger name="com.zaxxer.hikari" level="WARN" />
+    <logger name="com.zaxxer.hikari.pool.HikariPool" level="WARN" />
+    <logger name="com.zaxxer.hikari.pool.PoolBase" level="WARN" />
+    
+    <!-- Add logging for SQL statements at debug level -->
+    <logger name="org.postgresql" level="INFO" />
+    <logger name="org.postgresql.jdbc" level="INFO" />
+    
+    <!-- Application file appender with daily rollover -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/application-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Console appender for development -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Database operations logging -->
+    <logger name="services.database" level="INFO" />
+    
+    <!-- Data import logging -->
+    <logger name="services.importer" level="INFO" />
+    
+    <!-- API services logging -->
+    <logger name="services.api" level="INFO" />
+    
+    <!-- Application root logger -->
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>
