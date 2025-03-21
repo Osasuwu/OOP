@@ -6,21 +6,21 @@ import models.Song;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class CsvPlaylistExporter implements PlaylistExporter {
+public class M3uPlaylistExporter implements PlaylistExporter {
     @Override
     public void export(Playlist playlist, String destination) {
         try (FileWriter writer = new FileWriter(destination)) {
-            writer.append("Title,Artist,Duration (seconds)\n"); // CSV header
+            writer.append("#EXTM3U\n"); // M3U playlist header
 
             for (Song song : playlist.getSongs()) {
-                writer.append(song.getTitle()).append(",")
-                      .append(song.getArtist()).append(",")
-                      .append(String.valueOf(song.getDuration())).append("\n");
+                writer.append("#EXTINF:").append(String.valueOf(song.getDuration())).append(",")
+                      .append(song.getArtist()).append(" - ").append(song.getTitle()).append("\n");
+                writer.append(song.getFilePath()).append("\n"); // Assuming Song has a file path
             }
 
-            System.out.println("Playlist exported as CSV to: " + destination);
+            System.out.println("Playlist exported as M3U to: " + destination);
         } catch (IOException e) {
-            System.err.println("Error exporting CSV: " + e.getMessage());
+            System.err.println("Error exporting M3U: " + e.getMessage());
         }
     }
 }
