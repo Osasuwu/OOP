@@ -1,6 +1,5 @@
 package services.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -72,6 +71,7 @@ public class MusicBrainzAPIManager {
      * @param artistName Name of the artist
      * @return List of genres
      */
+    @SuppressWarnings("unchecked")
     public List<String> getArtistGenres(String artistName) throws Exception {
         Map<String, Object> artistInfo = getArtistInfo(artistName);
         if (artistInfo.containsKey("genres")) {

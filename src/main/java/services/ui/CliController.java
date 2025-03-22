@@ -4,8 +4,6 @@ import services.PlaylistGeneratorApp;
 import models.*;
 import services.*;
 import services.importer.*;
-import interfaces.*;
-import utils.GenreMapper;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -38,18 +36,12 @@ public class CliController {
                     generatePlaylist();
                     break;
                 case 2:
-                    updatePreferences();
-                    break;
-                case 3:
-                    syncData();
-                    break;
-                case 4:
                     launchUserInterface();
                     break;
-                case 5:
+                case 3:
                     importData();
                     break;
-                case 6:
+                case 4:
                     running = false;
                     System.out.println("Exiting Playlist Generator. Goodbye!");
                     break;
@@ -62,11 +54,9 @@ public class CliController {
     private void printMainMenu() {
         System.out.println("\n===== Playlist Generator =====");
         System.out.println("1. Generate Playlist (Doesn't work yet)");
-        System.out.println("2. Update Preferences (Doesn't work yet)");
-        System.out.println("3. Sync Offline Data (Doesn't work yet)");
-        System.out.println("4. Launch User Interface (Doesn't work yet)");
-        System.out.println("5. Import Data");
-        System.out.println("6. Exit");
+        System.out.println("2. Launch User Interface (Doesn't work yet)");
+        System.out.println("3. Import Data");
+        System.out.println("4. Exit");
         System.out.print("Enter your choice: ");
     }
     
@@ -96,16 +86,6 @@ public class CliController {
         System.out.print("How many songs (10-100)? ");
         params.setSongCount(getUserChoice(10, 100));
         
-        System.out.println("Add genres? (y/n)");
-        if (scanner.nextLine().trim().toLowerCase().startsWith("y")) {
-            collectGenres(params);
-        }
-        
-        System.out.println("Exclude artists? (y/n)");
-        if (scanner.nextLine().trim().toLowerCase().startsWith("y")) {
-            collectExcludedArtists(params);
-        }
-        
         System.out.println("Select generation strategy:");
         System.out.println("1. Random");
         System.out.println("2. Popular");
@@ -130,55 +110,6 @@ public class CliController {
         
         System.out.println("Generating playlist...");
         app.generatePlaylist(params);
-    }
-    
-    private void collectGenres(PlaylistParameters params) {
-        System.out.println("Enter genres (one per line, empty line to finish):");
-        while (true) {
-            String genre = scanner.nextLine().trim();
-            if (genre.isEmpty()) break;
-            params.addGenre(genre);
-        }
-    }
-    
-    private void collectExcludedArtists(PlaylistParameters params) {
-        System.out.println("Enter artists to exclude (one per line, empty line to finish):");
-        while (true) {
-            String artist = scanner.nextLine().trim();
-            if (artist.isEmpty()) break;
-            params.addExcludedArtist(artist);
-        }
-    }
-    
-    private void updatePreferences() {
-        System.out.println("\n----- Update Preferences -----");
-        Map<String, Object> preferences = new HashMap<>();
-        
-        System.out.println("Enter favorite genres (one per line, empty line to finish):");
-        List<String> genres = new ArrayList<>();
-        while (true) {
-            String genre = scanner.nextLine().trim();
-            if (genre.isEmpty()) break;
-            genres.add(genre);
-        }
-        preferences.put("favorite_genres", genres.toArray(new String[0]));
-        
-        System.out.println("Enter favorite artists (one per line, empty line to finish):");
-        List<String> artists = new ArrayList<>();
-        while (true) {
-            String artist = scanner.nextLine().trim();
-            if (artist.isEmpty()) break;
-            artists.add(artist);
-        }
-        preferences.put("favorite_artists", artists.toArray(new String[0]));
-        
-        app.updateUserPreferences(preferences);
-    }
-    
-    private void syncData() {
-        System.out.println("\n----- Sync Offline Data -----");
-        System.out.println("Syncing offline data with online services...");
-        app.syncOfflineData();
     }
     
     private void launchUserInterface() {
@@ -243,11 +174,8 @@ public class CliController {
                 System.out.println("Artists: " + importedData.getArtists().size());
                 System.out.println("Play history entries: " + importedData.getPlayHistory().size());
                 
-                // Normalize genres using GenreMapper
-                normalizeGenres(importedData);
-                
                 // Store imported data
-                app.saveUserData(importedData);
+                app.importUserData(importedData);
                 
                 // Ask if user wants to generate a playlist from the imported data
                 System.out.print("Do you want to generate a playlist from the imported data? (y/n): ");
@@ -280,9 +208,6 @@ public class CliController {
                 System.out.println("Songs: " + importedData.getSongs().size());
                 System.out.println("Artists: " + importedData.getArtists().size());
                 System.out.println("Play history entries: " + importedData.getPlayHistory().size());
-                
-                // Normalize genres
-                normalizeGenres(importedData);
                 
                 // Store imported data
                 app.saveUserData(importedData);
@@ -346,23 +271,5 @@ public class CliController {
         
         System.out.println("Generating playlist from imported data...");
         app.generatePlaylist(params);
-    }
-    
-    private void normalizeGenres(UserMusicData data) {
-        GenreMapper genreMapper = new GenreMapper();
-        
-        // Process songs with genres
-        for (Song song : data.getSongs()) {
-            if (song.getGenres() != null && !song.getGenres().isEmpty()) {
-                Set<String> genres = new HashSet<>(song.getGenres());
-                song.setGenres(new ArrayList<>(genreMapper.normalizeGenres(genres)));
-            }
-        }
-        
-        // Process user's favorite genres
-        if (data.getFavoriteGenres() != null && !data.getFavoriteGenres().isEmpty()) {
-            Set<String> genres = new HashSet<>(data.getFavoriteGenres());
-            data.setFavoriteGenres(new ArrayList<>(genreMapper.normalizeGenres(genres)));
-        }
     }
 }
