@@ -268,24 +268,23 @@ public class Application {
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
     }
-}
+    private static void exportPlaylist(PlaylistGeneratorApp app, String format, String destination) {
+        try {
+            Playlist playlist = app.getGeneratedPlaylist();
+            if (playlist == null) {
+                System.err.println("No playlist available to export.");
+                return;
+            }
 
-private static void exportPlaylist(PlaylistGeneratorApp app, String format, String destination) {
-    try {
-        Playlist playlist = app.getGeneratedPlaylist();
-        if (playlist == null) {
-            System.err.println("No playlist available to export.");
-            return;
+            PlaylistExporterFactory factory = new PlaylistExporterFactory();
+            PlaylistExporter exporter = factory.getExporter(format);
+            exporter.export(playlist, destination);
+
+            System.out.println("Playlist exported successfully to " + destination + " in " + format + " format.");
+        } catch (Exception e) {
+            System.err.println("Error exporting playlist: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        PlaylistExporterFactory factory = new PlaylistExporterFactory();
-        PlaylistExporter exporter = factory.getExporter(format);
-        exporter.export(playlist, destination);
-
-        System.out.println("Playlist exported successfully to " + destination + " in " + format + " format.");
-    } catch (Exception e) {
-        System.err.println("Error exporting playlist: " + e.getMessage());
-        e.printStackTrace();
     }
 }
 
