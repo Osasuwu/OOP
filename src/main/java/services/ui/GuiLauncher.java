@@ -6,8 +6,8 @@ public class GuiLauncher {
     public GuiLauncher(){
 
     }
-
-    public void start(ApplicationConfig config){
-        System.out.println("Implementation in Progress");
+    
+    public void start( ApplicationConfig config) {
+        System.out.println("Implementation in progress");
     }
 }
