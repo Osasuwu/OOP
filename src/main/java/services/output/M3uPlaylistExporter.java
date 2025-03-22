@@ -1,33 +1,27 @@
 package services.output;
 
 import models.Playlist;
+import models.Song;
+
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class CsvPlaylistExporter implements PlaylistExporter {
+public class M3uPlaylistExporter implements PlaylistExporter {
     @Override
     public void export(Playlist playlist, String destination) {
         try (FileWriter writer = new FileWriter(destination)) {
-            // writing the first row (header) so we know what each column means
-            writer.write("Title,Artist,Genre\n");
+            writer.append("#EXTM3U\n"); // M3U playlist header
 
-            // going through each song in the playlist and adding it to the file
-            playlist.getSongs().forEach(song -> {
-                try {
-                    // writing the song details as a new line in the csv file
-                    writer.write(song.getTitle() + "," + song.getArtist() + "," + song.getGenres() + "\n");
-                } catch (IOException e) {
-                    // if something goes wrong while writing, print the error
-                    e.printStackTrace();
-                }
-            });
+            for (Song song : playlist.getSongs()) {
+                writer.append("#EXTINF:").append(String.valueOf(song.getDuration())).append(",")
+                      .append(song.getArtist()).append(" - ").append(song.getTitle()).append("\n");
+                writer.append(song.getFilePath()).append("\n"); // Assuming Song has a file path
+            }
 
-            // letting the user know the file was successfully created
-            System.out.println("playlist exported to csv: " + destination);
-
+            System.out.println("Playlist exported as M3U to: " + destination);
         } catch (IOException e) {
-            // if there's an issue opening or writing the file, print an error message
-            System.err.println("error exporting playlist: " + e.getMessage());
+            System.err.println("Error exporting M3U: " + e.getMessage());
         }
     }
 }
+
