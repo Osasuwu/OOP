@@ -12,7 +12,6 @@ public class Song {
     private long durationMs;
     private int playCount;
     private String spotifyId;
-    private String ArtistSpotifyId;
     private String imageUrl;
     private int popularity;
     private List<String> genres;
