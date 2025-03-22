@@ -10,7 +10,7 @@ We tried to make the code as flexible as we can, so you don't have to dive deep 
 It's written in java/maven
 
 The application is runnable in terminal for now. You can run it from src/main/java/Application.java
-To run this project you need to haven javaSE-21 and Maven installed(and put the bin in the PATH). You can find both in the root directory.
+To run this project you need to haven javaSE-21 and Maven installed(and put the bin in the PATH). You can find both in here: https://drive.google.com/drive/folders/1-2hEYGHwFnv847MetIhogTZO_oudAj49?usp=sharing
 
 For reviewing:
 Documentation: https://docs.google.com/document/d/1HmiU3K5FwmotXQXvEziftxJVFBoebTi-P-WMv3ZpfZc/edit?usp=sharing
