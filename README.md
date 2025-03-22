@@ -9,6 +9,7 @@ Music Playlist Generator by any parameter.
 We tried to make the code as flexible as we can, so you don't have to dive deep in what every class does, just add what you need and it will work(hopefully).
 It's written in java/maven
 
+The application is runnable in terminal for now. You can run it from src/main/java/Application.java
 
 For reviewing:
 Documentation: https://docs.google.com/document/d/1HmiU3K5FwmotXQXvEziftxJVFBoebTi-P-WMv3ZpfZc/edit?usp=sharing
