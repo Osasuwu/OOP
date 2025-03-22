@@ -1,6 +1,5 @@
 package services.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -95,6 +94,7 @@ public class LastFmAPIManager {
      * @param artistName Name of the artist
      * @return List of genres
      */
+    @SuppressWarnings("unchecked")
     public List<String> getArtistGenres(String artistName) throws Exception {
         Map<String, Object> artistInfo = getArtistInfo(artistName);
         if (artistInfo.containsKey("genres")) {
@@ -109,6 +109,7 @@ public class LastFmAPIManager {
      * @param limit Maximum number of similar artists to return
      * @return List of similar artist data
      */
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getSimilarArtists(String artistName, int limit) throws Exception {
         Map<String, Object> artistInfo = getArtistInfo(artistName);
         
