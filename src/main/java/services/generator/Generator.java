@@ -1,19 +1,12 @@
-package services.generation;
-
-import services.utils.Logger;
-import services.music.Song;
-import services.music.Playlist;
-import services.utils.FilterManager;
-import services.recommendation.RecommendationEngine;
-import services.sync.OfflineSyncManager;
+package services.generator;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * Generator class responsible for dynamically creating playlists based on user preferences,
- * filters, and recommendations.
- */
+import models.Playlist;
+import models.Song;
+import services.sync.OfflineSyncManager;
+import utils.Logger;
+
 public class Generator {
 
     private final Logger logger;
@@ -25,10 +18,11 @@ public class Generator {
      * Constructor initializing necessary services.
      */
     public Generator() {
-        this.logger = new Logger();
+        this.logger = Logger.getInstance();
         this.filterManager = new FilterManager();
         this.recommendationEngine = new RecommendationEngine();
-        this.offlineSyncManager = new OfflineSyncManager();
+        // Fixed: Provide the needed String argument to OfflineSyncManager.
+        this.offlineSyncManager = new OfflineSyncManager("music_folder");
     }
 
     /**
@@ -39,27 +33,31 @@ public class Generator {
      * @return A dynamically generated Playlist.
      */
     public Playlist generatePlaylist(String userId, String criteria) {
-        logger.logInfo("Starting playlist generation for User ID: " + userId + " with criteria: " + criteria);
+        logger.info("Starting playlist generation for User ID: " + userId + " with criteria: " + criteria);
 
-        // Fetch recommended songs
+        // Fetch recommended songs (make sure RecommendationEngine implements getRecommendations(String))
         List<Song> recommendedSongs = recommendationEngine.getRecommendations(userId);
-        logger.logInfo("Fetched " + recommendedSongs.size() + " recommended songs.");
+        logger.info("Fetched " + recommendedSongs.size() + " recommended songs.");
 
         // Apply filters based on criteria
         List<Song> filteredSongs = filterManager.applyFilters(recommendedSongs, criteria);
-        logger.logInfo("After applying filters, " + filteredSongs.size() + " songs remain.");
+        logger.info("After applying filters, " + filteredSongs.size() + " songs remain.");
 
         if (filteredSongs.isEmpty()) {
-            logger.logWarning("No songs available after filtering.");
-            return new Playlist("Generated Playlist", List.of());
+            logger.warning("No songs available after filtering.");
+            // Create an empty playlist using the one-argument constructor and then set songs to an empty list.
+            Playlist emptyPlaylist = new Playlist("Generated Playlist");
+            emptyPlaylist.setSongs(List.of());
+            return emptyPlaylist;
         }
 
-        // Generate playlist
-        Playlist playlist = new Playlist("Generated Playlist", filteredSongs);
-        logger.logInfo("Playlist generated successfully with " + playlist.getSongs().size() + " songs.");
+        // Generate playlist: Using one-argument constructor then set the song list.
+        Playlist playlist = new Playlist("Generated Playlist");
+        playlist.setSongs(filteredSongs);
+        logger.info("Playlist generated successfully with " + playlist.getSongs().size() + " songs.");
 
-        // Check if offline sync is needed
-        offlineSyncManager.syncPlaylist(playlist, userId);
+        // Sync offline if needed: Call the method with only the playlist argument.
+        offlineSyncManager.syncPlaylist(playlist);
 
         return playlist;
     }

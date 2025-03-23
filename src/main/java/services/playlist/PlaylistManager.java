@@ -1,18 +1,15 @@
 package services.playlist;
 
-import services.utils.Logger;
-import services.data.LocalStorageManager;
+import utils.Logger;
+import services.storage.LocalStorageManager; // Make sure this is the correct package
 import services.network.CloudSyncService;
-import services.models.Song;
-import services.models.Playlist;
+import models.Playlist;
+import models.Song;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.io.File;
-import java.util.*;
-
-/**
- * Handles all playlist-related operations such as creation, editing, deletion, and syncing.
- * Supports both local storage and cloud synchronization.
- */
 public class PlaylistManager {
 
     private final LocalStorageManager localStorageManager;
@@ -26,7 +23,7 @@ public class PlaylistManager {
     public PlaylistManager() {
         this.localStorageManager = new LocalStorageManager("playlists/");
         this.cloudSyncService = new CloudSyncService();
-        this.logger = new Logger();
+        this.logger = Logger.getInstance();
         this.playlists = new HashMap<>();
 
         loadPlaylists();
@@ -40,13 +37,13 @@ public class PlaylistManager {
      */
     public Playlist createPlaylist(String name) {
         if (playlists.containsKey(name)) {
-            logger.logWarning("Playlist with name '" + name + "' already exists.");
+            logger.warning("Playlist with name '" + name + "' already exists.");
             return playlists.get(name);
         }
 
         Playlist playlist = new Playlist(name);
         playlists.put(name, playlist);
-        logger.logInfo("Playlist created: " + name);
+        logger.info("Playlist created: " + name);
         savePlaylist(playlist);
         return playlist;
     }
@@ -59,14 +56,14 @@ public class PlaylistManager {
      */
     public boolean deletePlaylist(String name) {
         if (!playlists.containsKey(name)) {
-            logger.logError("Playlist '" + name + "' not found.");
+            logger.error("Playlist '" + name + "' not found.");
             return false;
         }
 
         playlists.remove(name);
         localStorageManager.deletePlaylist(name);
         cloudSyncService.deletePlaylist(name);
-        logger.logInfo("Playlist deleted: " + name);
+        logger.info("Playlist deleted: " + name);
         return true;
     }
 
@@ -80,16 +77,19 @@ public class PlaylistManager {
     public boolean addSongToPlaylist(String playlistName, Song song) {
         Playlist playlist = playlists.get(playlistName);
         if (playlist == null) {
-            logger.logError("Playlist '" + playlistName + "' not found.");
+            logger.error("Playlist '" + playlistName + "' not found.");
             return false;
         }
 
-        if (playlist.addSong(song)) {
+        // Using the songs list directly instead of a missing addSong() method
+        List<Song> songList = playlist.getSongs();
+        if (!songList.contains(song)) {
+            songList.add(song);
             savePlaylist(playlist);
-            logger.logInfo("Song added to playlist: " + song.getTitle() + " → " + playlistName);
+            logger.info("Song added to playlist: " + song.getTitle() + " → " + playlistName);
             return true;
         } else {
-            logger.logWarning("Song already exists in playlist: " + song.getTitle());
+            logger.warning("Song already exists in playlist: " + song.getTitle());
             return false;
         }
     }
@@ -104,16 +104,19 @@ public class PlaylistManager {
     public boolean removeSongFromPlaylist(String playlistName, Song song) {
         Playlist playlist = playlists.get(playlistName);
         if (playlist == null) {
-            logger.logError("Playlist '" + playlistName + "' not found.");
+            logger.error("Playlist '" + playlistName + "' not found.");
             return false;
         }
 
-        if (playlist.removeSong(song)) {
+        // Instead of calling playlist.removeSong(song), use the song list directly.
+        List<Song> songList = playlist.getSongs();
+        if (songList.contains(song)) {
+            songList.remove(song);
             savePlaylist(playlist);
-            logger.logInfo("Song removed from playlist: " + song.getTitle() + " ← " + playlistName);
+            logger.info("Song removed from playlist: " + song.getTitle() + " ← " + playlistName);
             return true;
         } else {
-            logger.logWarning("Song not found in playlist: " + song.getTitle());
+            logger.warning("Song not found in playlist: " + song.getTitle());
             return false;
         }
     }
@@ -155,6 +158,6 @@ public class PlaylistManager {
         for (Playlist playlist : loadedPlaylists) {
             playlists.put(playlist.getName(), playlist);
         }
-        logger.logInfo("Loaded " + playlists.size() + " playlists from storage.");
+        logger.info("Loaded " + playlists.size() + " playlists from storage.");
     }
 }

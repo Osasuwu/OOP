@@ -1,12 +1,14 @@
 package services.sync;
 
-import services.utils.Logger;
-import services.data.LocalStorageManager;
+import utils.Logger;
+import services.storage.LocalStorageManager;
 import services.network.CloudSyncService;
 
 import java.io.File;
 import java.nio.file.*;
 import java.util.*;
+
+import models.Playlist;  // Make sure to import Playlist for syncPlaylist
 
 /**
  * Handles offline mode by tracking local file changes and syncing data when online.
@@ -25,7 +27,7 @@ public class OfflineSyncManager {
     public OfflineSyncManager(String localMusicFolder) {
         this.localStorageManager = new LocalStorageManager(localMusicFolder);
         this.cloudSyncService = new CloudSyncService();
-        this.logger = new Logger();
+        this.logger = Logger.getInstance();
         this.watchDirectory = Paths.get(localMusicFolder);
     }
 
@@ -33,7 +35,7 @@ public class OfflineSyncManager {
      * Monitors local music folder for changes (added, removed, or modified files).
      */
     public void startFileWatcher() {
-        logger.logInfo("Starting offline file watcher for: " + watchDirectory);
+        logger.info("Starting offline file watcher for: " + watchDirectory);
 
         try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
             watchDirectory.register(watchService,
@@ -49,7 +51,7 @@ public class OfflineSyncManager {
                 key.reset();
             }
         } catch (Exception e) {
-            logger.logError("Error in file watcher: " + e.getMessage());
+            logger.error("Error in file watcher: " + e.getMessage());
         }
     }
 
@@ -63,13 +65,13 @@ public class OfflineSyncManager {
         Path changedFile = watchDirectory.resolve((Path) event.context());
 
         if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-            logger.logInfo("New file added: " + changedFile);
+            logger.info("New file added: " + changedFile);
             localStorageManager.addNewFile(changedFile.toFile());
         } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-            logger.logInfo("File deleted: " + changedFile);
+            logger.info("File deleted: " + changedFile);
             localStorageManager.removeFile(changedFile.toFile());
         } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-            logger.logInfo("File modified: " + changedFile);
+            logger.info("File modified: " + changedFile);
             localStorageManager.updateFileMetadata(changedFile.toFile());
         }
     }
@@ -78,34 +80,37 @@ public class OfflineSyncManager {
      * Synchronizes offline changes with the cloud when internet is available.
      */
     public void syncWithCloud() {
-        logger.logInfo("Checking for offline changes to sync...");
+        logger.info("Checking for offline changes to sync...");
 
         List<File> newFiles = localStorageManager.getNewFiles();
         List<File> deletedFiles = localStorageManager.getDeletedFiles();
         List<File> modifiedFiles = localStorageManager.getModifiedFiles();
 
         if (newFiles.isEmpty() && deletedFiles.isEmpty() && modifiedFiles.isEmpty()) {
-            logger.logInfo("No offline changes detected. Sync not required.");
+            logger.info("No offline changes detected. Sync not required.");
             return;
         }
 
-        logger.logInfo("Syncing new files...");
+        logger.info("Syncing new files...");
         for (File file : newFiles) {
-            cloudSyncService.uploadFile(file);
+            if (file != null) {  // It’s good practice to check for null
+                cloudSyncService.uploadFile(file);
+            }
         }
 
-        logger.logInfo("Syncing deleted files...");
+        logger.info("Syncing deleted files...");
         for (File file : deletedFiles) {
-            cloudSyncService.deleteFile(file);
+            if (file != null) {
+                cloudSyncService.deleteFile(file);
+            }
         }
 
-        logger.logInfo("Syncing modified files...");
+        logger.info("Syncing modified files...");
         for (File file : modifiedFiles) {
-            cloudSyncService.updateFile(file);
+            if (file != null) {
+                cloudSyncService.updateFile(file);
+            }
         }
-
-        logger.logInfo("Offline sync completed.");
-        localStorageManager.clearSyncHistory();
     }
 
     /**
@@ -131,10 +136,26 @@ public class OfflineSyncManager {
      */
     public void autoSync() {
         if (isOnline()) {
-            logger.logInfo("Internet connection detected. Initiating automatic sync...");
+            logger.info("Internet connection detected. Initiating automatic sync...");
             syncWithCloud();
         } else {
-            logger.logWarning("Offline mode detected. Changes will sync when online.");
+            logger.warning("Offline mode detected. Changes will sync when online.");
+        }
+    }
+    
+    /**
+     * Synchronizes the given playlist with the cloud.
+     * This method is added to resolve the syncPlaylist error in Generator.
+     *
+     * @param playlist The playlist to sync.
+     */
+    public void syncPlaylist(Playlist playlist) {
+        logger.info("Syncing playlist: " + playlist.getName());
+        if (cloudSyncService.isConnected()) {
+            cloudSyncService.syncPlaylist(playlist);
+            logger.info("Playlist '" + playlist.getName() + "' synced to the cloud.");
+        } else {
+            logger.warning("Offline mode detected. Playlist '" + playlist.getName() + "' will be synced when online.");
         }
     }
 }

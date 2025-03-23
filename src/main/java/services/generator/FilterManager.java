@@ -1,11 +1,16 @@
-package services.filter;
+package services.generator;
 
-import services.data.DataFetcher;
-import services.utils.Logger;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import services.data.DataFetcher;
+import utils.Logger;
 
 /**
  * Manages filtering of songs based on multiple criteria such as genre, artist, popularity, duration, and more.
@@ -21,7 +26,7 @@ public class FilterManager {
      */
     public FilterManager() {
         this.dataFetcher = new DataFetcher();
-        this.logger = new Logger();
+        this.logger = Logger.getInstance();
     }
 
     /**
@@ -31,7 +36,7 @@ public class FilterManager {
      * @return A filtered list of songs matching the criteria.
      */
     public List<Map<String, Object>> filterSongs(Map<String, Object> criteria) {
-        logger.logInfo("Applying filters: " + criteria);
+        logger.info("Applying filters: " + criteria);
 
         List<Map<String, Object>> allSongs = dataFetcher.fetchSongs();
 
@@ -67,7 +72,7 @@ public class FilterManager {
                     predicates.add(song -> (int) song.getOrDefault("year", 0) == (int) value);
                     break;
                 default:
-                    logger.logWarning("Unknown filter: " + key);
+                    logger.warning("Unknown filter: " + key);
             }
         });
 
@@ -107,7 +112,21 @@ public class FilterManager {
     public List<Map<String, Object>> filterByGenres(List<String> genres) {
         return filterSongs(Collections.singletonMap("genre", genres));
     }
-
+/**
+ * Filters a list of Song objects based on the provided criteria.
+ * This implementation checks if the song title or the artist's name contains the criteria string (case-insensitive).
+ *
+ * @param songs    The list of Song objects to filter.
+ * @param criteria The filter criteria text.
+ * @return A list of Song objects that match the filter.
+ */
+public List<models.Song> applyFilters(List<models.Song> songs, String criteria) {
+    String lowerCriteria = criteria.toLowerCase();
+    return songs.stream()
+            .filter(song -> song.getTitle().toLowerCase().contains(lowerCriteria) ||
+                            song.getArtist().getName().toLowerCase().contains(lowerCriteria))
+            .collect(Collectors.toList());
+}
     /**
      * Fetches personalized recommendations based on user preferences.
      *
@@ -116,7 +135,7 @@ public class FilterManager {
      * @return A list of recommended songs based on listening history.
      */
     public List<Map<String, Object>> getPersonalizedRecommendations(List<Map<String, Object>> userHistory, int maxResults) {
-        logger.logInfo("Generating personalized recommendations...");
+        logger.info("Generating personalized recommendations...");
 
         Set<String> favoriteGenres = new HashSet<>();
         Set<String> favoriteArtists = new HashSet<>();

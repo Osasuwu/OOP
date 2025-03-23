@@ -1,12 +1,12 @@
 package services.user;
 
-import services.utils.Logger;
-import services.data.LocalStorageManager;
-import services.network.CloudSyncService;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import services.data.LocalStorageManager;
+import services.network.CloudSyncService;
+import utils.Logger;
 
 /**
  * Manages user preferences, including playback settings, theme choices, and personalized recommendations.
@@ -27,7 +27,7 @@ public class UserPreferenceManager {
     public UserPreferenceManager() {
         this.localStorageManager = new LocalStorageManager(PREFERENCES_FILE);
         this.cloudSyncService = new CloudSyncService();
-        this.logger = new Logger();
+        this.logger = Logger.getInstance();
         this.preferences = new HashMap<>();
 
         loadPreferences();
@@ -42,7 +42,7 @@ public class UserPreferenceManager {
     public void setPreference(String key, String value) {
         preferences.put(key, value);
         savePreferences();
-        logger.logInfo("User preference updated: " + key + " = " + value);
+        logger.info("User preference updated: " + key + " = " + value);
     }
 
     /**
@@ -65,10 +65,10 @@ public class UserPreferenceManager {
         if (preferences.containsKey(key)) {
             preferences.remove(key);
             savePreferences();
-            logger.logInfo("User preference removed: " + key);
+            logger.info("User preference removed: " + key);
             return true;
         }
-        logger.logWarning("Attempted to remove non-existent preference: " + key);
+        logger.warning("Attempted to remove non-existent preference: " + key);
         return false;
     }
 
@@ -78,7 +78,7 @@ public class UserPreferenceManager {
     public void clearPreferences() {
         preferences.clear();
         savePreferences();
-        logger.logInfo("All user preferences cleared.");
+        logger.info("All user preferences cleared.");
     }
 
     /**
@@ -96,9 +96,9 @@ public class UserPreferenceManager {
         Map<String, String> loadedPreferences = localStorageManager.loadPreferences();
         if (loadedPreferences != null) {
             preferences.putAll(loadedPreferences);
-            logger.logInfo("User preferences loaded: " + preferences.size() + " settings.");
+            logger.info("User preferences loaded: " + preferences.size() + " settings.");
         } else {
-            logger.logWarning("No saved preferences found. Using defaults.");
+            logger.warning("No saved preferences found. Using defaults.");
         }
     }
 

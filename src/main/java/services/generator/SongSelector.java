@@ -1,12 +1,11 @@
-package services.selection;
-
-import services.utils.Logger;
-import services.music.Song;
-import services.utils.FilterManager;
+package services.generator;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import models.Song;
+import utils.Logger;
 
 /**
  * The SongSelector class is responsible for selecting songs from a given list
@@ -21,7 +20,7 @@ public class SongSelector {
      * Constructor initializing the SongSelector with required utilities.
      */
     public SongSelector() {
-        this.logger = new Logger();
+        this.logger = Logger.getInstance();
         this.filterManager = new FilterManager();
     }
 
@@ -33,20 +32,20 @@ public class SongSelector {
      * @return An optional Song that matches the criteria.
      */
     public Optional<Song> selectSong(List<Song> songs, String criteria) {
-        logger.logInfo("Selecting a song based on criteria: " + criteria);
+        logger.info("Selecting a song based on criteria: " + criteria);
 
         // Filter the songs using the provided criteria
         List<Song> filteredSongs = filterManager.applyFilters(songs, criteria);
-        logger.logInfo("Filtered songs count: " + filteredSongs.size());
+        logger.info("Filtered songs count: " + filteredSongs.size());
 
         if (filteredSongs.isEmpty()) {
-            logger.logWarning("No songs match the criteria: " + criteria);
+            logger.warning("No songs match the criteria: " + criteria);
             return Optional.empty();
         }
 
         // Select the first matching song
         Song selectedSong = filteredSongs.get(0);
-        logger.logInfo("Selected song: " + selectedSong.getTitle() + " by " + selectedSong.getArtist());
+        logger.info("Selected song: " + selectedSong.getTitle() + " by " + selectedSong.getArtist());
 
         return Optional.of(selectedSong);
     }
@@ -60,7 +59,7 @@ public class SongSelector {
      * @return A list of selected songs.
      */
     public List<Song> selectMultipleSongs(List<Song> songs, String criteria, int limit) {
-        logger.logInfo("Selecting up to " + limit + " songs based on criteria: " + criteria);
+        logger.info("Selecting up to " + limit + " songs based on criteria: " + criteria);
 
         // Filter and limit the results
         List<Song> selectedSongs = filterManager.applyFilters(songs, criteria)
@@ -68,7 +67,7 @@ public class SongSelector {
                 .limit(limit)
                 .collect(Collectors.toList());
 
-        logger.logInfo("Selected " + selectedSongs.size() + " songs.");
+        logger.info("Selected " + selectedSongs.size() + " songs.");
 
         return selectedSongs;
     }

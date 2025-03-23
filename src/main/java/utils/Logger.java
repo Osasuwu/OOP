@@ -1,4 +1,4 @@
-package com.spotify.utils;
+package utils;
 
 import java.io.IOException;
 import java.nio.file.Files;

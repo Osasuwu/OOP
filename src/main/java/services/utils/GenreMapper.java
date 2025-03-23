@@ -1,4 +1,4 @@
-package services.music.GenreMapper;
+package services.utils;
 
 import java.util.Arrays;
 import java.util.Collections;
