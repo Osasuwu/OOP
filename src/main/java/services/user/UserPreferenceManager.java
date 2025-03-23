@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import services.data.LocalStorageManager;
 import services.network.CloudSyncService;
+import services.storage.LocalStorageManager;
 import utils.Logger;
 
 /**
@@ -110,4 +110,4 @@ public class UserPreferenceManager {
     public Map<String, String> getAllPreferences() {
         return new HashMap<>(preferences);
     }
-}
+    }

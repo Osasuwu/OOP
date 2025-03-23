@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import models.Playlist;  // Added import for Playlist
+
 /**
  * Handles local caching and storage of music, album, and artist data,
  * and also tracks file changes for offline synchronization.
@@ -167,5 +169,68 @@ public class LocalStorageManager {
         musicCache.clear();
         albumCache.clear();
         artistCache.clear();
+    }
+    
+    // ================= New Methods Added =================
+    
+    /**
+     * Saves the given playlist to local storage.
+     * (Implement your actual saving logic if needed.)
+     *
+     * @param playlist The playlist to save.
+     */
+    public void savePlaylist(Playlist playlist) {
+        System.out.println("LocalStorageManager: Saving playlist '" + playlist.getName() + "'");
+    }
+
+    /**
+     * Loads all playlists from local storage.
+     * (Implement your actual loading logic if needed.)
+     *
+     * @return A list of all playlists.
+     */
+    public List<Playlist> loadAllPlaylists() {
+        System.out.println("LocalStorageManager: Loading all playlists from storage.");
+        return new ArrayList<>();
+    }
+    // ================= End of New Methods =================
+    
+    /**
+     * Retrieves all files stored in the directory specified by fileName.
+     * Assumes that fileName represents a directory.
+     *
+     * @return A list of File objects in the directory.
+     */
+    public List<File> getAllFiles() {
+        List<File> files = new ArrayList<>();
+        File dir = new File(fileName);
+        if (dir.exists() && dir.isDirectory()) {
+            File[] fileArray = dir.listFiles();
+            if (fileArray != null) {
+                for (File f : fileArray) {
+                    files.add(f);
+                }
+            }
+        }
+        return files;
+    }
+    
+    /**
+     * Saves user preferences to local storage.
+     *
+     * @param preferences The map of user preferences to save.
+     */
+    public void savePreferences(Map<String, String> preferences) {
+        System.out.println("LocalStorageManager: Saving user preferences to " + fileName);
+    }
+
+    /**
+     * Loads user preferences from local storage.
+     *
+     * @return A map of user preferences. If none are found, returns an empty map.
+     */
+    public Map<String, String> loadPreferences() {
+        System.out.println("LocalStorageManager: Loading user preferences from " + fileName);
+        return new HashMap<>();
     }
 }

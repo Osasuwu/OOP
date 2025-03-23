@@ -1,14 +1,19 @@
 package services.sync;
 
-import utils.Logger;
-import services.storage.LocalStorageManager;
-import services.network.CloudSyncService;
-
 import java.io.File;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;  // Make sure to import Playlist for syncPlaylist
+import java.nio.file.WatchService;
+import java.util.List;
 
-import models.Playlist;  // Make sure to import Playlist for syncPlaylist
+import models.Playlist;
+import services.network.CloudSyncService;
+import services.storage.LocalStorageManager;
+import utils.Logger;
 
 /**
  * Handles offline mode by tracking local file changes and syncing data when online.
@@ -130,6 +135,7 @@ public class OfflineSyncManager {
     public boolean isOnline() {
         return cloudSyncService.isConnected();
     }
+
 
     /**
      * Performs automatic synchronization if online.
