@@ -1,12 +1,17 @@
 package services.ui;
 
-import services.PlaylistGeneratorApp;
-import models.*;
-import services.*;
-import services.importer.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Scanner;
+
+import models.PlaylistParameters;
+import models.UserMusicData;
+import services.DataImportService;
+import services.PlaylistGeneratorApp;
+import services.importer.CsvDataImportAdapter;
+import services.importer.DataImportAdapter;
+import services.importer.DataImportFactory;
+import services.importer.ImportException;
 
 /**
  * Controller class for Command Line Interface operations
@@ -45,11 +50,12 @@ public class CliController {
                     running = false;
                     System.out.println("Exiting Playlist Generator. Goodbye!");
                     break;
+            
             }
         }
-        
         scanner.close();
     }
+
     
     private void printMainMenu() {
         System.out.println("\n===== Playlist Generator =====");
@@ -57,6 +63,7 @@ public class CliController {
         System.out.println("2. Launch User Interface (Doesn't work yet)");
         System.out.println("3. Import Data");
         System.out.println("4. Exit");
+        System.out.println("5. Test Genre Mapper"); // NEWONEADDESBYNIUSHATEST
         System.out.print("Enter your choice: ");
     }
     
@@ -272,4 +279,4 @@ public class CliController {
         System.out.println("Generating playlist from imported data...");
         app.generatePlaylist(params);
     }
-}
+    }
