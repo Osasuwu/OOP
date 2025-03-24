@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Artist {
-    private String name;
+    private String ArtistName;
     private String spotifyId;
     private int popularity;
     private String imageUrl;
     private List<String> genres;
 
     public Artist(String name) {
-        this.name = name;
+        this.ArtistName = name;
         this.genres = new ArrayList<>();
     }
 
     public String getName() {
-        return name;
+        return ArtistName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.ArtistName = name;
     }
 
     public String getSpotifyId() {
@@ -65,8 +65,12 @@ public class Artist {
         this.spotifyId = spotifyId;
     }
 
+    public String getId() {
+        return spotifyId;
+    }
+
     @Override
     public String toString() {
-        return name;
+        return ArtistName;
     }
 }

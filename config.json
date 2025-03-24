@@ -4,7 +4,7 @@
   "firstRun": false,
   "databasePath": "./data/musicdb.sqlite",
   "dataDirectory": "./data",
-  "defaultUserId": "default",
+  "defaultUserId": "50fa6391-ff9d-40eb-a75a-9799e5685782",
   "collectAnonymousStats": false,
   "playerType": "system",
   "uiPreferences": {
