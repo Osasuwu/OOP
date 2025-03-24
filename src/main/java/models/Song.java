@@ -15,6 +15,7 @@ public class Song {
     private String imageUrl;
     private int popularity;
     private List<String> genres;
+    private String filePath;
 
     public Song(String title, String artistName) {
         this.title = title;
@@ -143,4 +144,12 @@ public class Song {
     public String toString() {
         return title + " by " + artistName;
     }
-}
+
+    public String getFilePath(){
+        return filePath;
+
+    }
+
+    public void SetFilePath(String filePath){
+        this.filePath = filePath;
+    }
