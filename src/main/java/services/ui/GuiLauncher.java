@@ -1,13 +1,9 @@
 package services.ui;
 
-import services.config.ApplicationConfig;
+import services.config.Config;
 
 public class GuiLauncher {
-    public GuiLauncher(){
-
-    }
-    
-    public void start( ApplicationConfig config) {
-        System.out.println("Implementation in progress");
+    public void start(Config config) {
+        System.out.println("Work in progress");
     }
 }

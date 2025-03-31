@@ -1,9 +1,11 @@
 package services.ui;
 
-import services.PlaylistGeneratorApp;
 import models.*;
 import services.*;
 import services.importer.*;
+import services.importer.file.*;
+import services.importer.service.*;
+import app.Application;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -13,11 +15,12 @@ import java.util.*;
  * Handles user interaction and commands for the playlist generator
  */
 public class CliController {
-    private final PlaylistGeneratorApp app;
+    private final Application app;
     private final Scanner scanner;
     private final UserInterface ui;
+    private final AuthenticationService authService = new AuthenticationService();
     
-    public CliController(PlaylistGeneratorApp app) {
+    public CliController(Application app) {
         this.app = app;
         this.scanner = new Scanner(System.in);
         this.ui = new UserInterface();
@@ -29,7 +32,7 @@ public class CliController {
         
         while (running) {
             printMainMenu();
-            int choice = getUserChoice(1, 6);
+            int choice = getUserChoice(1, 5);
             
             switch (choice) {
                 case 1:
@@ -42,6 +45,9 @@ public class CliController {
                     importData();
                     break;
                 case 4:
+                    logout();
+                    return; // Exit the CLI loop after logout
+                case 5:
                     running = false;
                     System.out.println("Exiting Playlist Generator. Goodbye!");
                     break;
@@ -49,6 +55,7 @@ public class CliController {
         }
         
         scanner.close();
+        app.shutdown(); // Make sure to clean up resources
     }
     
     private void printMainMenu() {
@@ -56,7 +63,8 @@ public class CliController {
         System.out.println("1. Generate Playlist (Doesn't work yet)");
         System.out.println("2. Launch User Interface (Doesn't work yet)");
         System.out.println("3. Import Data");
-        System.out.println("4. Exit");
+        System.out.println("4. Logout");
+        System.out.println("5. Exit");
         System.out.print("Enter your choice: ");
     }
     
@@ -121,11 +129,11 @@ public class CliController {
         System.out.println("\n----- Import Data -----");
         System.out.println("1. Import from file");
         System.out.println("2. Import from directory");
-        System.out.println("3. Import from Spotify");
+        System.out.println("3. Import from Streaming Service");
         System.out.println("4. Back to main menu");
         System.out.print("Choose an option: ");
         
-        int choice = getUserChoice(1, 4);
+        int choice = getUserChoice(1, 5);
         
         switch (choice) {
             case 1:
@@ -135,61 +143,49 @@ public class CliController {
                 importFromDirectory();
                 break;
             case 3:
-                importFromSpotify();
+                importFromStreamingService();
                 break;
-            case 4:
-                return;
         }
     }
     
     private void importFromFile() {
         System.out.print("Enter file path to import: ");
-        String filePath = scanner.nextLine().trim();
+        String filePath = scanner.nextLine();
+        
+        System.out.println("Importing data from " + filePath + "...");
         
         try {
+            // Create a path from the file string
             Path path = Paths.get(filePath);
-            DataImportFactory importFactory = new DataImportFactory();
-            DataImportAdapter importAdapter;
             
-            try {
-                // Get appropriate adapter based on file extension
-                importAdapter = importFactory.getAdapter(path);
-                System.out.println("Using " + importAdapter.getClass().getSimpleName() + " for import...");
-            } catch (ImportException e) {
-                // Fallback to CSV adapter if no specific adapter is found
-                System.out.println("No specific adapter found. Defaulting to CSV import...");
-                importAdapter = new CsvDataImportAdapter();
-                if (!importAdapter.canHandle(path)) {
-                    System.err.println("Unsupported file format for: " + filePath);
-                    return;
-                }
-            }
+            // Get the appropriate adapter
+            FileImportAdapterFactory factory = new FileImportAdapterFactory();
+            FileImportAdapter adapter = factory.getAdapter(path);
             
-            System.out.println("Importing data from: " + filePath);
-            UserMusicData importedData = importAdapter.importFromFile(path);
+            // Import the data
+            UserMusicData userData = adapter.importFromFile(path);
             
-            if (importedData != null && !importedData.isEmpty()) {
-                System.out.println("Successfully imported data from " + filePath);
-                System.out.println("Songs: " + importedData.getSongs().size());
-                System.out.println("Artists: " + importedData.getArtists().size());
-                System.out.println("Play history entries: " + importedData.getPlayHistory().size());
+            if (userData != null && !userData.isEmpty()) {
+                System.out.println("Successfully imported from file:");
+                System.out.println("Songs: " + userData.getSongs().size());
+                System.out.println("Artists: " + userData.getArtists().size());
+                System.out.println("Play history entries: " + userData.getPlayHistory().size());
                 
-                // Store imported data
-                app.importUserData(importedData);
+                // Send to Application to save
+                boolean success = app.importUserData(userData);
                 
-                // Ask if user wants to generate a playlist from the imported data
-                System.out.print("Do you want to generate a playlist from the imported data? (y/n): ");
-                if (scanner.nextLine().trim().toLowerCase().startsWith("y")) {
-                    generatePlaylistFromImported();
+                if (success) {
+                    System.out.println("Data successfully saved to database.");
+                } else {
+                    System.out.println("Failed to save data to database.");
                 }
             } else {
-                System.err.println("No usable data found in file: " + filePath);
+                System.out.println("No usable data found in file: " + filePath);
             }
         } catch (ImportException e) {
-            System.err.println("Error importing data: " + e.getMessage());
+            System.out.println("Error importing data: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Unexpected error during import: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("Unexpected error: " + e.getMessage());
         }
     }
     
@@ -198,19 +194,25 @@ public class CliController {
         String directoryPath = scanner.nextLine().trim();
         
         try {
-            DataImportService importService = new DataImportService();
+            BatchFileImportService batchImporter = new BatchFileImportService();
             System.out.println("Importing data from directory: " + directoryPath);
             
-            UserMusicData importedData = importService.importFromDirectory(directoryPath);
+            UserMusicData userData = batchImporter.importFromDirectory(Paths.get(directoryPath));
             
-            if (importedData != null && !importedData.isEmpty()) {
+            if (userData != null && !userData.isEmpty()) {
                 System.out.println("Successfully imported data from directory");
-                System.out.println("Songs: " + importedData.getSongs().size());
-                System.out.println("Artists: " + importedData.getArtists().size());
-                System.out.println("Play history entries: " + importedData.getPlayHistory().size());
+                System.out.println("Songs: " + userData.getSongs().size());
+                System.out.println("Artists: " + userData.getArtists().size());
+                System.out.println("Play history entries: " + userData.getPlayHistory().size());
                 
-                // Store imported data
-                app.saveUserData(importedData);
+                // Import the data through Application
+                boolean success = app.importUserData(userData);
+                
+                if (success) {
+                    System.out.println("Data successfully saved to database.");
+                } else {
+                    System.out.println("Failed to save data to database.");
+                }
             } else {
                 System.err.println("No usable data found in directory: " + directoryPath);
             }
@@ -218,58 +220,89 @@ public class CliController {
             System.err.println("Error importing data: " + e.getMessage());
         }
     }
-    
-    private void importFromSpotify() {
-        System.out.println("\n----- Spotify Import -----");
-        System.out.print("Enter your Spotify user ID: ");
+
+    private void importFromStreamingService() {
+        System.out.println("\n----- Import from Streaming Service -----");
+        System.out.println("1. Spotify");
+        System.out.println("2. Apple Music");
+        System.out.println("3. YouTube Music");
+        System.out.println("4. Back to import menu");
+        System.out.print("Choose a service: ");
+        
+        int choice = getUserChoice(1, 4);
+        if (choice == 4) return;
+        
+        String serviceName;
+        switch (choice) {
+            case 1:
+                serviceName = "spotify";
+                break;
+            case 2:
+                serviceName = "apple_music";
+                break;
+            case 3:
+                serviceName = "youtube_music";
+                break;
+            default:
+                return;
+        }
+        
+        // Collect authentication details
+        Map<String, String> credentials = new HashMap<>();
+        
+        // Generic credential gathering - service-specific adapters will use what they need
+        System.out.print("Enter your access token: ");
+        String token = scanner.nextLine().trim();
+        credentials.put("access_token", token);
+        
+        System.out.print("Enter your user ID (or leave blank if using token): ");
         String userId = scanner.nextLine().trim();
-        
-        System.out.print("Enter your Spotify access token: ");
-        String accessToken = scanner.nextLine().trim();
-        
-        if (userId.isEmpty() || accessToken.isEmpty()) {
-            System.out.println("User ID and access token are required for Spotify import.");
-            return;
+        if (!userId.isEmpty()) {
+            credentials.put("user_id", userId);
         }
         
         try {
-            DataImportService importService = new DataImportService();
-            System.out.println("Connecting to Spotify...");
+            // Get the appropriate adapter
+            ServiceImportAdapterFactory factory = new ServiceImportAdapterFactory();
+            ServiceImportAdapter adapter = factory.getAdapter(serviceName);
             
-            UserMusicData importedData = importService.importFromStreamingService("spotify", accessToken, userId);
+            System.out.println("Importing data from " + serviceName + "...");
             
-            if (importedData != null && !importedData.isEmpty()) {
-                System.out.println("Successfully imported data from Spotify");
-                System.out.println("Songs: " + importedData.getSongs().size());
-                System.out.println("Artists: " + importedData.getArtists().size());
-                System.out.println("Play history entries: " + importedData.getPlayHistory().size());
+            // Import the data
+            UserMusicData userData = adapter.importFromService(credentials);
+            
+            if (userData != null && !userData.isEmpty()) {
+                System.out.println("Successfully imported from " + serviceName + ":");
+                System.out.println("Songs: " + userData.getSongs().size());
+                System.out.println("Artists: " + userData.getArtists().size());
+                System.out.println("Play history entries: " + userData.getPlayHistory().size());
                 
-                // Store imported data
-                app.saveUserData(importedData);
+                // Send to Application to save
+                boolean success = app.importUserData(userData);
+                
+                if (success) {
+                    System.out.println("Data successfully saved to database.");
+                } else {
+                    System.out.println("Failed to save data to database.");
+                }
             } else {
-                System.err.println("No usable data found from Spotify account.");
+                System.out.println("No usable data found from service: " + serviceName);
             }
         } catch (ImportException e) {
-            System.err.println("Error importing from Spotify: " + e.getMessage());
+            System.out.println("Error importing from service: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unexpected error: " + e.getMessage());
         }
     }
     
-    private void generatePlaylistFromImported() {
-        PlaylistParameters params = new PlaylistParameters();
+    private void logout() {
+        System.out.println("\n----- Logging Out -----");
+        authService.logout();
+        System.out.println("You have been logged out successfully.");
+        System.out.println("Restarting application...");
         
-        System.out.print("Enter playlist name: ");
-        params.setName(scanner.nextLine().trim());
-        
-        System.out.print("How many songs (10-100)? ");
-        params.setSongCount(getUserChoice(10, 100));
-        
-        // Set to prefer imported music
-        params.setPreferImportedMusic(true);
-        
-        // Use balanced strategy by default
-        params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
-        
-        System.out.println("Generating playlist from imported data...");
-        app.generatePlaylist(params);
+        // Restart the application by launching a new instance
+        Application app = new Application();
+        app.start();
     }
 }
