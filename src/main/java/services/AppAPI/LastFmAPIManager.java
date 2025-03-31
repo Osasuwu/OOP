@@ -1,4 +1,4 @@
-package services.api;
+package services.AppAPI;
 
 import java.net.URI;
 import java.net.URLEncoder;

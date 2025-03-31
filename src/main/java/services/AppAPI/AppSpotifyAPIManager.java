@@ -1,4 +1,4 @@
-package services.api;
+package services.AppAPI;
 
 import utils.SpotifyAccessToken;
 
@@ -14,7 +14,7 @@ import java.util.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class SpotifyAPIManager {
+public class AppSpotifyAPIManager {
     private static final String SPOTIFY_API_URL = "https://api.spotify.com/v1";
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 1000;
@@ -22,7 +22,7 @@ public class SpotifyAPIManager {
     private String accessToken;
     private final HttpClient client;
     
-    public SpotifyAPIManager() {
+    public AppSpotifyAPIManager() {
         try {
             this.accessToken = SpotifyAccessToken.getAccessToken();
         } catch (IOException | URISyntaxException e) {

@@ -1,7 +1,7 @@
 package services.enrichment;
 
 import models.*;
-import services.api.*;
+import services.AppAPI.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +18,14 @@ import org.slf4j.LoggerFactory;
  */
 public class DataEnrichmentService {
     private final LastFmAPIManager lastFmAPI;
-    private final SpotifyAPIManager spotifyAPI;
+    private final AppSpotifyAPIManager spotifyAPI;
     private final MusicBrainzAPIManager musicBrainzAPI;
     private final ExecutorService executorService;
     private static final Logger logger = LoggerFactory.getLogger(DataEnrichmentService.class);
     
     public DataEnrichmentService() {
         this.lastFmAPI = new LastFmAPIManager();
-        this.spotifyAPI = new SpotifyAPIManager();
+        this.spotifyAPI = new AppSpotifyAPIManager();
         this.musicBrainzAPI = new MusicBrainzAPIManager();
 
         // Use a thread pool to make API calls in parallel
@@ -71,7 +71,7 @@ public class DataEnrichmentService {
                 .count();
                 
             int songsWithAlbums = (int)userData.getSongs().stream()
-                .filter(s -> s.getAlbum() != null && !s.getAlbum().isEmpty())
+                .filter(s -> s.getAlbumName() != null && !s.getAlbumName().isEmpty())
                 .count();
                 
             logger.info("Enrichment results: {}/{} artists with genres, {}/{} songs with genres, {}/{} songs with albums",
@@ -203,7 +203,7 @@ public class DataEnrichmentService {
         
         for (Song song : songs) {
             // Skip songs that already have complete data
-            if (song.getAlbum() != null && !song.getAlbum().isEmpty() && 
+            if (song.getAlbumName() != null && !song.getAlbumName().isEmpty() && 
                 song.getGenres() != null && !song.getGenres().isEmpty()) {
                 alreadyEnrichedCount++;
                 continue;
@@ -212,7 +212,7 @@ public class DataEnrichmentService {
             toEnrichCount++;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    logger.debug("Enriching song: {} by {}", song.getTitle(), song.getArtistName());
+                    logger.debug("Enriching song: {} by {}", song.getTitle(), song.getArtist().getName());
                     long startTime = System.currentTimeMillis();
                     
                     enrichSong(song, userData);
@@ -224,7 +224,7 @@ public class DataEnrichmentService {
                     Thread.sleep(100);
                 } catch (Exception e) {
                     logger.error("Error enriching song {} by {}: {}", 
-                                song.getTitle(), song.getArtistName(), e.getMessage());
+                                song.getTitle(), song.getArtist().getName(), e.getMessage());
                 }
             }, executorService);
             
@@ -252,8 +252,8 @@ public class DataEnrichmentService {
             Artist artist = song.getArtist();
             
             // If still null, create a new artist from the artistName
-            if (artist == null && song.getArtistName() != null) {
-                artist = new Artist(song.getArtistName());
+            if (artist == null && song.getArtist().getName() != null) {
+                artist = new Artist(song.getArtist().getName());
                 song.setArtist(artist);
             }
             
@@ -266,19 +266,20 @@ public class DataEnrichmentService {
             // Continue with enrichment logic
             // Try to get song details from Spotify using track ID if available
             String trackId = song.getSpotifyId();
+            String artistName = artist.getName();
             Map<String, Object> songInfo;
             
             if (trackId != null && !trackId.isEmpty()) {
                 songInfo = spotifyAPI.getTrackInfo(trackId);
             } else {
                 // Search by title and artist if ID not available
-                songInfo = spotifyAPI.searchTrack(song.getTitle(), song.getArtist().getName());
+                songInfo = spotifyAPI.searchTrack(songTitle, artistName);
             }
             
             // Update album if missing
-            if ((song.getAlbum() == null || song.getAlbum().isEmpty()) && 
+            if ((song.getAlbumName() == null || song.getAlbumName().isEmpty()) && 
                 songInfo.containsKey("album")) {
-                song.setAlbum((String) songInfo.get("album"));
+                song.setAlbumName((String) songInfo.get("album"));
             }
             
             // Update duration if missing
