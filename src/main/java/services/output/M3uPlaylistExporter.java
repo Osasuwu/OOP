@@ -16,7 +16,7 @@ public class M3uPlaylistExporter implements PlaylistExporter {
                 writer.append("#EXTINF:")
                       .append(String.valueOf(song.getDurationMs()))
                       .append(",")
-                      .append(song.getArtistName()) // Use the correct method
+                      .append(song.getArtist().getName()) // Use the correct method
                       .append(" - ")
                       .append(song.getTitle())
                       .append("\n");
