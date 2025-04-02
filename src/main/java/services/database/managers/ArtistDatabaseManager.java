@@ -294,4 +294,40 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
             LOGGER.error("Error saving artist genres in offline mode", e);
         }
     }
+
+    public List<Artist> loadArtists(Connection conn) throws SQLException {
+        List<Artist> artists = new ArrayList<>();
+        String sql = "SELECT id, name, image_url FROM artists WHERE user_id = ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, user.getId());
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Artist artist = new Artist(rs.getString("name"));
+                    artist.setId(rs.getString("id"));
+                    artist.setSpotifyId(rs.getString("spotify_id"));
+                    artist.setSpotifyLink(rs.getString("spotify_link"));
+                    artist.setPopularity(rs.getInt("popularity"));
+                    artist.setImageUrl(rs.getString("image_url"));
+                    artists.add(artist);
+                }
+            }
+        }
+
+        String genreSql = "SELECT artist_id, genre FROM artist_genres WHERE artist_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(genreSql)) {
+            for (Artist artist : artists) {
+                stmt.setString(1, artist.getId());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    List<String> genres = new ArrayList<>();
+                    while (rs.next()) {
+                        genres.add(rs.getString("genre"));
+                    }
+                    artist.setGenres(genres);
+                }
+            }
+        }
+        
+        return artists;
+    }
 }

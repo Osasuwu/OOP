@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import models.Artist;
 import models.Playlist;
+import models.PlaylistParameters;
 import models.PlaylistPreferences;
 import models.Song;
 import models.UserMusicData;
@@ -31,7 +32,7 @@ public class PlaylistGenerator {
      * @param preferences Playlist generation preferences
      * @return A generated playlist
      */
-    public Playlist generatePlaylist(UserMusicData userData, PlaylistPreferences preferences) {
+    public Playlist generatePlaylist(UserMusicData userData, PlaylistParameters params, PlaylistPreferences preferences) {
         // Generate based on available data
         if (!userData.getPlayHistory().isEmpty()) {
             return generateFromHistory(userData, preferences);
@@ -111,7 +112,7 @@ public class PlaylistGenerator {
         if (preferences.getExcludeArtists() != null && !preferences.getExcludeArtists().isEmpty()) {
             Set<String> excludedArtists = new HashSet<>(preferences.getExcludeArtists());
             candidateSongs = candidateSongs.stream()
-                .filter(song -> !excludedArtists.contains(song.getArtistName()))
+                .filter(song -> !excludedArtists.contains(song.getArtist().getName()))
                 .collect(Collectors.toList());
         }
         
@@ -184,9 +185,9 @@ public class PlaylistGenerator {
         for (Song song : candidateSongs) {
             if (selected.size() >= count) break;
             
-            if (!includedArtists.contains(song.getArtistName())) {
+            if (!includedArtists.contains(song.getArtist().getName())) {
                 selected.add(song);
-                includedArtists.add(song.getArtistName());
+                includedArtists.add(song.getArtist().getName());
             }
         }
         

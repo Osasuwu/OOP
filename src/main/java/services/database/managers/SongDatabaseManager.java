@@ -13,7 +13,6 @@ import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import models.Artist;
 import models.Song;
 import models.User;
 
@@ -288,5 +287,29 @@ public class SongDatabaseManager extends BaseDatabaseManager {
         }
         
         return existingIds;
+    }
+
+    public List<Song> loadSongs(Connection conn) throws SQLException {
+        List<Song> songs = new ArrayList<>();
+        
+        if (isOnline) {
+            String query = "SELECT id, title, artist_id, duration, genre FROM songs WHERE user_id = ?";
+            try (java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setObject(1, UUID.fromString(user.getId()));
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        Song song = new Song(rs.getString("title"), rs.getString("artist_name"));
+                        song.setId(rs.getString("id"));
+                        song.setArtistId(rs.getString("artist_id"));
+                        song.setDurationMs(rs.getLong("duration"));
+                        songs.add(song);
+                    }
+                }
+            }
+        } else {
+            // Load from local storage implementation
+        }
+        
+        return songs;
     }
 }

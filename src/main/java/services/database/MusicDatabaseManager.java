@@ -139,6 +139,16 @@ public class MusicDatabaseManager {
         });
     }
 
+    public UserMusicData loadUserData() throws SQLException {
+        return withConnection(conn -> {
+            UserMusicData userData = new UserMusicData();
+            userData.setArtists(artistManager.loadArtists(conn));
+            userData.setSongs(songManager.loadSongs(conn));
+            userData.setPlayHistory(playHistoryManager.loadPlayHistory(conn, user));
+            return userData;
+        });
+    }
+
     public Connection getConnection() throws SQLException {
         return connectionPool.getConnection();
     }

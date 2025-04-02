@@ -2,6 +2,7 @@ package services.database.managers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -119,4 +120,28 @@ public class PlayHistoryManager extends BaseDatabaseManager {
         }
         return new ArrayList<>();
     }
+    
+    public List<PlayHistory> loadPlayHistory(Connection conn, User user) throws SQLException {
+    if (!isOnline) {
+        return loadPlayHistoryFromFile();
+    }
+    
+    List<PlayHistory> history = new ArrayList<>();
+    String sql = "SELECT * FROM play_history WHERE user_id = ?";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setObject(1, UUID.fromString(user.getId()));
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                // You'll need to adjust this to match your database schema
+                PlayHistory entry = new PlayHistory(null); // Replace null with actual song
+                entry.setTimestamp(rs.getTimestamp("timestamp"));
+                entry.setDurationMs(rs.getLong("duration_ms"));
+                entry.setCompleted(rs.getBoolean("completed"));
+                entry.setSource(rs.getString("source"));
+                history.add(entry);
+            }
+        }
+    }
+    return history;
+}
 }

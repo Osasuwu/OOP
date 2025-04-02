@@ -143,4 +143,10 @@ public class Song {
     public void SetFilePath(String filePath){
         this.filePath = filePath;
     }
+
+    public void setArtistId(String artistId) {
+        if (artist != null) {
+            artist.setId(artistId);
+        }
+    }
 }

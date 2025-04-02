@@ -5,9 +5,6 @@ import services.AppAPI.*;
 import services.database.*;
 import services.output.*;
 import services.ui.*;
-import services.importer.*;
-import services.importer.file.*;
-import services.importer.service.*;
 import services.enrichment.DataEnrichmentManager;
 import models.*;
 import utils.*;
@@ -17,10 +14,6 @@ import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.file.*;
-import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * Main application class that serves as the entry point to the Playlist Generator.
@@ -202,7 +195,9 @@ public class Application {
     public boolean generatePlaylist(PlaylistParameters params) {
         try {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
-            generatedPlaylist = playlistGenerator.generate(params);
+            Map<String, Object> preferencesMap = dbManager.getUserPreferences();
+            PlaylistPreferences preferences = new PlaylistPreferences(preferencesMap);
+            generatedPlaylist = playlistGenerator.generatePlaylist(dbManager.loadUserData(), params, preferences);
             return generatedPlaylist != null;
         } catch (Exception e) {
             LOGGER.error("Error generating playlist: {}", e.getMessage(), e);

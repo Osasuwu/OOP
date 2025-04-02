@@ -2,6 +2,7 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User preferences for playlist generation
@@ -12,6 +13,7 @@ public class PlaylistPreferences {
     private List<String> genres;
     private List<String> excludeArtists;
     private PlaylistParameters.PlaylistSelectionStrategy selectionStrategy;
+    private Map<String, Object> preferences;
     
     public PlaylistPreferences() {
         this.name = "New Playlist";
@@ -28,6 +30,19 @@ public class PlaylistPreferences {
         this.genres = new ArrayList<>(params.getGenres());
         this.excludeArtists = new ArrayList<>(params.getExcludeArtists());
         this.selectionStrategy = params.getSelectionStrategy();
+    }
+    
+    public PlaylistPreferences(Map<String, Object> preferencesMap) {
+        this.preferences = preferencesMap;
+    }
+    
+    // Add getters and other methods as needed
+    public Object getPreference(String key) {
+        return preferences.get(key);
+    }
+    
+    public Map<String, Object> getAllPreferences() {
+        return preferences;
     }
 
     public String getName() {

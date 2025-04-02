@@ -6,6 +6,7 @@ import java.util.List;
 public class Artist {
     private String artistName;
     private String spotifyId;
+    private String SpotifyLink;
     private int popularity;
     private String imageUrl;
     private List<String> genres;
@@ -37,6 +38,14 @@ public class Artist {
 
     public void setPopularity(int popularity) {
         this.popularity = popularity;
+    }
+
+    public String getSpotifyLink() {
+        return SpotifyLink;
+    }
+
+    public void setSpotifyLink(String spotifyLink) {
+        this.SpotifyLink = spotifyLink;
     }
 
     public String getImageUrl() {

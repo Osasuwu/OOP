@@ -217,7 +217,7 @@ public class RecommendationEngine {
         List<Song> recommendations = getRecommendations("defaultUser");
         List<Song> moodFiltered = recommendations.stream()
                 .filter(song -> song.getTitle().toLowerCase().contains(mood.toLowerCase()) ||
-                                song.getArtistName().toLowerCase().contains(mood.toLowerCase()))
+                                song.getArtist().getName().toLowerCase().contains(mood.toLowerCase()))
                 .collect(Collectors.toList());
         return moodFiltered.size() > maxResults
             ? moodFiltered.subList(0, maxResults)
