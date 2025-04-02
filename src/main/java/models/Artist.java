@@ -1,57 +1,26 @@
 package models;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Represents a music artist with all relevant metadata
- */
 public class Artist {
-    private String id;
-    private String name;
-    private List<String> genres;
-    private int popularity;
+    private String artistName;
     private String spotifyId;
-    private String spotifyLink;
+    private int popularity;
     private String imageUrl;
+    private List<String> genres;
 
     public Artist(String name) {
-        this.name = name;
+        this.artistName = name;
         this.genres = new ArrayList<>();
-        this.popularity = 0;
-    }
-
-    // Getters and setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getName() {
-        return name;
+        return artistName;
     }
 
     public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<String> getGenres() {
-        return genres;
-    }
-
-    public void setGenres(List<String> genres) {
-        this.genres = genres;
-    }
-
-    public int getPopularity() {
-        return popularity;
-    }
-
-    public void setPopularity(int popularity) {
-        this.popularity = popularity;
+        this.artistName = name;
     }
 
     public String getSpotifyId() {
@@ -62,12 +31,12 @@ public class Artist {
         this.spotifyId = spotifyId;
     }
 
-    public String getSpotifyLink() {
-        return spotifyLink;
+    public int getPopularity() {
+        return popularity;
     }
 
-    public void setSpotifyLink(String spotifyLink) {
-        this.spotifyLink = spotifyLink;
+    public void setPopularity(int popularity) {
+        this.popularity = popularity;
     }
 
     public String getImageUrl() {
@@ -78,21 +47,36 @@ public class Artist {
         this.imageUrl = imageUrl;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Artist artist = (Artist) o;
-        return name != null && name.equalsIgnoreCase(artist.name);
+    public List<String> getGenres() {
+        return genres;
     }
 
-    @Override
-    public int hashCode() {
-        return name != null ? name.toLowerCase().hashCode() : 0;
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
+    public void addGenre(String genre) {
+        if (!genres.contains(genre)) {
+            genres.add(genre);
+        }
+    }
+
+    // Provided id accessor methods (using spotifyId as the id)
+    public void setId(String spotifyId) {
+        this.spotifyId = spotifyId;
+    }
+
+    public String getId() {
+        return spotifyId;
+    }
+    
+    public List<Song> getTopSongs() {
+        // Return a list of top songs by the artist
+        return new ArrayList<>(); // Replace with actual logic for retrieving top songs
     }
 
     @Override
     public String toString() {
-        return name;
+        return artistName;
     }
 }
