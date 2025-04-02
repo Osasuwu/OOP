@@ -12,6 +12,7 @@ public class Song {
     private String title;
     private String albumName;
     private List<String> genres;
+    private String filePath;
     private long durationMs;
     private int popularity;
     private String spotifyId;
@@ -132,5 +133,14 @@ public class Song {
 
     public void setExplicit(boolean explicit) {
         isExplicit = explicit;
+    }
+
+    public String getFilePath(){
+        return filePath;
+
+    }
+
+    public void SetFilePath(String filePath){
+        this.filePath = filePath;
     }
 }
