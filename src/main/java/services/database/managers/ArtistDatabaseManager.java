@@ -132,7 +132,6 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
                 if (artist.getId() == null) {
                     continue;
                 }
-                // Convert String ID to UUID
                 stmt.setObject(1, UUID.fromString(artist.getId()));
                 stmt.setString(2, artist.getName());
                 stmt.setString(3, artist.getSpotifyId());

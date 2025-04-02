@@ -50,6 +50,10 @@ public class UserMusicData {
      */
     public void addSong(Song song) {
         if (song == null) return;
+
+        if (song.getId() == null) {
+            song.setId(UUID.randomUUID().toString());
+        }
         
         boolean exists = false;
         for (Song existingSong : songs) {
@@ -70,6 +74,10 @@ public class UserMusicData {
      */
     public void addArtist(Artist artist) {
         if (artist == null) return;
+
+        if(artist.getId() == null) {
+            artist.setId(UUID.randomUUID().toString());
+        }
         
         boolean exists = false;
         for (Artist existingArtist : artists) {

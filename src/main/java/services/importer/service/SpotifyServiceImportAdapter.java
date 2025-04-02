@@ -63,9 +63,7 @@ public class SpotifyServiceImportAdapter implements ServiceImportAdapter {
                 // Add play history entry if timestamp exists
                 if (songData.containsKey("played_at")) {
                     try {
-                        PlayHistory playEntry = new PlayHistory();
-                        playEntry.setSong(song);
-                        playEntry.setTimestamp(new Date(Long.parseLong(songData.get("played_at"))));
+                        PlayHistory playEntry = new PlayHistory(song, new Date(Long.parseLong(songData.get("played_at"))));
                         userData.addPlayHistory(playEntry);
                     } catch (NumberFormatException e) {
                         // Silently ignore parsing errors for timestamps
@@ -243,8 +241,7 @@ public class SpotifyServiceImportAdapter implements ServiceImportAdapter {
                 }
                 
                 // Create play history entry
-                PlayHistory playEntry = new PlayHistory();
-                playEntry.setSong(song);
+                PlayHistory playEntry = new PlayHistory(song);
                 
                 // Parse timestamp
                 if (entry.containsKey("played_at")) {

@@ -7,6 +7,8 @@ import services.AppAPI.*;
 
 import java.util.concurrent.*;
 import java.util.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Manages the enrichment of music data from various external services
@@ -86,27 +88,31 @@ public class DataEnrichmentManager {
         for (Artist artist : artists) {
             Future<Void> future = executorService.submit(() -> {
                 try {
+                    // URL encode the artist name before making API requests
+                    String encodedArtistName = encodeForUrl(artist.getName());
+                    
                     // Try to get artist info from Spotify
-                    Map<String, Object> spotifyInfo = spotifyManager.getArtistInfo(artist.getName());
+                    Map<String, Object> spotifyInfo = spotifyManager.getArtistInfo(encodedArtistName);
                     if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
                         updateArtistFromSpotify(artist, spotifyInfo);
                     }
-                    
-                    // If no genres yet, try Last.fm
+
+                    // If no genres, try MusicBrainz
+                    if (artist.getImageUrl() == null || artist.getGenres().isEmpty()) {
+                        Map<String, Object> mbInfo = musicBrainzManager.getArtistInfo(encodedArtistName);
+                        if (mbInfo != null && !mbInfo.isEmpty()) {
+                            updateArtistFromMusicBrainz(artist, mbInfo);
+                        }
+                    }
+
+                    // If still no genres yet, try Last.fm
                     if (artist.getGenres() == null || artist.getGenres().isEmpty()) {
-                        Map<String, Object> lastFmInfo = lastFmManager.getArtistInfo(artist.getName());
+                        Map<String, Object> lastFmInfo = lastFmManager.getArtistInfo(encodedArtistName);
                         if (lastFmInfo != null && !lastFmInfo.isEmpty()) {
                             updateArtistFromLastFm(artist, lastFmInfo);
                         }
                     }
                     
-                    // If still no image, try MusicBrainz
-                    if (artist.getImageUrl() == null || artist.getImageUrl().isEmpty()) {
-                        Map<String, Object> mbInfo = musicBrainzManager.getArtistInfo(artist.getName());
-                        if (mbInfo != null && !mbInfo.isEmpty()) {
-                            updateArtistFromMusicBrainz(artist, mbInfo);
-                        }
-                    }
                 } catch (Exception e) {
                     LOGGER.warn("Failed to enrich artist {}: {}", artist.getName(), e.getMessage());
                 }
@@ -132,13 +138,23 @@ public class DataEnrichmentManager {
         for (Song song : songs) {
             Future<Void> future = executorService.submit(() -> {
                 try {
-                    // Try to get song info from Spotify
-                    Map<String, Object> spotifyInfo = spotifyManager.searchTrack(
-                        song.getTitle(), song.getArtist().getName());
+                    // URL encode the title and artist name
+                    String encodedTitle = encodeForUrl(song.getTitle());
+                    String encodedArtistName = encodeForUrl(song.getArtist().getName());
                     
-                    if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
-                        updateSongFromSpotify(song, spotifyInfo);
+                    // Try to get song info from Spotify
+                    if (song.getSpotifyId() != null || !song.getSpotifyId().isEmpty()) {
+                        Map<String, Object> spotifyInfo = spotifyManager.getTrackInfo(song.getSpotifyId());
+                        if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
+                            updateSongFromSpotify(song, spotifyInfo);
+                        }
+                    } else {
+                        Map<String, Object> spotifyInfo = spotifyManager.searchTrack(encodedTitle, encodedArtistName);
+                        if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
+                            updateSongFromSpotify(song, spotifyInfo);
+                        }
                     }
+                    
                     
                 } catch (Exception e) {
                     LOGGER.warn("Failed to enrich song {} by {}: {}", 
@@ -251,6 +267,24 @@ public class DataEnrichmentManager {
         
         if (spotifyInfo.containsKey("spotify_link")) {
             song.setSpotifyLink((String) spotifyInfo.get("spotify_link"));
+        }
+    }
+    
+    /**
+     * URL encodes a string for safe API requests
+     * 
+     * @param input The string to encode
+     * @return The URL encoded string
+     */
+    private String encodeForUrl(String input) {
+        if (input == null) {
+            return "";
+        }
+        try {
+            return URLEncoder.encode(input, StandardCharsets.UTF_8.toString());
+        } catch (Exception e) {
+            LOGGER.warn("Failed to URL encode string: {}", input);
+            return input; // Return unencoded as fallback
         }
     }
     

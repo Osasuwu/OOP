@@ -29,87 +29,83 @@ public class CsvFileImportAdapter implements FileImportAdapter {
     private static final String[] SUPPORTED_EXTENSIONS = {".csv", ".tsv", ".txt"};
     
     // Patterns for automatic field detection
-    private static final Pattern DATE_PATTERN = Pattern.compile("\\d{1,4}[/-]\\d{1,2}[/-]\\d{1,4}|\\d{1,2}\\s[A-Za-z]{3,12}\\s\\d{1,4}");
+    private static final Pattern DATE_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}|^\"?[A-Z][a-z]+ \\d{1,2}, \\d{4}");
     private static final Pattern SPOTIFY_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9]{22}$");
     private static final Pattern URL_PATTERN = Pattern.compile("^https?://");
-    private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}|\\d{1,2}/\\d{1,2}/\\d{4}|[A-Za-z]+ \\d{1,2}, \\d{4}");
     
-    // Special pattern for Spotify timestamp format: "January 2, 2025 at 08:50PM - Song Title"
-    private static final Pattern SPOTIFY_TIMESTAMP_SONG_PATTERN = 
-            Pattern.compile("([A-Za-z]+ \\d{1,2}, \\d{4} at \\d{1,2}:\\d{2}[AP]M) - (.+)");
-    
-    // Array of date formats to try when parsing dates
-    private static final SimpleDateFormat[] DATE_FORMATS = {
-        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US),
-        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US),
-        new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US),
-        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US),
-        new SimpleDateFormat("yyyy-MM-dd", Locale.US),
-        new SimpleDateFormat("yyyy/MM/dd", Locale.US),
-        new SimpleDateFormat("MM/dd/yyyy", Locale.US),
-        new SimpleDateFormat("dd/MM/yyyy", Locale.US),
-        new SimpleDateFormat("dd MMM yyyy", Locale.US),
-        new SimpleDateFormat("MMM dd, yyyy", Locale.US),
-        new SimpleDateFormat("MMMM d, yyyy 'at' hh:mma", Locale.US),
-        new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss", Locale.US),
-        new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.US)
-    };
+    // Column index mappings
+    private Map<Integer, String> columnMappings = new HashMap<>();
     
     @Override
     public UserMusicData importFromFile(Path filePath) throws ImportException {
         LOGGER.info("Starting CSV import from file: {}", filePath);
         
+        try (InputStream inputStream = Files.newInputStream(filePath)) {
+            return importFromStream(inputStream, filePath.getFileName().toString());
+        } catch (IOException e) {
+            LOGGER.error("Failed to read CSV file: {}", filePath, e);
+            throw new ImportException("Failed to read CSV file: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Import data from an input stream
+     * @param inputStream The input stream to read from
+     * @param sourceName Name of the source for logging
+     * @return UserMusicData containing the imported data
+     * @throws ImportException If there's an error during import
+     */
+    private UserMusicData importFromStream(InputStream inputStream, String sourceName) throws ImportException {
+        LOGGER.info("Processing data from stream: {}", sourceName);
         UserMusicData userData = new UserMusicData();
         
         try {
-            // Read all lines from the input stream first
-            List<String> lines = Files.readAllLines(filePath);
+            // Read all lines from the input stream
+            List<String> lines = readLines(inputStream);
             
             if (lines.isEmpty()) {
-                throw new ImportException("Empty CSV content");
+                LOGGER.warn("Empty file provided: {}", sourceName);
+                throw new ImportException("Empty file");
             }
+
+            LOGGER.info("Read {} lines from {}", lines.size(), sourceName);
             
             // Process the first line to determine if it's a header
             String firstLine = lines.get(0);
-            String delimiter = detectDelimiter(firstLine);
+            String[] firstLineValues = parseCsvLine(firstLine);
             
-            String[] firstLineValues = parseCsvLine(firstLine, delimiter);
-            
-            // Check if this is a headerless file
-            boolean hasHeader = isHeaderLine(firstLineValues);
             String[] header;
+            boolean hasHeader = isHeaderLine(firstLineValues);
             
-            List<String> dataLines;
             if (hasHeader) {
                 LOGGER.info("Header detected: {}", String.join(", ", firstLineValues));
                 header = firstLineValues;
-                dataLines = lines.subList(1, lines.size()); // Skip header for processing
+                lines.remove(0); // Skip header for processing
             } else {
                 LOGGER.info("No header detected, inferring column names");
                 header = inferHeaderFromData(firstLineValues);
                 LOGGER.info("Inferred headers: {}", String.join(", ", header));
-                dataLines = lines; // Process all lines including the first one
             }
+
+            LOGGER.info("Starting to process {} data lines", lines.size());
             
             int processedRows = 0;
             int skippedRows = 0;
             int successfulEntries = 0;
             
-            // Track unique artists and songs to prevent duplicates
-            Map<String, Artist> artistMap = new HashMap<>();
-            Map<String, Song> songMap = new HashMap<>();
-            
-            // Process data lines
-            for (String line : dataLines) {
+            // Process all data lines
+            for (String line : lines) {
                 if (line.trim().isEmpty()) {
                     skippedRows++;
                     continue;
                 }
-                String[] values = parseCsvLine(line, delimiter);
-                boolean processed = processRow(values, header, userData, artistMap, songMap);
+                
+                String[] values = parseCsvLine(line);
+                boolean processed = processRow(values, header, userData);
                 if (processed) {
                     successfulEntries++;
                 }
+                
                 processedRows++;
                 
                 // Log progress for large files
@@ -117,34 +113,48 @@ public class CsvFileImportAdapter implements FileImportAdapter {
                     LOGGER.info("Processed {} rows so far...", processedRows);
                 }
             }
-            
-            // Add all unique artists and songs to the user data
-            userData.setArtists(new ArrayList<>(artistMap.values()));
-            userData.setSongs(new ArrayList<>(songMap.values()));
-            
-            LOGGER.info("CSV import completed. Processed: {} rows, Skipped: {} empty rows, " +
-                      "Successfully imported: {} entries", 
+
+            LOGGER.info("CSV import completed. Processed: {} rows, Skipped: {} empty rows, Successfully imported: {} entries", 
                       processedRows, skippedRows, successfulEntries);
             
-            LOGGER.info("Found {} unique artists, {} unique songs, {} play history entries",
-                      artistMap.size(), songMap.size(), userData.getPlayHistory().size());
+            LOGGER.info("Found {} unique songs, {} unique artists, {} play history entries", 
+                       userData.getSongs().size(), userData.getArtists().size(), userData.getPlayHistory().size());
             
             return userData;
         } catch (IOException e) {
-            LOGGER.error("Error reading CSV file: {}", filePath, e);
-            throw new ImportException("Error reading CSV file: " + e.getMessage(), e);
+            LOGGER.error("Error reading CSV data: {}", sourceName, e);
+            throw new ImportException("Error reading CSV data: " + e.getMessage(), e);
         }
     }
     
     /**
-     * Check if the line is likely a header line based on content analysis
-     * Uses heuristic detection based on keywords and patterns
+     * Read all non-empty lines from an input stream
+     */
+    private List<String> readLines(InputStream inputStream) throws IOException {
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    lines.add(line);
+                }
+            }
+        }
+        return lines;
+    }
+
+    /**
+     * Check if a line is likely a header based on content analysis
+     * Uses heuristic detection:
+     * 1. Headers typically contain keywords like "artist", "title"
+     * 2. Headers typically don't contain dates or IDs
      */
     private boolean isHeaderLine(String[] values) {
         if (values.length == 0) return false;
         
-        // Common header keywords
+        // Common header keywords to look for
         String[] commonHeaders = {"artist", "title", "track", "song", "album", "genre", "date", "timestamp", "id"};
+        
         int headerKeywordMatches = 0;
         int potentialDataFields = 0;
         
@@ -159,7 +169,7 @@ public class CsvFileImportAdapter implements FileImportAdapter {
                 }
             }
             
-            // Check for data patterns that likely aren't headers
+            // Check for patterns that suggest this is data, not a header
             if (DATE_PATTERN.matcher(value).find() || 
                 SPOTIFY_ID_PATTERN.matcher(value).matches() || 
                 URL_PATTERN.matcher(value).find()) {
@@ -167,57 +177,13 @@ public class CsvFileImportAdapter implements FileImportAdapter {
             }
         }
         
-        // If we find multiple potential header names and few data patterns, it's likely a header
+        // If we find multiple header keywords and few data patterns, it's likely a header
         return headerKeywordMatches >= 2 || (headerKeywordMatches > 0 && potentialDataFields == 0);
-    }
-    
-    private String detectDelimiter(String line) {
-        // Detect if the file is tab-delimited, comma-delimited, or semicolon-delimited
-        if (line.contains("\t") && !line.contains(",")) {
-            return "\t"; // Tab-delimited
-        }
-        if (line.contains(",")) {
-            return ","; // Comma-delimited
-        }
-        if (line.contains(";")) {
-            return ";"; // Semicolon-delimited (common in European CSV)
-        }
-        return ","; // Default to comma-delimited
-    }
-    
-    private String[] parseCsvLine(String line, String delimiter) {
-        // Handle quoted values with commas inside them
-        List<String> tokens = new ArrayList<>();
-        boolean inQuotes = false;
-        StringBuilder currentToken = new StringBuilder();
-        
-        for (char c : line.toCharArray()) {
-            if (c == '\"') {
-                inQuotes = !inQuotes;
-            } else if (c == delimiter.charAt(0) && !inQuotes) {
-                tokens.add(currentToken.toString().trim());
-                currentToken = new StringBuilder();
-            } else {
-                currentToken.append(c);
-            }
-        }
-        
-        // Add the last token
-        tokens.add(currentToken.toString().trim());
-        
-        // Clean up tokens (remove surrounding quotes)
-        for (int i = 0; i < tokens.size(); i++) {
-            String token = tokens.get(i);
-            if (token.startsWith("\"") && token.endsWith("\"")) {
-                tokens.set(i, token.substring(1, token.length() - 1));
-            }
-        }
-        
-        return tokens.toArray(new String[0]);
     }
     
     /**
      * Infer column headers from data when no explicit headers are present
+     * Analyzes content patterns to guess column meanings
      */
     private String[] inferHeaderFromData(String[] dataLine) {
         String[] inferredHeaders = new String[dataLine.length];
@@ -226,18 +192,18 @@ public class CsvFileImportAdapter implements FileImportAdapter {
             String value = dataLine[i].trim();
             
             // Check for various patterns to infer column meaning
-            if (i == 0 && TIMESTAMP_PATTERN.matcher(value).find()) {
+            if (i == 0 && DATE_PATTERN.matcher(value).find()) {
                 inferredHeaders[i] = "timestamp";
             } else if (SPOTIFY_ID_PATTERN.matcher(value).matches()) {
                 inferredHeaders[i] = "spotify_id";
             } else if (URL_PATTERN.matcher(value).find()) {
                 inferredHeaders[i] = "url";
-            } else if (i == 0) {
-                inferredHeaders[i] = "title"; // First column typically contains track name
             } else if (i == 1) {
-                inferredHeaders[i] = "artist"; // Second column typically contains artist name
+                // Common pattern: second column is often the song title
+                inferredHeaders[i] = "title";
             } else if (i == 2) {
-                inferredHeaders[i] = "album"; // Third column could be album
+                // Common pattern: third column is often the artist
+                inferredHeaders[i] = "artist";
             } else {
                 // Default column name
                 inferredHeaders[i] = "column_" + (i + 1);
@@ -248,288 +214,207 @@ public class CsvFileImportAdapter implements FileImportAdapter {
     }
     
     /**
-     * Process a single row of CSV data and add it to the UserMusicData object.
-     * Handles flexible mapping of columns and data normalization.
+     * Process a single row of CSV data and add it to the UserMusicData object
      */
-    private boolean processRow(String[] values, String[] header, UserMusicData userData, 
-                              Map<String, Artist> artistMap, Map<String, Song> songMap) {
-        if (values.length < 1) {
-            LOGGER.debug("Skipping row with insufficient data (fewer than 1 column)");
+    private boolean processRow(String[] values, String[] header, UserMusicData userData) {
+        if (values.length < 2) {
+            LOGGER.debug("Skipping row with insufficient data (fewer than 2 columns)");
             return false; // Skip rows without minimum data
         }
         
         // Map CSV data to object model
         Map<String, String> rowData = new HashMap<>();
         for (int i = 0; i < Math.min(header.length, values.length); i++) {
-            String headerKey = header[i].toLowerCase();
-            String value = values[i].trim();
-            
-            // Remove quotes if still present
-            if (value.startsWith("\"") && value.endsWith("\"")) {
-                value = value.substring(1, value.length() - 1);
-            }
-            
-            rowData.put(headerKey, value);
+            rowData.put(header[i].toLowerCase(), values[i]);
         }
-        
-        // Special handling for Spotify format where the timestamp and song are merged
-        // Example: "January 2, 2025 at 08:50PM - Song Title"
-        String firstColumnValue = values[0].trim();
-        Matcher spotifyFormatMatcher = SPOTIFY_TIMESTAMP_SONG_PATTERN.matcher(firstColumnValue);
-        
-        if (spotifyFormatMatcher.matches()) {
-            // We have a combined timestamp and song title
-            String timestamp = spotifyFormatMatcher.group(1);
-            String songTitle = spotifyFormatMatcher.group(2).trim();
-            Date playDate = tryParseDate(timestamp);
-            
-            // Get artist name from another column or use default
-            String artistName = null;
-            if (values.length > 1) {
-                artistName = values[1].trim();
-            }
-            
-            // If artist name is empty, try to get it from another field
-            if (artistName == null || artistName.isEmpty()) {
-                artistName = findValueByPossibleKeys(rowData, "artist", "artist_name", "performer", "artistname");
-            }
-            
-            // If still no artist, use default
-            if (artistName == null || artistName.isEmpty()) {
-                artistName = "Unknown Artist";
-            }
-            
-            return createSongEntry(songTitle, artistName, playDate, userData, artistMap, songMap);
-        } 
         
         // Extract title and artist with flexible mapping
-        String title = findValueByPossibleKeys(rowData, "title", "track", "track_name", "name", "song", "track title", "column_1");
-        String artistName = findValueByPossibleKeys(rowData, "artist", "artist_name", "performer", "artistname", "column_2");
-        Date playDate = null;
+        String title = null;
+        String artistName = null;
         
-        // Check if title contains a timestamp and song title format
-        if (title != null && title.contains(" - ") && isLikelyTimestamp(title.split(" - ")[0])) {
-            String[] parts = title.split(" - ", 2);
-            playDate = tryParseDate(parts[0]);
-            title = parts[1].trim();
+        // Look for title in various column names
+        for (String titleKey : Arrays.asList("title", "track", "track_name", "name", "song", "column_2")) {
+            if (rowData.containsKey(titleKey) && !rowData.get(titleKey).isEmpty()) {
+                title = rowData.get(titleKey);
+                break;
+            }
         }
         
-        // If we still don't have title and artist, try to use the first two columns
-        if ((title == null || title.isEmpty()) && values.length >= 1) {
-            title = values[0].trim();
+        // Look for artist in various column names
+        for (String artistKey : Arrays.asList("artist", "artist_name", "performer", "column_3")) {
+            if (rowData.containsKey(artistKey) && !rowData.get(artistKey).isEmpty()) {
+                artistName = rowData.get(artistKey);
+                break;
+            }
+        }
+        
+        // Create and add song if we have title and artist
+        if (title != null && artistName != null && !title.isEmpty() && !artistName.isEmpty()) {
+            LOGGER.debug("Processing song: '{}' by '{}'", title, artistName);
             
-            // Handle possible timestamp in first column
-            if (isLikelyTimestamp(title) && values.length >= 2) {
-                playDate = tryParseDate(title);
-                title = values[1].trim();
-                
-                // If there's a third column, use that as artist
-                if (values.length >= 3) {
-                    artistName = values[2].trim();
+            // Create artist if needed - using proper method to prevent duplicates
+            Artist artist = userData.findOrCreateArtist(artistName);
+            
+            // Create song and link to artist
+            Song song = new Song(title, artistName);
+            song.setArtist(artist);
+            
+            // Handle additional fields if available
+            for (String key : Arrays.asList("album", "album_name", "album_title")) {
+                if (rowData.containsKey(key)) {
+                    song.setAlbumName(rowData.get(key));
                 }
             }
-        }
-        
-        // If still no artist name and we have enough columns
-        if ((artistName == null || artistName.isEmpty()) && values.length >= 2) {
-            artistName = values[1].trim();
-        }
-        
-        // If still no title or artist after all attempts
-        if (title == null || title.isEmpty()) {
-            LOGGER.debug("Could not find valid song title in row: {}", Arrays.toString(values));
-            return false;
-        }
-        
-        if (artistName == null || artistName.isEmpty()) {
-            // Default artist name when none is available
-            artistName = "Unknown Artist";
-        }
-        
-        // If no play date found yet, try to extract from other fields
-        if (playDate == null) {
-            playDate = extractPlayDate(rowData, values);
-        }
-        
-        return createSongEntry(title, artistName, playDate, userData, artistMap, songMap);
-    }
-    
-    /**
-     * Create a song entry with the given title, artist and play date
-     */
-    private boolean createSongEntry(String title, String artistName, Date playDate, UserMusicData userData,
-                                   Map<String, Artist> artistMap, Map<String, Song> songMap) {
-        if (title != null && !title.isEmpty()) {
-            // Normalize title and artist name
-            String normalizedTitle = normalizeText(title);
-            String normalizedArtist = normalizeText(artistName);
             
-            LOGGER.debug("Processing song: '{}' by '{}'", normalizedTitle, normalizedArtist);
             
-            // Feature detection - prevent "feat." artist names being treated as separate artists
-            if (normalizedTitle.toLowerCase().contains("feat.") || normalizedTitle.toLowerCase().contains("featuring")) {
-                // Keep the original title, it likely contains featuring information
-                LOGGER.debug("Title contains feature info: {}", normalizedTitle);
+            // Look for Spotify ID
+            for (String key : Arrays.asList("spotify_id", "id", "track_id")) {
+                if (rowData.containsKey(key) && SPOTIFY_ID_PATTERN.matcher(rowData.get(key)).matches()) {
+                    song.setSpotifyId(rowData.get(key));
+                    break;
+                }
             }
             
-            // Check if the artist field might actually contain a remix or feature
-            if (normalizedArtist.toLowerCase().contains("remix") || 
-                normalizedArtist.toLowerCase().contains("feat.") ||
-                normalizedArtist.toLowerCase().contains("ft.")) {
-                // This field might be part of the song title instead
-                LOGGER.debug("Artist field '{}' might be part of song title, merging", normalizedArtist);
-                normalizedTitle = normalizedTitle + " - " + normalizedArtist;
-                normalizedArtist = "Unknown Artist";
+            // Look for URL/Link
+            for (String key : Arrays.asList("url", "link", "spotify_url")) {
+                if (rowData.containsKey(key) && rowData.get(key).startsWith("http")) {
+                    // Store URL if needed
+                    break;
+                }
             }
             
-            // Get or create artist
-            String artistKey = normalizedArtist.toLowerCase();
-            Artist artist;
-            if (artistMap.containsKey(artistKey)) {
-                artist = artistMap.get(artistKey);
+            // Add song to userData (will handle deduplication)
+            userData.addSong(song);
+            
+            // Try to find and parse date from various columns
+            Date playDate = null;
+            for (String dateKey : Arrays.asList("timestamp", "date", "played_at", "time", "column_1")) {
+                if (rowData.containsKey(dateKey) && !rowData.get(dateKey).isEmpty()) {
+                    playDate = tryParseDate(rowData.get(dateKey));
+                    if (playDate != null) {
+                        break;
+                    }
+                }
+            }
+            
+            // Create play history entry if we have a date
+            if (playDate != null) {
+                userData.addPlayHistory(new PlayHistory(song, playDate));
+                LOGGER.debug("Added play history entry with date: {}", playDate);
             } else {
-                artist = new Artist(normalizedArtist);
-                artist.setId(UUID.randomUUID().toString());
-                artistMap.put(artistKey, artist);
+                // Still create a history entry with current date if no date found
+                // This represents that the song exists in the user's library
+                userData.addPlayHistory(new PlayHistory(song));
+                LOGGER.debug("Added play history entry with current date (no date found in data)");
             }
-            
-            // Get or create song - using compound key of artist + title
-            String songKey = artistKey + ":" + normalizedTitle.toLowerCase();
-            Song song;
-            if (songMap.containsKey(songKey)) {
-                song = songMap.get(songKey);
-            } else {
-                song = new Song(normalizedTitle, artist.getName());
-                song.setId(UUID.randomUUID().toString());
-                song.setArtist(artist);
-                songMap.put(songKey, song);
-            }
-            
-            // Create a play history entry
-            PlayHistory playEntry = new PlayHistory();
-            playEntry.setSong(song);
-            playEntry.setTimestamp(playDate != null ? playDate : new Date());
-            userData.addPlayHistory(playEntry);
             
             return true;
         } else {
-            LOGGER.debug("Skipping row with missing title");
+            LOGGER.debug("Skipping row with missing title or artist");
             return false;
         }
     }
     
-    private String normalizeText(String input) {
-        if (input == null) return "";
-        
-        // Basic normalization: trim whitespace
-        String result = input.trim();
-        
-        // Remove excessive whitespace
-        result = result.replaceAll("\\s+", " ");
-        
-        // Remove quotes at beginning/end 
-        if (result.startsWith("\"") && result.endsWith("\"")) {
-            result = result.substring(1, result.length() - 1);
-        }
-        
-        return result;
-    }
-    
-    private boolean isLikelyTimestamp(String value) {
-        // Check if string looks like a date/time
-        if (value == null) return false;
-        
-        // Common date patterns
-        return value.matches(".*\\d{4}-\\d{2}-\\d{2}.*") || // ISO date
-               value.matches(".*\\d{1,2}/\\d{1,2}/\\d{4}.*") || // MM/DD/YYYY
-               value.matches(".*[A-Za-z]+ \\d{1,2}, \\d{4}.*") || // Month DD, YYYY
-               value.matches(".*\\d{1,2} [A-Za-z]+ \\d{4}.*") || // DD Month YYYY
-               value.toLowerCase().contains(" at "); // Contains "at" time marker
-    }
-    
-    private String findValueByPossibleKeys(Map<String, String> data, String... possibleKeys) {
-        for (String key : possibleKeys) {
-            if (data.containsKey(key) && data.get(key) != null && !data.get(key).trim().isEmpty()) {
-                return data.get(key);
-            }
-        }
-        return null;
-    }
-    
-    private Date extractPlayDate(Map<String, String> rowData, String[] values) {
-        // First try common date column names
-        String[] dateKeys = {"timestamp", "date", "played_at", "played", "time", "end_time", "listened_at"};
-        for (String key : dateKeys) {
-            String dateStr = rowData.get(key);
-            if (dateStr != null && !dateStr.isEmpty()) {
-                Date date = tryParseDate(dateStr);
-                if (date != null) return date;
-            }
-        }
-        
-        // If no date found in expected columns, scan all columns for date-like values
-        for (String value : values) {
-            if (value != null && !value.isEmpty() && isLikelyTimestamp(value)) {
-                Date date = tryParseDate(value);
-                if (date != null) return date;
-            }
-        }
-        
-        // If no date was found, check for Spotify format "Month D, YYYY at HH:MMA" anywhere in the values
-        Pattern spotifyFormat = Pattern.compile("([A-Za-z]+ \\d{1,2}, \\d{4} at \\d{1,2}:\\d{2}[AP]M)");
-        for (String value : values) {
-            if (value != null && !value.isEmpty()) {
-                Matcher matcher = spotifyFormat.matcher(value);
-                if (matcher.find()) {
-                    Date date = tryParseDate(matcher.group(1));
-                    if (date != null) return date;
-                }
-            }
-        }
-        
-        return null;
-    }
-    
+    /**
+     * Try to parse a date string using multiple common formats
+     */
     private Date tryParseDate(String dateStr) {
         if (dateStr == null || dateStr.trim().isEmpty()) return null;
         
-        // Clean up the string
-        dateStr = dateStr.trim();
-        if (dateStr.startsWith("\"") && dateStr.endsWith("\"")) {
-            dateStr = dateStr.substring(1, dateStr.length() - 1);
-        }
+        // Clean the date string
+        dateStr = dateStr.replace("\"", "").trim();
         
-        // Try each of the date formats
-        for (SimpleDateFormat format : DATE_FORMATS) {
+        // List of date formats to try
+        SimpleDateFormat[] formats = {
+            new SimpleDateFormat("yyyy-MM-dd"),
+            new SimpleDateFormat("yyyy/MM/dd"),
+            new SimpleDateFormat("MM/dd/yyyy"),
+            new SimpleDateFormat("dd/MM/yyyy"),
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+            new SimpleDateFormat("MMMM d, yyyy 'at' hh:mma")
+        };
+        
+        // Try each format
+        for (SimpleDateFormat format : formats) {
             try {
                 format.setLenient(true);
                 return format.parse(dateStr);
             } catch (ParseException e) {
-                // Try the next format
+                // Try next format
             }
         }
         
-        // Try to parse as timestamp (milliseconds since epoch)
+        // Try to parse epoch milliseconds
         try {
-            long timestamp = Long.parseLong(dateStr);
-            return new Date(timestamp);
+            long epochMillis = Long.parseLong(dateStr);
+            return new Date(epochMillis);
         } catch (NumberFormatException e) {
             // Not a number
         }
         
-        // Try additional cleanup and retry
-        // Remove common non-date characters that might interfere with parsing
-        dateStr = dateStr.replaceAll("[^0-9A-Za-z:\\s/-]", " ").trim();
-        for (SimpleDateFormat format : DATE_FORMATS) {
-            try {
-                format.setLenient(true);
-                return format.parse(dateStr);
-            } catch (ParseException e) {
-                // Try the next format
+        // Try parsing with manual AM/PM handling
+        try {
+            Pattern p = Pattern.compile("(.*?)(\\d{1,2}:\\d{2})(AM|PM).*", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(dateStr);
+            if (m.matches()) {
+                String datePart = m.group(1).trim();
+                String timePart = m.group(2);
+                String ampm = m.group(3).toUpperCase();
+                
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy 'at' hh:mma", Locale.US);
+                String reformattedDate = datePart + " at " + timePart + ampm;
+                return dateFormat.parse(reformattedDate);
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Failed to parse date with pattern matching: {}", dateStr);
+        }
+
+        LOGGER.debug("Failed to parse date: '{}'", dateStr);
+        return null;
+    }
+    
+    /**
+     * Parse a CSV line into an array of values
+     * Handles quoted fields properly
+     */
+    private String[] parseCsvLine(String line) {
+        // Auto-detect if this is a TSV file based on tab presence and comma absence
+        if (line.contains("\t") && !line.contains(",")) {
+            return line.split("\t");
+        }
+        
+        // Handle quoted values with commas inside them
+        List<String> tokens = new ArrayList<>();
+        StringBuilder currentToken = new StringBuilder();
+        boolean inQuotes = false;
+        
+        for (char c : line.toCharArray()) {
+            if (c == '"') {
+                inQuotes = !inQuotes;
+                currentToken.append(c);
+            } else if (c == ',' && !inQuotes) {
+                tokens.add(currentToken.toString().trim());
+                currentToken = new StringBuilder();
+            } else {
+                currentToken.append(c);
             }
         }
         
-        return null;
+        // Add the last token
+        tokens.add(currentToken.toString().trim());
+        
+        // Clean up quotes from the tokens
+        for (int i = 0; i < tokens.size(); i++) {
+            String token = tokens.get(i);
+            if (token.startsWith("\"") && token.endsWith("\"") && token.length() >= 2) {
+                tokens.set(i, token.substring(1, token.length() - 1));
+            }
+        }
+        
+        return tokens.toArray(new String[0]);
     }
     
     @Override

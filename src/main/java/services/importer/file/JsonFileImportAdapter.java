@@ -213,10 +213,7 @@ public class JsonFileImportAdapter implements FileImportAdapter {
             
             // Create play history if date exists
             if (playDate != null) {
-                PlayHistory playHistory = new PlayHistory();
-                playHistory.setSong(song);
-                playHistory.setTimestamp(playDate);
-                userData.addPlayHistory(playHistory);
+                userData.addPlayHistory(new PlayHistory(song, playDate));
             }
             
             return true;

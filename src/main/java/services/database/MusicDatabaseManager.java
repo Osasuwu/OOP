@@ -110,7 +110,7 @@ public class MusicDatabaseManager {
             boolean originalAutoCommit = conn.getAutoCommit();
             try {
                 conn.setAutoCommit(false);
-                playHistoryManager.savePlayHistory(conn, userData.getPlayHistory());
+                playHistoryManager.savePlayHistory(conn, userData.getPlayHistory(), user);
                 conn.commit();
                 return null;
             } catch (SQLException e) {
