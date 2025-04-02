@@ -3,6 +3,7 @@ package services.database.managers;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.io.*;
 import java.nio.file.*;
@@ -38,32 +39,53 @@ public class PlayHistoryManager extends BaseDatabaseManager {
         }
     }
 
-    public void savePlayHistory(Connection conn, List<PlayHistory> playHistory) throws SQLException {
-        if (isOfflineMode()) {
-            savePlayHistoryOffline(playHistory);
+    /**
+     * Saves a list of play history records to the database
+     * Uses batch processing for efficiency
+     * 
+     * @param connection Database connection
+     * @param playHistories List of play histories to save
+     * @param user The user who owns these play histories
+     * @throws SQLException If a database error occurs
+     */
+    public void savePlayHistory(Connection connection, List<PlayHistory> playHistories, User user) throws SQLException {
+        if (playHistories == null || playHistories.isEmpty()) {
             return;
         }
+
+        // Ensure we have a valid batch size - too large can cause memory issues
+        int batchSize = 100;
+        int totalRecords = playHistories.size();
         
-        String sql = """
-            INSERT INTO play_history (user_id, song_id, listened_at)
-            VALUES (?, ?, ?)
-            ON CONFLICT (user_id, song_id, listened_at) DO NOTHING
-        """;
+        String sql = "INSERT INTO play_history (user_id, song_id, listened_at) VALUES (?, ?, ?) " +
+                     "ON CONFLICT (user_id, song_id, listened_at) DO NOTHING";
         
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            for (PlayHistory entry : playHistory) {
-                if (entry.getSong() == null || entry.getTimestamp() == null) {
-                    continue;
-                }
-                
-                // Convert user ID to UUID
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            int count = 0;
+            
+            for (PlayHistory playHistory : playHistories) {
                 stmt.setObject(1, UUID.fromString(user.getId()));
-                // Convert song ID to UUID
-                stmt.setObject(2, UUID.fromString(entry.getSong().getId()));
-                stmt.setObject(3, new java.sql.Timestamp(entry.getTimestamp().getTime()));
+                stmt.setObject(2, UUID.fromString(playHistory.getSong().getId()));
+                stmt.setTimestamp(3, new Timestamp(playHistory.getTimestamp().getTime()));
                 stmt.addBatch();
+                count++;
+                
+                // Execute batch when it reaches the batch size
+                if (count % batchSize == 0) {
+                    stmt.executeBatch();
+                    LOGGER.info("Saved {}/{} play history records", count, totalRecords);
+                }
             }
-            stmt.executeBatch();
+            
+            // Execute remaining records
+            if (count % batchSize != 0) {
+                stmt.executeBatch();
+            }
+            
+            LOGGER.info("Saved all {}/{} play history records", totalRecords, totalRecords);
+        } catch (SQLException e) {
+            LOGGER.error("Error saving play history: {}", e.getMessage());
+            throw e;
         }
     }
 

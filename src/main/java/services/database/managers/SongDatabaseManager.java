@@ -13,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import models.Artist;
 import models.Song;
 import models.User;
 
@@ -45,6 +46,27 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             return;
         }
 
+        // First, get all existing songs to avoid conflicts with the unique constraint
+        Map<String, UUID> existingSongsByTitleAndArtist = getExistingSongsByTitleAndArtist(conn, songs);
+        
+        // Also get existing songs by Spotify ID to avoid unique constraint violations
+        Map<String, UUID> existingSongsBySpotifyId = getExistingSongsBySpotifyId(conn, songs);
+        
+        // Update UUIDs for any song with matching titles and artists or Spotify IDs in the database
+        for (Song song : songs) {
+            // First check by Spotify ID
+            if (song.getSpotifyId() != null && existingSongsBySpotifyId.containsKey(song.getSpotifyId())) {
+                // Use the existing UUID from database instead of the one we generated
+                song.setId(existingSongsBySpotifyId.get(song.getSpotifyId()).toString());
+                LOGGER.debug("Using existing ID for song with Spotify ID '{}': {}", song.getSpotifyId(), song.getId());
+            }
+            // Then check by title and artist if still not found
+            else if (existingSongsByTitleAndArtist.containsKey(song.getTitle().toLowerCase())) {
+                song.setId(existingSongsByTitleAndArtist.get(song.getTitle().toLowerCase()).toString());
+                LOGGER.debug("Using existing ID for song '{}': {}", song.getTitle(), song.getId());
+            }
+        }
+
         String sql = """
             INSERT INTO songs (id, artist_id, spotify_id, title, spotify_link, popularity, album_name, release_date, preview_url, image_url, duration_ms, is_explicit)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -65,12 +87,10 @@ public class SongDatabaseManager extends BaseDatabaseManager {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int batchCount = 0;
             for (Song song : songs) {
-                if (song == null || song.getId() == null) {
+                if (song.getId() == null) {
                     continue;
                 }
-                // Convert String ID to UUID
                 stmt.setObject(1, UUID.fromString(song.getId()));
-                // Convert artist ID to UUID
                 stmt.setObject(2, UUID.fromString(song.getArtist().getId()));
                 stmt.setString(3, song.getSpotifyId());
                 stmt.setString(4, song.getTitle());
@@ -81,7 +101,7 @@ public class SongDatabaseManager extends BaseDatabaseManager {
                 stmt.setString(9, song.getPreviewUrl());
                 stmt.setString(10, song.getImageUrl());
                 stmt.setLong(11, song.getDurationMs());
-                                stmt.setBoolean(12, song.isExplicit());
+                stmt.setBoolean(12, song.isExplicit());
 
                 stmt.addBatch();
                 batchCount++;
@@ -100,6 +120,91 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             LOGGER.error("Error saving songs to database", e);
             throw e;
         }
+    }
+
+    /**
+     * Get existing songs by Spotify ID to avoid unique constraint violations
+     * @param conn Database connection
+     * @param songs List of songs to check
+     * @return Map of Spotify IDs to song UUIDs in the database
+     * @throws SQLException If an error occurs while querying the database
+     */
+    private Map<String, UUID> getExistingSongsBySpotifyId(Connection conn, List<Song> songs) {
+        Map<String, UUID> existingSongs = new HashMap<>();
+        
+        // Extract all non-null Spotify IDs
+        List<String> spotifyIds = songs.stream()
+            .filter(s -> s != null && s.getSpotifyId() != null)
+            .map(Song::getSpotifyId)
+            .filter(id -> !id.isEmpty())
+            .distinct()
+            .toList();
+        
+        if (spotifyIds.isEmpty()) {
+            return existingSongs;
+        }
+        
+        // Query database for existing songs with these Spotify IDs
+        String sql = "SELECT id, spotify_id FROM songs WHERE spotify_id = ANY(?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setArray(1, conn.createArrayOf("text", spotifyIds.toArray()));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String spotifyId = rs.getString("spotify_id");
+                    UUID id = (UUID) rs.getObject("id");
+                    existingSongs.put(spotifyId, id);
+                }
+            }
+            
+            LOGGER.debug("Found {} existing songs by Spotify ID in database", existingSongs.size());
+        } catch (SQLException e) {
+            LOGGER.error("Error fetching existing songs by Spotify ID", e);
+        }
+        
+        return existingSongs;
+    }
+
+    private Map<String, UUID> getExistingSongsByTitleAndArtist(Connection conn, List<Song> songs) {
+        Map<String, UUID> existingSongs = new HashMap<>();
+        
+        // Build list of song titles and artist IDs
+        if (songs.isEmpty()) {
+            return existingSongs;
+        }
+        
+        // Create query to find songs with matching titles and artist IDs
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT id, title FROM songs WHERE (");
+        
+        List<String> conditions = new ArrayList<>();
+        for (int i = 0; i < songs.size(); i++) {
+            conditions.add("(LOWER(title) = ? AND artist_id = ?)");
+        }
+        
+        queryBuilder.append(String.join(" OR ", conditions));
+        queryBuilder.append(")");
+        
+        String sql = queryBuilder.toString();
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            int paramIndex = 1;
+            for (Song song : songs) {
+                stmt.setString(paramIndex++, song.getTitle().toLowerCase());
+                stmt.setObject(paramIndex++, UUID.fromString(song.getArtist().getId()));
+            }
+            
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String title = rs.getString("title").toLowerCase();
+                UUID id = (UUID) rs.getObject("id");
+                existingSongs.put(title, id);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Error fetching existing songs by title and artist", e);
+        }
+        
+        return existingSongs;
     }
 
     private void saveSongsOffline(List<Song> songs) {

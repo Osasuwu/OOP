@@ -94,9 +94,7 @@ public class DatabaseImportService {
                             count++;
                             
                             // Add to our model objects
-                            PlayHistory playHistory = new PlayHistory();
-                            playHistory.setSong(song);
-                            playHistory.setTimestamp(dateFormat.parse(dateTime));
+                            PlayHistory playHistory = new PlayHistory(song, dateFormat.parse(dateTime));
                             userData.getPlayHistory().add(playHistory);
                         }
                     } catch (ParseException e) {

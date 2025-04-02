@@ -66,10 +66,7 @@ public class XmlFileImportAdapter implements FileImportAdapter {
                         if (timestamp != null) {
                             try {
                                 Date playDate = new Date(Long.parseLong(timestamp));
-                                PlayHistory playHistory = new PlayHistory();
-                                playHistory.setSong(song);
-                                playHistory.setTimestamp(playDate);
-                                userData.addPlayHistory(playHistory);
+                                userData.addPlayHistory(new PlayHistory(song, playDate));
                             } catch (NumberFormatException e) {
                                 LOGGER.warn("Invalid timestamp format: {}", timestamp);
                             }
