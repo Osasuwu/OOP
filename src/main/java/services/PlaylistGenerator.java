@@ -1,9 +1,19 @@
 package services;
 
-import models.*;
-import utils.GenreMapper;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import models.Artist;
+import models.Playlist;
+import models.PlaylistPreferences;
+import models.Song;
+import models.UserMusicData;
+import utils.GenreMapper;
 
 /**
  * Service that generates playlists based on user music data and preferences
@@ -89,7 +99,7 @@ public class PlaylistGenerator {
         // Filter by genres if specified
         if (preferences.getGenres() != null && !preferences.getGenres().isEmpty()) {
             Set<String> normalizedGenres = preferences.getGenres().stream()
-                .map(genreMapper::normalizeGenre)
+                .map(GenreMapper::normalizeGenre)
                 .collect(Collectors.toSet());
             
             candidateSongs = candidateSongs.stream()
@@ -118,7 +128,7 @@ public class PlaylistGenerator {
         }
         
         return song.getGenres().stream()
-            .map(genreMapper::normalizeGenre)
+            .map(GenreMapper::normalizeGenre)
             .anyMatch(targetGenres::contains);
     }
     

@@ -4,68 +4,86 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import models.Playlist;
 import models.PlaylistParameters;
 import models.UserMusicData;
 import services.DataImportService;
 import services.PlaylistGeneratorApp;
+import services.generator.Generator;
 import services.importer.CsvDataImportAdapter;
 import services.importer.DataImportAdapter;
 import services.importer.DataImportFactory;
 import services.importer.ImportException;
 
-/**
- * Controller class for Command Line Interface operations
- * Handles user interaction and commands for the playlist generator
- */
+
 public class CliController {
     private final PlaylistGeneratorApp app;
     private final Scanner scanner;
     private final UserInterface ui;
-    
     public CliController(PlaylistGeneratorApp app) {
         this.app = app;
         this.scanner = new Scanner(System.in);
         this.ui = new UserInterface();
     }
+//n
+public void start() {
+    System.out.println("Welcome to Playlist Generator CLI!");
+    boolean running = true;
 
-    public void start() {
-        System.out.println("Welcome to Playlist Generator CLI!");
-        boolean running = true;
-        
-        while (running) {
-            printMainMenu();
-            int choice = getUserChoice(1, 6);
-            
-            switch (choice) {
-                case 1:
-                    generatePlaylist();
-                    break;
-                case 2:
-                    launchUserInterface();
-                    break;
-                case 3:
-                    importData();
-                    break;
-                case 4:
-                    running = false;
-                    System.out.println("Exiting Playlist Generator. Goodbye!");
-                    break;
-            
-            }
+    while (running) {
+        printMainMenu(); // Displays the main menu options
+        int choice = getUserChoice(1, 5); // Adjusted to match the number of valid menu options
+
+        switch (choice) {
+            case 1:
+                generatePlaylist(); // Generates a playlist based on user input
+                break;
+            case 2:
+                launchUserInterface(); // Launches the GUI user interface
+                break;
+            case 3:
+                importData(); // Imports user data for playlist generation
+                break;
+            case 4:
+                runGeneratorTest(); // Executes the Generator test logic
+                break;
+            case 5:
+                running = false; // Stops the CLI loop and exits the application
+                System.out.println("Exiting Playlist Generator. Goodbye!");
+                break;
+            default:
+                System.out.println("Invalid option. Please select a valid menu item.");
         }
-        scanner.close();
+    }
+    scanner.close(); // Ensures scanner resources are released upon exit
+}
+//n
+    private void runGeneratorTest() {
+        System.out.println("\n----- Running Generator Test -----");
+        try {
+            // Instantiate the Generator class
+            Generator generator = new Generator();
+    
+            // Prompt user for input values
+            System.out.print("Enter user ID: ");
+            String userId = scanner.nextLine().trim();
+    
+            System.out.print("Enter criteria (e.g., 'popular', 'diverse'): ");
+            String criteria = scanner.nextLine().trim();
+    
+            // Call the generator method
+            Playlist playlist = generator.generatePlaylist(userId, criteria);
+    
+            // Print the playlist details
+            System.out.println("\nGenerated Playlist: " + playlist.getName());
+            System.out.println("Songs in Playlist:");
+            playlist.getSongs().forEach(song -> System.out.println("- " + song.getTitle()));
+        } catch (Exception e) {
+            System.err.println("An error occurred while running the generator: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    
-    private void printMainMenu() {
-        System.out.println("\n===== Playlist Generator =====");
-        System.out.println("1. Generate Playlist (Doesn't work yet)");
-        System.out.println("2. Launch User Interface (Doesn't work yet)");
-        System.out.println("3. Import Data");
-        System.out.println("4. Exit");
-        System.out.println("5. Test Genre Mapper"); // NEWONEADDESBYNIUSHATEST
-        System.out.print("Enter your choice: ");
-    }
     
     private int getUserChoice(int min, int max) {
         int choice = -1;
@@ -81,18 +99,21 @@ public class CliController {
         }
         return choice;
     }
-    
     private void generatePlaylist() {
         System.out.println("\n----- Generate Playlist -----");
-        
+    
+        // Create a PlaylistParameters object to store user input
         PlaylistParameters params = new PlaylistParameters();
-        
+    
+        // Collect playlist name
         System.out.print("Enter playlist name: ");
         params.setName(scanner.nextLine().trim());
-        
+    
+        // Collect song count (validate within range)
         System.out.print("How many songs (10-100)? ");
         params.setSongCount(getUserChoice(10, 100));
-        
+    
+        // Collect playlist generation strategy
         System.out.println("Select generation strategy:");
         System.out.println("1. Random");
         System.out.println("2. Popular");
@@ -100,7 +121,7 @@ public class CliController {
         System.out.println("4. Balanced (default)");
         System.out.print("Enter your choice: ");
         int strategyChoice = getUserChoice(1, 4);
-        
+    
         switch (strategyChoice) {
             case 1:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.RANDOM);
@@ -114,11 +135,17 @@ public class CliController {
             default:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
         }
-        
-        System.out.println("Generating playlist...");
-        app.generatePlaylist(params);
-    }
     
+        // Generate playlist using app
+
+        Playlist playlist = app.generatePlaylist(params);
+
+        // Display playlist details
+        System.out.println("\nGenerated Playlist: " + playlist.getName());
+        System.out.println("Songs in Playlist:");
+        playlist.getSongs().forEach(song -> System.out.println("- " + song.getTitle()));
+    }
+
     private void launchUserInterface() {
         System.out.println("\n----- Launching User Interface -----");
         ui.start();
@@ -260,6 +287,7 @@ public class CliController {
             System.err.println("Error importing from Spotify: " + e.getMessage());
         }
     }
+
     
     private void generatePlaylistFromImported() {
         PlaylistParameters params = new PlaylistParameters();
@@ -279,4 +307,20 @@ public class CliController {
         System.out.println("Generating playlist from imported data...");
         app.generatePlaylist(params);
     }
+    public void runGenerator(String userId, String criteria) {
+    Generator generator = new Generator(); // Create an instance of Generator
+    Playlist playlist = generator.generatePlaylist(userId, criteria); // Call generatePlaylist
+    System.out.println("Generated Playlist: " + playlist.getName());
+    System.out.println("Songs in Playlist:");
+    playlist.getSongs().forEach(song -> System.out.println("- " + song.getTitle()));
+}
+//n
+private void printMainMenu() {
+    System.out.println("\nMain Menu:");
+    System.out.println("1. Run Generator Test"); // New option for Generator.java
+    System.out.println("2. Generate Playlist");
+    System.out.println("3. Import Data");
+    System.out.println("4. Exit");
+}
+
     }

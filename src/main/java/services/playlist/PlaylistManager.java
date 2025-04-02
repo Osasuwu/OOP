@@ -1,9 +1,14 @@
 package services.playlist;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import models.Playlist;
 import models.Song;
@@ -13,10 +18,18 @@ import utils.Logger;
 
 public class PlaylistManager {
 
+    // Use ConcurrentHashMap for thread-safe access.
+    private final Map<String, Playlist> playlists;
+    
     private final LocalStorageManager localStorageManager;
     private final CloudSyncService cloudSyncService;
     private final Logger logger;
-    private final Map<String, Playlist> playlists;
+    
+    // Undo stack for deletion operations.
+    private final Deque<Runnable> undoStack;
+    
+    // Set to track modified playlists for efficient cloud synchronization.
+    private final Set<String> modifiedPlaylists;
 
     /**
      * Constructor initializes the playlist manager.
@@ -25,8 +38,10 @@ public class PlaylistManager {
         this.localStorageManager = new LocalStorageManager("playlists/");
         this.cloudSyncService = new CloudSyncService();
         this.logger = Logger.getInstance();
-        this.playlists = new HashMap<>();
-
+        this.playlists = new ConcurrentHashMap<>();
+        this.undoStack = new ArrayDeque<>();
+        this.modifiedPlaylists = ConcurrentHashMap.newKeySet();
+        
         loadPlaylists();
     }
 
@@ -42,7 +57,9 @@ public class PlaylistManager {
             return playlists.get(name);
         }
 
+        // Create a new playlist using the provided name.
         Playlist playlist = new Playlist(name);
+        // (Metadata updates are removed because the current Playlist model does not support them)
         playlists.put(name, playlist);
         logger.info("Playlist created: " + name);
         savePlaylist(playlist);
@@ -61,7 +78,9 @@ public class PlaylistManager {
             return false;
         }
 
-        playlists.remove(name);
+        Playlist removed = playlists.remove(name);
+        // Push an undo action to allow deletion to be undone.
+        undoStack.push(() -> playlists.put(name, removed));
         localStorageManager.deletePlaylist(name);
         cloudSyncService.deletePlaylist(name);
         logger.info("Playlist deleted: " + name);
@@ -82,12 +101,12 @@ public class PlaylistManager {
             return false;
         }
 
-        // Using the songs list directly instead of a missing addSong() method
         List<Song> songList = playlist.getSongs();
         if (!songList.contains(song)) {
             songList.add(song);
             savePlaylist(playlist);
             logger.info("Song added to playlist: " + song.getTitle() + " → " + playlistName);
+            markPlaylistAsModified(playlistName);
             return true;
         } else {
             logger.warning("Song already exists in playlist: " + song.getTitle());
@@ -109,12 +128,12 @@ public class PlaylistManager {
             return false;
         }
 
-        // Instead of calling playlist.removeSong(song), use the song list directly.
         List<Song> songList = playlist.getSongs();
         if (songList.contains(song)) {
             songList.remove(song);
             savePlaylist(playlist);
             logger.info("Song removed from playlist: " + song.getTitle() + " ← " + playlistName);
+            markPlaylistAsModified(playlistName);
             return true;
         } else {
             logger.warning("Song not found in playlist: " + song.getTitle());
@@ -123,7 +142,7 @@ public class PlaylistManager {
     }
 
     /**
-     * Fetches all available playlists.
+     * Returns a list of all available playlists.
      *
      * @return A list of all playlists.
      */
@@ -160,5 +179,54 @@ public class PlaylistManager {
             playlists.put(playlist.getName(), playlist);
         }
         logger.info("Loaded " + playlists.size() + " playlists from storage.");
+    }
+
+    // ------------------- New Enhancement Methods -------------------
+
+    /**
+     * Returns playlists sorted alphabetically by name.
+     *
+     * @return A list of playlists sorted by name.
+     */
+    public List<Playlist> getPlaylistsSortedByName() {
+        return playlists.values().stream()
+                .sorted(Comparator.comparing(Playlist::getName))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Undoes the most recent playlist deletion.
+     */
+    public void undo() {
+        if (!undoStack.isEmpty()) {
+            Runnable undoAction = undoStack.pop();
+            undoAction.run();
+            logger.info("Undo operation executed.");
+        } else {
+            logger.warning("No actions to undo.");
+        }
+    }
+
+    /**
+     * Marks a playlist as modified for cloud synchronization.
+     *
+     * @param name The name of the playlist.
+     */
+    public void markPlaylistAsModified(String name) {
+        modifiedPlaylists.add(name);
+    }
+
+    /**
+     * Syncs only the playlists that have been marked as modified.
+     */
+    public void syncModifiedPlaylists() {
+        for (String playlistName : modifiedPlaylists) {
+            Playlist playlist = playlists.get(playlistName);
+            if (playlist != null) {
+                cloudSyncService.syncPlaylist(playlist);
+                logger.info("Synchronized modified playlist: " + playlistName);
+            }
+        }
+        modifiedPlaylists.clear();
     }
 }

@@ -32,6 +32,7 @@ C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\models\Playlist.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\models\PlaylistPreferences.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\importer\DataImportAdapter.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\user\UserPreferenceManager.java
+C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\storage\LocalStorageManager.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\output\PlaylistExporter.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\generator\SongSelector.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\models\PlayHistory.java
@@ -42,8 +43,10 @@ C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\DataImportService.ja
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\importer\XmlDataImportAdapter.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\ui\GuiLauncher.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\utils\DatabaseSchema.java
+C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\network\CloudSyncService.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\output\SpotifyPlaylistExporter.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\api\MusicBrainzAPIManager.java
+C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\network\APIClient.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\sync\OfflineSyncManager.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\services\database\MusicDatabaseManager.java
 C:\Users\Niusha\Documents\GitHub\OOP\src\main\java\models\Artist.java

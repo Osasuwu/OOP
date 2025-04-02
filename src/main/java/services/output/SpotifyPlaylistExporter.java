@@ -7,4 +7,4 @@ public class SpotifyPlaylistExporter implements PlaylistExporter {
     public void export(Playlist playlist, String destination) {
         // Implementation for Spotify export
     }
-} 
+}

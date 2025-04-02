@@ -69,6 +69,11 @@ public class Artist {
     public String getId() {
         return spotifyId;
     }
+    
+    public List<Song> getTopSongs() {
+        // Return a list of top songs by the artist
+        return new ArrayList<>(); // Replace with actual logic for retrieving top songs
+    }
 
     @Override
     public String toString() {

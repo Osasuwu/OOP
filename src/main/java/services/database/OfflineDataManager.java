@@ -3,12 +3,15 @@ package services.database;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import models.UserMusicData;
-
-import org.json.JSONArray;
 
 public class OfflineDataManager {
     private static final String CACHE_DIR = "cache";
@@ -151,4 +154,4 @@ public class OfflineDataManager {
             }
         }
     }
-} 
+}

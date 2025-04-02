@@ -1,21 +1,30 @@
 package services.database;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
 import java.sql.Timestamp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import services.database.OfflineDataManager;
-import models.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import models.Artist;
+import models.PlayHistory;
+import models.Song;
+import models.UserMusicData;
 import utils.GenreMapper;
 
 /**
@@ -41,7 +50,7 @@ public class MusicDatabaseManager {
         config.setPassword(DB_PASSWORD);
         config.setMaximumPoolSize(5); // Reduce pool size to stay within Supabase limits
         config.setMinimumIdle(1);     // Keep minimum connections
-        config.setConnectionTimeout(30000); 
+        config.setConnectionTimeout(30000);
         config.setIdleTimeout(120000); // 2 minutes
         config.setMaxLifetime(180000); // 3 minutes
         config.setLeakDetectionThreshold(60000);
@@ -78,7 +87,7 @@ public class MusicDatabaseManager {
     /**
      * Safely executes code with a database connection, ensuring it's always closed
      * even if an exception is thrown.
-     * 
+     *
      * @param operation The database operation to execute with the connection
      * @return The result of the operation
      * @throws SQLException if a database error occurs
@@ -111,7 +120,7 @@ public class MusicDatabaseManager {
         return withConnection(conn -> {
             Map<String, Object> preferences = new HashMap<>();
             String sql = """
-                SELECT 
+                SELECT
                     favorite_genres,
                     favorite_artists,
                     favorite_songs,
@@ -327,7 +336,7 @@ public class MusicDatabaseManager {
 
         // Use artist_name instead of artist_id for the associations
         String genreSql = "INSERT INTO artist_genres (artist_name, genre) VALUES (?, ?) " +
-                 "ON CONFLICT (artist_name, genre) DO NOTHING";
+                "ON CONFLICT (artist_name, genre) DO NOTHING";
         
         LOGGER.info("Using SQL: {}", genreSql);
         

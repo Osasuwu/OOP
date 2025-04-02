@@ -12,6 +12,7 @@ import java.util.*;
 import java.nio.file.*;
 import java.io.IOException;
 
+
 /**
  * Main application class that serves as the entry point to the Playlist Generator.
  * Supports both CLI and GUI modes, handles command-line arguments, and initializes
@@ -140,8 +141,6 @@ public class Application {
             }
         }
         
-    
-
         // Create playlist generator app
         PlaylistGeneratorApp app = new PlaylistGeneratorApp(userId);
         
@@ -202,6 +201,54 @@ public class Application {
         }
     }
     
+    // Add the generatePlaylist method
+    private static void generatePlaylist(PlaylistGeneratorApp app) {
+        try {
+            PlaylistParameters params = new PlaylistParameters();
+
+            // Get playlist name
+            System.out.print("Enter playlist name: ");
+            Scanner scanner = new Scanner(System.in);
+            params.setName(scanner.nextLine().trim());
+
+            // Get number of songs
+            System.out.print("How many songs (10-100)? ");
+            int songCount = Integer.parseInt(scanner.nextLine().trim());
+            params.setSongCount(songCount);
+
+            // Get generation strategy
+            System.out.println("Select generation strategy:");
+            System.out.println("1. Random");
+            System.out.println("2. Popular");
+            System.out.println("3. Diverse");
+            System.out.println("4. Balanced (default)");
+            System.out.print("Enter choice: ");
+            int strategyChoice = Integer.parseInt(scanner.nextLine().trim());
+            switch (strategyChoice) {
+                case 1:
+                    params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.RANDOM);
+                    break;
+                case 2:
+                    params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.POPULAR);
+                    break;
+                case 3:
+                    params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.DIVERSE);
+                    break;
+                default:
+                    params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
+            }
+
+            // Generate the playlist
+            Playlist playlist = app.generatePlaylist(params);
+            System.out.println("Generated Playlist: " + playlist.getName());
+            System.out.println("Songs in Playlist:");
+            playlist.getSongs().forEach(song -> System.out.println("- " + song.getTitle()));
+        } catch (Exception e) {
+            System.err.println("Error generating playlist: " + e.getMessage());
+        }
+    }
+}
+    
     private static void normalizeGenres(UserMusicData data) {
         GenreMapper genreMapper = new GenreMapper();
         
@@ -219,7 +266,6 @@ public class Application {
             data.setFavoriteGenres(new ArrayList<>(genreMapper.normalizeGenres(genres)));
         }
     }
-    
     private static void generatePlaylist(PlaylistGeneratorApp app) {
         PlaylistParameters params = new PlaylistParameters();
         params.setName("Quick Playlist");
@@ -229,9 +275,7 @@ public class Application {
         params.setPreferImportedMusic(true);
         
         // Use default parameters
-        app.generatePlaylist(params);
     }
-    
     private static void displayHelp() {
         System.out.println("Playlist Generator - Help");
         System.out.println("-------------------------");
@@ -268,6 +312,7 @@ public class Application {
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
     }
+
     private static void exportPlaylist(PlaylistGeneratorApp app, String format, String destination) {
         try {
             Playlist playlist = app.getGeneratedPlaylist();
@@ -275,7 +320,6 @@ public class Application {
                 System.err.println("No playlist available to export.");
                 return;
             }
-
             PlaylistExporterFactory factory = new PlaylistExporterFactory();
             PlaylistExporter exporter = factory.getExporter(format);
             exporter.export(playlist, destination);
@@ -286,5 +330,3 @@ public class Application {
             e.printStackTrace();
         }
     }
-}
-
