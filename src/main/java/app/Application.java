@@ -1,19 +1,31 @@
 package app;
 
-import services.*;
-import services.AppAPI.*;
-import services.database.*;
-import services.output.*;
-import services.ui.*;
-import services.enrichment.DataEnrichmentManager;
-import models.*;
-import utils.*;
-import services.config.Config;
-
-import java.util.*;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import models.Playlist;
+import models.PlaylistParameters;
+import models.PlaylistPreferences;
+import models.User;
+import models.UserMusicData;
+import services.AppAPI.AppSpotifyAPIManager;
+import services.AppAPI.LastFmAPIManager;
+import services.AppAPI.MusicBrainzAPIManager;
+import services.AuthenticationService;
+import services.PlaylistGenerator;
+import services.UserPreferencesManager;
+import services.config.Config;
+import services.database.MusicDatabaseManager;
+import services.enrichment.DataEnrichmentManager;
+import services.output.PlaylistExporter;
+import services.output.PlaylistExporterFactory;
+import services.ui.CliController;
+import services.ui.GuiLauncher;
+import services.ui.SetupWizard;
+import utils.GenreManager;
+import utils.SpotifyAccessToken;
 
 /**
  * Main application class that serves as the entry point to the Playlist Generator.
@@ -188,7 +200,7 @@ public class Application {
 
     /**
      * Generates a playlist based on specified parameters
-     * 
+     *
      * @param params Parameters for playlist generation
      * @return true if generation was successful, false otherwise
      */
@@ -207,7 +219,7 @@ public class Application {
 
     /**
      * Exports the most recently generated playlist
-     * 
+     *
      * @param format Export format ("csv", "json", "spotify", etc.)
      * @param destination Output destination (file path or URL)
      * @return true if export was successful, false otherwise

@@ -1,14 +1,21 @@
 package services.ui;
 
-import models.*;
-import services.*;
-import services.importer.*;
-import services.importer.file.*;
-import services.importer.service.*;
-import app.Application;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+import app.Application;
+import models.PlaylistParameters;
+import models.UserMusicData;
+import services.AuthenticationService;
+import services.importer.ImportException;
+import services.importer.file.BatchFileImportService;
+import services.importer.file.FileImportAdapter;
+import services.importer.file.FileImportAdapterFactory;
+import services.importer.service.ServiceImportAdapter;
+import services.importer.service.ServiceImportAdapterFactory;
 
 /**
  * Controller class for Command Line Interface operations
@@ -85,15 +92,13 @@ public class CliController {
     
     private void generatePlaylist() {
         System.out.println("\n----- Generate Playlist -----");
-        
         PlaylistParameters params = new PlaylistParameters();
-        
         System.out.print("Enter playlist name: ");
         params.setName(scanner.nextLine().trim());
-        
+    
         System.out.print("How many songs (10-100)? ");
         params.setSongCount(getUserChoice(10, 100));
-        
+    
         System.out.println("Select generation strategy:");
         System.out.println("1. Random");
         System.out.println("2. Popular");
@@ -101,7 +106,7 @@ public class CliController {
         System.out.println("4. Balanced (default)");
         System.out.print("Enter your choice: ");
         int strategyChoice = getUserChoice(1, 4);
-        
+    
         switch (strategyChoice) {
             case 1:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.RANDOM);
@@ -115,7 +120,7 @@ public class CliController {
             default:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
         }
-        
+    
         System.out.println("Generating playlist...");
         app.generatePlaylist(params);
     }

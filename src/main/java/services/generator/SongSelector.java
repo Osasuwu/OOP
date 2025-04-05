@@ -13,7 +13,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ComparatorOrdering;
 
 import java.time.LocalDate;
 
@@ -239,7 +238,6 @@ public class SongSelector {
             return Optional.empty();
         }
         // Sort descending by popularity.
-        filteredSongs.sort(ComparatorOrdering.comparing(Song::getPopularity).reversed());
         return Optional.of(filteredSongs.get(0));
     }
     

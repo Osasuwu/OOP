@@ -45,6 +45,22 @@ public class PlaylistGenerator {
         return generateFromUserInput(preferences);
     }
     
+    public Playlist generate(PlaylistParameters params) {
+        // For initial testing, implement a simple dummy generation:
+        Playlist playlist = new Playlist(params.getName());
+        List<Song> songs = new ArrayList<>();
+    
+        // For demonstration, create a number of dummy songs equal to params.getSongCount()
+        int count = params.getSongCount();
+        for (int i = 0; i < count; i++) {
+            // Create dummy song titles and artists. Use your actual Song constructor if needed.
+            Song song = new Song("Song " + (i+1), "Artist " + (i+1));
+            songs.add(song);
+        }
+    
+        playlist.setSongs(songs);  // Make sure Playlist has a setSongs(List<Song>) method.
+        return playlist;
+    }
     private Playlist generateFromHistory(UserMusicData userData, PlaylistPreferences preferences) {
         // Create a default playlist to start with
         Playlist playlist = new Playlist();
@@ -220,3 +236,4 @@ public class PlaylistGenerator {
         return result;
     }
 }
+
