@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import models.User;
+import services.database.MusicDatabaseManager;
 import models.Song;
 import models.Artist;
 
@@ -22,9 +23,12 @@ public class UserPreferenceManager extends BaseDatabaseManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserPreferenceManager.class);
     private final Gson gson = new Gson();
     private final Path storageDir;
+    private MusicDatabaseManager dbManager;
+
 
     public UserPreferenceManager(boolean isOnline, User user) {
         super(isOnline, user);
+        this.dbManager = new MusicDatabaseManager(isOnline, user);
         this.storageDir = Paths.get(getOfflineStoragePath(), "preferences");
         if (isOfflineMode()) {
             try {
@@ -35,13 +39,19 @@ public class UserPreferenceManager extends BaseDatabaseManager {
         }
     }
 
-    public Map<String, Object> getUserPreferences(Connection conn) throws SQLException {
+    /**
+     * Retrieves the current user preferences from the database.
+     * @param conn The database connection.
+     * @return A map of user preferences.
+     * @throws SQLException If an error occurs while accessing the database.
+     */
+    public Map<String, List<Object>> getCurrentUserPreferences(Connection conn) throws SQLException {
         if (isOfflineMode()) {
-            return getUserPreferencesOffline();
+            return getCurrentUserPreferencesOffline();
         }
         
-        Map<String, Object> preferences = new HashMap<>();
-        String sql = "SELECT type, item_id, score FROM user_preferences WHERE user_id = ?";
+        Map<String, List<Object>> preferences = new HashMap<>();
+        String sql = "SELECT type, item_name, item_id, score FROM user_preferences WHERE user_id = ?";
         
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, UUID.fromString(user.getId()));
@@ -49,18 +59,50 @@ public class UserPreferenceManager extends BaseDatabaseManager {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     String type = rs.getString("type");
+                    String itemName = rs.getString("item_name");
                     String itemId = rs.getString("item_id");
                     double score = rs.getDouble("score");
                     
                     // Group by type
-                    if (type.equals("genre")) {
-                        @SuppressWarnings("unchecked")
-                        List<String> genres = (List<String>) preferences.getOrDefault("favorite_genres", new ArrayList<String>());
-                        genres.add(itemId);
-                        preferences.put("favorite_genres", genres);
-                    } else {
-                        // Store other preferences by their type and ID
-                        preferences.put(type + "_" + itemId, score);
+                    switch (type) {
+                        case "artist":
+                            Artist artist = new Artist(itemName);
+                            artist.setId(itemId);
+                            artist.setScore(score);
+                            if(!preferences.containsKey("favorite_artist")) {
+                                preferences.put("favorite_artist", new ArrayList<>());
+                            }
+                            preferences.get("favorite_artist").add(artist);
+                            break;
+                        case "song":
+                            Song song = new Song(itemName, null);
+                            song.setId(itemId);
+                            song.setScore(score);
+                            song.setArtist(dbManager.getArtistBySong(song));
+                            if(!preferences.containsKey("favorite_song")) {
+                                preferences.put("favorite_song", new ArrayList<>());
+                            }
+                            preferences.get("favorite_song").add(song);
+                            break;
+                        case "genre":
+                            String genre = itemName;
+                            if(!preferences.containsKey("favorite_genre")) {
+                                preferences.put("favorite_genre", new ArrayList<>());
+                            }
+                            preferences.get("favorite_genre").add(genre);
+                            break;
+                        case "mood":
+                            if (!preferences.containsKey("favorite_mood")) {
+                                preferences.put("favorite_mood", new ArrayList<>());
+                            }
+                            preferences.get("favorite_mood").add(itemName);
+                            break;
+                        default:
+                            // Handle other custom types
+                            if (!preferences.containsKey(type)) {
+                                preferences.put(type, new ArrayList<>());
+                            }
+                            preferences.get(type).add(itemId);
                     }
                 }
             }
@@ -72,63 +114,94 @@ public class UserPreferenceManager extends BaseDatabaseManager {
         return preferences;
     }
 
-    private Map<String, Object> getUserPreferencesOffline() {
+    private Map<String, List<Object>> getCurrentUserPreferencesOffline() {
+        Map<String, List<Object>> preferences = new HashMap<>();
         Path filePath = storageDir.resolve("preferences.json");
+        
         if (Files.exists(filePath)) {
             try (Reader reader = Files.newBufferedReader(filePath)) {
-                return gson.fromJson(reader, new TypeToken<Map<String, Object>>(){}.getType());
+                preferences = gson.fromJson(reader, new TypeToken<Map<String, List<Object>>>() {}.getType());
             } catch (IOException e) {
-                LOGGER.error("Failed to load preferences from file", e);
+                LOGGER.error("Failed to read user preferences from offline file", e);
             }
+        } else {
+            LOGGER.warn("No offline preferences file found for user: " + user.getId());
         }
-        return new HashMap<>();
-    }
+        
+        return preferences;
+        }
 
-    public void updateUserPreferences(Connection conn, Map<String, Object> preferences) throws SQLException {
+    public void updateCurrentUserPreferences(Connection conn, Map<String, List<Object>> preferences) throws SQLException {
         if (isOfflineMode()) {
-            updateUserPreferencesOffline(preferences);
+            updateCurrentUserPreferencesOffline(preferences);
             return;
         }
         
-        String sql = "INSERT INTO user_preferences (user_id, item_id, type, score) VALUES (?, ?, ?, ?) ON CONFLICT (user_id, item_id, type) DO UPDATE SET score = EXCLUDED.score";
+        String sql = "INSERT INTO user_preferences (user_id, type, item_name, item_id, score) VALUES (?, ?, ?, ?, ?) ON CONFLICT (user_id, item_name, item_id, type) DO UPDATE SET score = EXCLUDED.score";
+
+        UUID userId = UUID.fromString(user.getId());
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            for (Map.Entry<String, Object> entry : preferences.entrySet()) {
+            for (Map.Entry<String, List<Object>> entry : preferences.entrySet()) {
                 String entryKey = entry.getKey();
                 switch (entryKey) {
-                    case "favorite_artist":
-                        Artist favoriteArtist = (Artist) entry.getValue();
-                        // Convert user ID to UUID
-                        stmt.setObject(1, UUID.fromString(user.getId()));
-                        // Convert artist ID to UUID
-                        stmt.setObject(2, UUID.fromString(favoriteArtist.getId()));
-                        stmt.setString(3, "artist");
-                        stmt.setDouble(4, 1.0); // Example score
-                        stmt.addBatch();
-                        break;
-
-                    case "favorite_song":
-                        Song favoriteSong = (Song) entry.getValue();
-                        // Convert user ID to UUID
-                        stmt.setObject(1, UUID.fromString(user.getId()));
-                        // Convert song ID to UUID
-                        stmt.setObject(2, UUID.fromString(favoriteSong.getId()));
-                        stmt.setString(3, "song");
-                        stmt.setDouble(4, 1.0); // Example score
-                        stmt.addBatch();
-                        break;
-
-                    default:
-                        // For other types like genres, we might need different handling
-                        if (entry.getValue() instanceof String) {
-                            // Convert user ID to UUID
-                            stmt.setObject(1, UUID.fromString(user.getId()));
-                            stmt.setString(2, (String) entry.getValue());
-                            stmt.setString(3, entryKey);
-                            stmt.setDouble(4, 1.0);
+                    case "favorite_artists":
+                        for (Object obj : entry.getValue()) {
+                            Artist favoriteArtist = (Artist) obj;
+                            stmt.setObject(1, userId);
+                            stmt.setString(2, "artist");
+                            stmt.setString(3, favoriteArtist.getName());
+                            stmt.setString(4, favoriteArtist.getId());
+                            stmt.setDouble(5, 1.0); // Example score
                             stmt.addBatch();
                         }
                         break;
+                    case "favorite_songs":
+                        for (Object obj : entry.getValue()) {
+                            Song favoriteSong = (Song) obj;
+                            stmt.setObject(1, userId);
+                            stmt.setString(2, "song");
+                            stmt.setString(3, favoriteSong.getTitle());
+                            stmt.setString(4, favoriteSong.getId());
+                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.addBatch();
+                        }
+                        break;
+                    case "favorite_genres":
+                        for (Object obj : entry.getValue()) {
+                            String favoriteGenre = (String) obj;
+                            stmt.setObject(1, userId);
+                            stmt.setString(2, "genre");
+                            stmt.setString(3, favoriteGenre);
+                            stmt.setString(4, null);
+                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.addBatch();
+                        }
+                        break;
+                    case "favorite_moods":
+                        for (Object obj : entry.getValue()) {
+                            String favoriteMood = (String) obj;
+                            stmt.setObject(1, userId);
+                            stmt.setString(2, "mood");
+                            stmt.setString(3, favoriteMood);
+                            stmt.setString(4, null);
+                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.addBatch();
+                        }
+                        break;
+
+                    default:
+                        // Handle other custom types
+                        for (Object obj : entry.getValue()) {
+                            String itemName = (String) obj;
+                            stmt.setObject(1, userId);
+                            stmt.setString(2, entryKey);
+                            stmt.setString(3, itemName);
+                            stmt.setString(4, null); // Assuming no ID for custom types
+                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.addBatch();
+                        }
+                    break;
                 }
             }
             stmt.executeBatch();
@@ -138,26 +211,13 @@ public class UserPreferenceManager extends BaseDatabaseManager {
         }
     }
 
-    private void updateUserPreferencesOffline(Map<String, Object> preferences) {
-        try (Writer writer = Files.newBufferedWriter(storageDir.resolve("preferences.json"))) {
+    private void updateCurrentUserPreferencesOffline(Map<String, List<Object>> preferences) {
+        Path filePath = storageDir.resolve("preferences.json");
+        
+        try (Writer writer = Files.newBufferedWriter(filePath)) {
             gson.toJson(preferences, writer);
-            LOGGER.info("Saved user preferences in offline mode");
         } catch (IOException e) {
-            LOGGER.error("Failed to save preferences to file", e);
+            LOGGER.error("Failed to write user preferences to offline file", e);
         }
-    }
-
-    public void saveGenres(Connection conn, List<String> favoriteGenres) throws SQLException {
-        if (isOfflineMode()) {
-            saveGenresOffline(favoriteGenres);
-            return;
-        }
-        // ...existing saveGenres code...
-    }
-
-    private void saveGenresOffline(List<String> favoriteGenres) {
-        Map<String, Object> preferences = getUserPreferencesOffline();
-        preferences.put("favorite_genres", favoriteGenres);
-        updateUserPreferencesOffline(preferences);
     }
 }

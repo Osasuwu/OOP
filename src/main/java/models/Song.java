@@ -22,6 +22,7 @@ public class Song {
     private String imageUrl;
     private boolean isExplicit;
     private Artist artist;
+    private double score;
 
     public Song(String title, String artistName) {
         this.title = title;
@@ -142,6 +143,14 @@ public class Song {
 
     public void SetFilePath(String filePath){
         this.filePath = filePath;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
     }
 
     public void setArtistId(String artistId) {

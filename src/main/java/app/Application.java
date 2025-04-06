@@ -173,12 +173,6 @@ public class Application {
             dbManager.savePlayHistory(userData);
             LOGGER.info("Saved {} listening history entries", userData.getPlayHistory().size());
 
-            // Step 4: Calculate and save preferences
-            UserPreferencesManager preferencesManager = new UserPreferencesManager();
-            Map<String, Object> preferences = preferencesManager.calculateUserPreferences(userData);
-            dbManager.updateUserPreferences(preferences);
-            LOGGER.info("Updated user preferences");
-
             return true;
         } catch (Exception e) {
             LOGGER.error("Error during data import: {}", e.getMessage(), e);
@@ -195,9 +189,9 @@ public class Application {
     public boolean generatePlaylist(PlaylistParameters params) {
         try {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
-            Map<String, Object> preferencesMap = dbManager.getUserPreferences();
-            PlaylistPreferences preferences = new PlaylistPreferences(preferencesMap);
-            generatedPlaylist = playlistGenerator.generatePlaylist(dbManager.loadUserData(), params, preferences);
+            Map<String, List<Object>> userPreferences = dbManager.getCurrentUserPreferences();
+            PlaylistPreferences playlistPreferences = new PlaylistPreferences();
+            generatedPlaylist = playlistGenerator.generatePlaylist(params, userPreferences);
             return generatedPlaylist != null;
         } catch (Exception e) {
             LOGGER.error("Error generating playlist: {}", e.getMessage(), e);

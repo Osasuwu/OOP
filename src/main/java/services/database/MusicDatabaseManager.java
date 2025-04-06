@@ -3,6 +3,7 @@ package services.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariConfig;
@@ -10,6 +11,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import services.database.managers.*;
 import models.UserMusicData;
+import models.Artist;
+import models.Song;
 import models.User;
 
 /**
@@ -83,8 +86,8 @@ public class MusicDatabaseManager {
         T execute(Connection conn) throws SQLException;
     }
 
-    public Map<String, Object> getUserPreferences() throws SQLException {
-        return withConnection(conn -> preferenceManager.getUserPreferences(conn));
+    public Map<String, List<Object>> getCurrentUserPreferences() throws SQLException {
+        return withConnection(conn -> preferenceManager.getCurrentUserPreferences(conn));
     }
 
     public void saveUserData(UserMusicData userData) throws SQLException {
@@ -122,12 +125,12 @@ public class MusicDatabaseManager {
         });
     }
 
-    public void updateUserPreferences(Map<String, Object> preferences) throws SQLException {
+    public void updateUserPreferences(Map<String, List<Object>> preferences) throws SQLException {
         withConnection(conn -> {
             boolean originalAutoCommit = conn.getAutoCommit();
             try {
                 conn.setAutoCommit(false);
-                preferenceManager.updateUserPreferences(conn, preferences);
+                preferenceManager.updateCurrentUserPreferences(conn, preferences);
                 conn.commit();
                 return null;
             } catch (SQLException e) {
@@ -136,16 +139,6 @@ public class MusicDatabaseManager {
             } finally {
                 conn.setAutoCommit(originalAutoCommit);
             }
-        });
-    }
-
-    public UserMusicData loadUserData() throws SQLException {
-        return withConnection(conn -> {
-            UserMusicData userData = new UserMusicData();
-            userData.setArtists(artistManager.loadArtists(conn));
-            userData.setSongs(songManager.loadSongs(conn));
-            userData.setPlayHistory(playHistoryManager.loadPlayHistory(conn, user));
-            return userData;
         });
     }
 
@@ -161,5 +154,14 @@ public class MusicDatabaseManager {
 
     public User getUser() {
         return user;
+    }
+
+    public Artist getArtistBySong(Song song) {
+        try (Connection conn = getConnection()) {
+            return artistManager.getArtistBySong(conn, song);
+        } catch (SQLException e) {
+            LOGGER.error("Failed to get artist by song", e);
+            return null;
+        }
     }
 }

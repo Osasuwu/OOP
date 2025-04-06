@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import models.Artist;
+import models.Song;
 import utils.GenreMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -295,39 +296,37 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
         }
     }
 
-    public List<Artist> loadArtists(Connection conn) throws SQLException {
-        List<Artist> artists = new ArrayList<>();
-        String sql = "SELECT id, name, image_url FROM artists WHERE user_id = ?";
-        
+    public Artist getArtistBySong(Connection conn, Song song) {
+        if (isOfflineMode()) {
+            return getArtistBySongOffline(song);
+        }
+        String sql = "SELECT a.* FROM artists a JOIN song_artists sa ON a.id = sa.artist_id WHERE sa.song_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getId());
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Artist artist = new Artist(rs.getString("name"));
-                    artist.setId(rs.getString("id"));
-                    artist.setSpotifyId(rs.getString("spotify_id"));
-                    artist.setSpotifyLink(rs.getString("spotify_link"));
-                    artist.setPopularity(rs.getInt("popularity"));
-                    artist.setImageUrl(rs.getString("image_url"));
-                    artists.add(artist);
-                }
-            }
-        }
+            stmt.setObject(1, UUID.fromString(song.getId()));
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Artist artist = new Artist(rs.getString("name"));
+                artist.setId(rs.getString("id"));
+                artist.setSpotifyId(rs.getString("spotify_id"));
+                artist.setPopularity(rs.getInt("popularity"));
+                artist.setSpotifyLink(rs.getString("spotify_link"));
+                artist.setImageUrl(rs.getString("image_url"));             
 
-        String genreSql = "SELECT artist_id, genre FROM artist_genres WHERE artist_id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(genreSql)) {
-            for (Artist artist : artists) {
-                stmt.setString(1, artist.getId());
-                try (ResultSet rs = stmt.executeQuery()) {
-                    List<String> genres = new ArrayList<>();
-                    while (rs.next()) {
-                        genres.add(rs.getString("genre"));
-                    }
-                    artist.setGenres(genres);
-                }
+                return artist;
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Error getting artist by song", e);
+        }
+        return null;
+    }
+
+    private Artist getArtistBySongOffline(Song song) {
+        Map<String, Artist> artists = loadArtistsFromFile();
+        for (Artist artist : artists.values()) {
+            if (artist.getSongs().contains(song)) {
+                return artist;
             }
         }
-        
-        return artists;
+        return null;
     }
 }
