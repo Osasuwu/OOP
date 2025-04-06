@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Artist {
+    private String id;
     private String artistName;
     private String spotifyId;
     private String SpotifyLink;
     private int popularity;
     private String imageUrl;
     private List<String> genres;
+    private List<Song> songs;
+    private List<Album> albums;
+    private double score;
 
     public Artist(String name) {
         this.artistName = name;
@@ -70,18 +74,36 @@ public class Artist {
         }
     }
 
-    // Provided id accessor methods (using spotifyId as the id)
-    public void setId(String spotifyId) {
-        this.spotifyId = spotifyId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getId() {
-        return spotifyId;
+        return id;
     }
-    
-    public List<Song> getTopSongs() {
-        // Return a list of top songs by the artist
-        return new ArrayList<>(); // Replace with actual logic for retrieving top songs
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+    public List<Song> getSongs() {
+        return songs;
+    }
+
+    public void setSongs(List<Song> songs) {
+        this.songs = songs;
+    }
+
+    public List<Album> getAlbums() {
+        return albums;
+    }
+
+    public void setAlbums(List<Album> albums) {
+        this.albums = albums;
     }
 
     @Override

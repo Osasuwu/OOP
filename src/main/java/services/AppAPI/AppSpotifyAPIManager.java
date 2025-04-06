@@ -14,6 +14,9 @@ import java.util.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
+import services.enrichment.DataEnrichmentManager;
+
 public class AppSpotifyAPIManager {
     private static final String SPOTIFY_API_URL = "https://api.spotify.com/v1";
     private static final int MAX_RETRIES = 3;
@@ -21,6 +24,7 @@ public class AppSpotifyAPIManager {
     
     private String accessToken;
     private final HttpClient client;
+
     
     public AppSpotifyAPIManager() {
         try {
@@ -165,6 +169,18 @@ public class AppSpotifyAPIManager {
                     
                     // Extract artist name
                     artistData.put("name", jsonResponse.getString("name"));
+                    artistData.put("spotify_id", jsonResponse.getString("id"));
+                    artistData.put("spotify_link", jsonResponse.getJSONObject("external_urls").getString("spotify"));
+                    
+                    // Extract popularity if available
+                    if (jsonResponse.has("popularity")) {
+                        artistData.put("popularity", jsonResponse.getInt("popularity"));
+                    }
+                    
+                    // Extract image if available
+                    if (jsonResponse.has("images") && jsonResponse.getJSONArray("images").length() > 0) {
+                        artistData.put("image_url", jsonResponse.getJSONArray("images").getJSONObject(0).getString("url"));
+                    }
                     
                     // Extract genres
                     if (jsonResponse.has("genres") && jsonResponse.getJSONArray("genres").length() > 0) {
@@ -184,6 +200,33 @@ public class AppSpotifyAPIManager {
         }
         
         return artistData;
+    }
+    
+    /**
+     * Get artist information by artist name
+     * @param artistName Name of the artist
+     * @return Map containing artist data
+     */
+    public Map<String, Object> getArtistInfoByName(String artistName) throws Exception {
+        // Find the artist ID first
+        String artistId = getArtistSpotifyId(artistName);
+        if (artistId == null) {
+            return new HashMap<>(); // Return empty map if artist not found
+        }
+        
+        // Get full artist info using the ID
+        return getArtistInfo(artistId);
+    }
+    
+    /**
+     * Get track information by track name and artist
+     * This is an alternative to searchTrack with clearer naming
+     * @param trackName Name of the track
+     * @param artistName Name of the artist
+     * @return Map containing track data
+     */
+    public Map<String, Object> getTrackInfoByName(String trackName, String artistName) throws Exception {
+        return searchTrack(trackName, artistName);
     }
     
     /**
@@ -207,7 +250,7 @@ public class AppSpotifyAPIManager {
         List<Map<String, Object>> songs = new ArrayList<>();
         
         // First, find the artist ID
-        String artistId = getArtistId(artistName);
+        String artistId = getArtistSpotifyId(artistName);
         if (artistId == null) {
             System.out.println("Artist not found on Spotify: " + artistName);
             return songs;
@@ -270,8 +313,10 @@ public class AppSpotifyAPIManager {
     
     /**
      * Get artist ID from Spotify
+     * @param artistName Name of the artist to search for
+     * @return Spotify artist ID or null if not found
      */
-    private String getArtistId(String artistName) throws Exception {
+    private String getArtistSpotifyId(String artistName) throws Exception {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 String query = String.format("q=artist:%s&type=artist&limit=1", 
@@ -301,131 +346,5 @@ public class AppSpotifyAPIManager {
             }
         }
         return null;
-    }
-    
-    /**
-     * Create a playlist on Spotify
-     * @param playlistName Name of the playlist
-     * @param songs List of song data
-     * @return True if successful
-     */
-    public boolean createPlaylist(String playlistName, List<Map<String, Object>> songs) throws Exception {
-        // Need a Spotify user ID to create playlists - would need to implement OAuth flow
-        // For this example we'll just print the songs that would be in the playlist
-        System.out.println("Would create Spotify playlist: " + playlistName);
-        System.out.println("Containing these songs:");
-        
-        for (Map<String, Object> song : songs) {
-            System.out.println("- \"" + song.get("title") + "\" by " + song.get("artist"));
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Get recommendations based on seed tracks, artists, and genres
-     * @param seedTracks List of track IDs to use as seeds (max 5)
-     * @param seedArtists List of artist IDs to use as seeds (max 5)
-     * @param seedGenres List of genres to use as seeds (max 5)
-     * @param limit Number of recommendations to get
-     * @return List of recommended song data
-     */
-    public List<Map<String, Object>> getRecommendations(List<String> seedTracks, 
-                                                       List<String> seedArtists,
-                                                       List<String> seedGenres,
-                                                       int limit) throws Exception {
-        List<Map<String, Object>> recommendations = new ArrayList<>();
-        
-        // Total seeds can't exceed 5
-        int seedCount = Math.min(5, seedTracks.size() + seedArtists.size() + seedGenres.size());
-        if (seedCount == 0) {
-            return recommendations;
-        }
-        
-        // Adjust seed lists to fit within limit of 5 total
-        if (seedCount > 5) {
-            int tracksToUse = Math.min(seedTracks.size(), 2);
-            int artistsToUse = Math.min(seedArtists.size(), 2);
-            int genresToUse = Math.min(seedGenres.size(), 5 - tracksToUse - artistsToUse);
-            
-            seedTracks = seedTracks.subList(0, tracksToUse);
-            seedArtists = seedArtists.subList(0, artistsToUse);
-            seedGenres = seedGenres.subList(0, genresToUse);
-        }
-        
-        StringBuilder queryBuilder = new StringBuilder();
-        
-        if (!seedTracks.isEmpty()) {
-            queryBuilder.append("seed_tracks=")
-                       .append(String.join(",", seedTracks))
-                       .append("&");
-        }
-        
-        if (!seedArtists.isEmpty()) {
-            queryBuilder.append("seed_artists=")
-                       .append(String.join(",", seedArtists))
-                       .append("&");
-        }
-        
-        if (!seedGenres.isEmpty()) {
-            queryBuilder.append("seed_genres=")
-                       .append(URLEncoder.encode(String.join(",", seedGenres), StandardCharsets.UTF_8))
-                       .append("&");
-        }
-        
-        queryBuilder.append("limit=").append(limit);
-        
-        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-            try {
-                HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(SPOTIFY_API_URL + "/recommendations?" + queryBuilder.toString()))
-                    .header("Authorization", "Bearer " + accessToken)
-                    .GET()
-                    .build();
-                
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                JSONObject jsonResponse = new JSONObject(response.body());
-                
-                if (jsonResponse.has("tracks")) {
-                    JSONArray tracks = jsonResponse.getJSONArray("tracks");
-                    
-                    for (int i = 0; i < tracks.length(); i++) {
-                        JSONObject track = tracks.getJSONObject(i);
-                        Map<String, Object> songData = new HashMap<>();
-                        
-                        songData.put("title", track.getString("name"));
-                        JSONArray artists = track.getJSONArray("artists");
-                        if (artists.length() > 0) {
-                            songData.put("artist", artists.getJSONObject(0).getString("name"));
-                        } else {
-                            songData.put("artist", "Unknown");
-                        }
-                        
-                        songData.put("spotify_id", track.getString("id"));
-                        songData.put("popularity", track.getInt("popularity"));
-                        songData.put("duration_ms", track.getInt("duration_ms"));
-                        songData.put("spotify_uri", track.getString("uri"));
-                        
-                        JSONObject album = track.getJSONObject("album");
-                        songData.put("album_name", album.getString("name"));
-                        songData.put("release_date", album.getString("release_date"));
-                        
-                        if (album.has("images") && album.getJSONArray("images").length() > 0) {
-                            songData.put("image_url", album.getJSONArray("images").getJSONObject(0).getString("url"));
-                        }
-                        
-                        recommendations.add(songData);
-                    }
-                }
-                break;
-            } catch (Exception e) {
-                if (attempt == MAX_RETRIES) throw e;
-                Thread.sleep(RETRY_DELAY_MS * attempt);
-                // Refresh token if expired
-                this.accessToken = SpotifyAccessToken.getAccessToken();
-            }
-        }
-        
-        return recommendations;
     }
 }

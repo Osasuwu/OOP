@@ -1,10 +1,14 @@
 package models;
 
+import java.util.List;
+import java.util.Map;
+
 public class User {
     private String id;
     private String name;
     private String email;
     private String passwordHash;
+    private Map<String, List<Object>> preferences;
 
     public User(String id, String name, String email) {
         this.id = id;
@@ -43,5 +47,13 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public Map<String, List<Object>> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(Map<String, List<Object>> preferences) {
+        this.preferences = preferences;
     }
 }
