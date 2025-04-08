@@ -110,4 +110,13 @@ public class Artist {
     public String toString() {
         return artistName;
     }
+
+    /**
+ * Returns a list of top songs for the artist.
+ * You can update this logic later to return a meaningful list of songs.
+ */
+public List<Song> getTopSongs() {
+    // For now, return an empty list; later you can implement actual logic.
+    return new ArrayList<>();
+}
 }

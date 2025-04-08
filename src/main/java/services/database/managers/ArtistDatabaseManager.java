@@ -1,30 +1,39 @@
 package services.database.managers;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import models.Artist;
-import models.Song;
-import utils.GenreMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.*;
-import java.nio.file.*;
 
+import models.Artist;
 import models.User;
+import utils.GenreMapper;
 
 public class ArtistDatabaseManager extends BaseDatabaseManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtistDatabaseManager.class);
     private final Gson gson = new Gson();
     private final Path storageDir;
 
+    
     public ArtistDatabaseManager(boolean isOnline, User user) {
         super(isOnline, user);
         this.storageDir = Paths.get(getOfflineStoragePath(), "artists");
@@ -296,37 +305,40 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
         }
     }
 
-    public Artist getArtistBySong(Connection conn, Song song) {
-        if (isOfflineMode()) {
-            return getArtistBySongOffline(song);
-        }
-        String sql = "SELECT a.* FROM artists a JOIN song_artists sa ON a.id = sa.artist_id WHERE sa.song_id = ?";
+    public List<Artist> loadArtists(Connection conn) throws SQLException {
+        List<Artist> artists = new ArrayList<>();
+        String sql = "SELECT id, name, image_url FROM artists WHERE user_id = ?";
+        
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, UUID.fromString(song.getId()));
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                Artist artist = new Artist(rs.getString("name"));
-                artist.setId(rs.getString("id"));
-                artist.setSpotifyId(rs.getString("spotify_id"));
-                artist.setPopularity(rs.getInt("popularity"));
-                artist.setSpotifyLink(rs.getString("spotify_link"));
-                artist.setImageUrl(rs.getString("image_url"));             
-
-                return artist;
-            }
-        } catch (SQLException e) {
-            LOGGER.error("Error getting artist by song", e);
-        }
-        return null;
-    }
-
-    private Artist getArtistBySongOffline(Song song) {
-        Map<String, Artist> artists = loadArtistsFromFile();
-        for (Artist artist : artists.values()) {
-            if (artist.getSongs().contains(song)) {
-                return artist;
+            stmt.setString(1, user.getId());
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Artist artist = new Artist(rs.getString("name"));
+                    artist.setId(rs.getString("id"));
+                    artist.setSpotifyId(rs.getString("spotify_id"));
+                    artist.setSpotifyLink(rs.getString("spotify_link"));
+                    artist.setPopularity(rs.getInt("popularity"));
+                    artist.setImageUrl(rs.getString("image_url"));
+                    artists.add(artist);
+                }
             }
         }
-        return null;
+
+        String genreSql = "SELECT artist_id, genre FROM artist_genres WHERE artist_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(genreSql)) {
+            for (Artist artist : artists) {
+                stmt.setString(1, artist.getId());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    List<String> genres = new ArrayList<>();
+                    while (rs.next()) {
+                        genres.add(rs.getString("genre"));
+                    }
+                    artist.setGenres(genres);
+                }
+            }
+        }
+        
+        return artists;
     }
+
 }

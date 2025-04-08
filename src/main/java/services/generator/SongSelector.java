@@ -1,20 +1,15 @@
 package services.generator;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Collections;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Random;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-
-import java.time.LocalDate;
 
 import models.Song;
 import utils.Logger;
@@ -319,7 +314,10 @@ public class SongSelector {
         List<Song> filteredSongs = filterManager.applyFilters(songs, criteria)
                 .stream()
                 .filter(song -> {
-                    LocalDate releaseDate = song.getReleaseDate();
+                    LocalDate releaseDate = song.getReleaseDate()
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
                     return releaseDate != null &&
                         (releaseDate.isEqual(startDate) || releaseDate.isAfter(startDate)) &&
                         (releaseDate.isEqual(endDate) || releaseDate.isBefore(endDate));

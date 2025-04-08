@@ -31,8 +31,9 @@ public class CliController {
         this.app = app;
         this.scanner = new Scanner(System.in);
         this.ui = new UserInterface();
+        System.out.println("CliController initialized successfully.");
     }
-
+    
     public void start() {
         System.out.println("Welcome to Playlist Generator CLI!");
         boolean running = true;
@@ -62,7 +63,7 @@ public class CliController {
         }
         
         scanner.close();
-        app.shutdown(); // Make sure to clean up resources
+        // Make sure to clean up resources if needed
     }
     
     private void printMainMenu() {
@@ -122,7 +123,12 @@ public class CliController {
         }
     
         System.out.println("Generating playlist...");
-        app.generatePlaylist(params);
+        boolean success = app.generatePlaylist(params);
+        if (success) {
+            System.out.println("Playlist generated successfully!");
+        } else {
+            System.out.println("Failed to generate playlist.");
+        }
     }
     
     private void launchUserInterface() {
@@ -225,7 +231,7 @@ public class CliController {
             System.err.println("Error importing data: " + e.getMessage());
         }
     }
-
+    
     private void importFromStreamingService() {
         System.out.println("\n----- Import from Streaming Service -----");
         System.out.println("1. Spotify");

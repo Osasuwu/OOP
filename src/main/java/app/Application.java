@@ -15,12 +15,9 @@ import services.AppAPI.LastFmAPIManager;
 import services.AppAPI.MusicBrainzAPIManager;
 import services.AuthenticationService;
 import services.PlaylistGenerator;
-import services.UserPreferencesManager;
 import services.config.Config;
 import services.database.MusicDatabaseManager;
 import services.enrichment.DataEnrichmentManager;
-import services.output.PlaylistExporter;
-import services.output.PlaylistExporterFactory;
 import services.ui.CliController;
 import services.ui.GuiLauncher;
 import services.ui.SetupWizard;
@@ -32,7 +29,7 @@ import utils.SpotifyAccessToken;
  * Handles all core functionality including data import, playlist generation,
  * database operations, and user interface management.
  */
-public class Application {
+public class Application  {
     private Config config;
     private AuthenticationService authService;
     private MusicDatabaseManager dbManager;
@@ -47,7 +44,7 @@ public class Application {
     private Playlist generatedPlaylist;
     
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
-
+    
     public Application() {
         config = Config.getInstance();
         authService = new AuthenticationService();
@@ -103,7 +100,7 @@ public class Application {
         } else {
             currentUser = authService.getUser();
         }
-    
+        
         // Save user ID in config
         config.set("defaultUserId", currentUser.getId());
         
@@ -123,7 +120,7 @@ public class Application {
         this.lastFmManager = new LastFmAPIManager();
         this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager);
     }
-
+    
     private void runSetupWizard() {
         LOGGER.info("Starting setup wizard...");
         SetupWizard wizard = new SetupWizard();
@@ -137,7 +134,7 @@ public class Application {
         GuiLauncher launcher = new GuiLauncher();
         launcher.start(config);
     }
-
+    
     /**
      * Comprehensive user data import workflow:
      * 1. Save basic song and artist data
@@ -162,16 +159,16 @@ public class Application {
                 userData.getSongs().size(),
                 userData.getArtists().size(),
                 userData.getPlayHistory().size());
-
+            
             // Process genres before saving
             genreManager.normalizeGenres(userData);
-
+            
             // Step 1: Save songs and artists to database
             dbManager.saveUserData(userData);
-            LOGGER.info("Saved basic data: {} songs, {} artists", 
+            LOGGER.info("Saved basic data: {} songs, {} artists",
                 userData.getSongs().size(),
                 userData.getArtists().size());
-
+            
             // Step 2: Enrich with external data (only if online)
             if (isOnline) {
                 enrichmentManager.enrichUserData(userData);
@@ -180,88 +177,49 @@ public class Application {
                 dbManager.saveUserData(userData);
                 LOGGER.info("Saved enriched data to database");
             }
-
+            
             // Step 3: Save listening history
             dbManager.savePlayHistory(userData);
             LOGGER.info("Saved {} listening history entries", userData.getPlayHistory().size());
-
+            
             return true;
         } catch (Exception e) {
             LOGGER.error("Error during data import: {}", e.getMessage(), e);
             return false;
         }
     }
-
-    /**
-     * Generates a playlist based on specified parameters
-     *
-     * @param params Parameters for playlist generation
-     * @return true if generation was successful, false otherwise
-     */
+    
     public boolean generatePlaylist(PlaylistParameters params) {
         try {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
-            Map<String, List<Object>> userPreferences = dbManager.getCurrentUserPreferences();
-            PlaylistPreferences playlistPreferences = new PlaylistPreferences();
-            generatedPlaylist = playlistGenerator.generatePlaylist(params, userPreferences);
-            return generatedPlaylist != null;
-        } catch (Exception e) {
-            LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
-            return false;
-        }
-    }
-
-    /**
-     * Exports the most recently generated playlist
-     *
-     * @param format Export format ("csv", "json", "spotify", etc.)
-     * @param destination Output destination (file path or URL)
-     * @return true if export was successful, false otherwise
-     */
-    public boolean exportPlaylist(String format, String destination) {
-        try {
-            if (generatedPlaylist == null) {
-                LOGGER.error("No playlist available to export.");
+    
+            // Retrieve the user preferences map (Map<String, List<Object>>)
+            Map<String, java.util.List<Object>> userPreferencesMap = dbManager.getCurrentUserPreferences();
+    
+            // Use the preferences map directly in PlaylistPreferences
+            // NOTE: Ensure that the PlaylistPreferences constructor accepts a Map<String, List<Object>>
+            PlaylistPreferences playlistPreferences = new PlaylistPreferences(userPreferencesMap);
+    
+            // Retrieve user music data
+            UserMusicData userData = dbManager.loadUserData();
+            if (userData == null) {
+                LOGGER.error("Failed to retrieve user music data.");
                 return false;
             }
-
-            PlaylistExporterFactory factory = new PlaylistExporterFactory();
-            PlaylistExporter exporter = factory.getExporter(format);
-            exporter.export(generatedPlaylist, destination);
-
-            LOGGER.info("Playlist exported successfully to {} in {} format.", destination, format);
-            return true;
+    
+            // Generate the playlist
+            generatedPlaylist = playlistGenerator.generatePlaylist(userData, params, playlistPreferences);
+    
+            if (generatedPlaylist != null) {
+                LOGGER.info("Playlist generated successfully.");
+                return true;
+            } else {
+                LOGGER.warn("Playlist generation returned null.");
+                return false;
+            }
         } catch (Exception e) {
-            LOGGER.error("Error exporting playlist: {}", e.getMessage(), e);
-            return false;
+            LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
         }
-    }
-
-    /**
-     * Gets the currently generated playlist
-     */
-    public Playlist getGeneratedPlaylist() {
-        return generatedPlaylist;
-    }
-    
-    /**
-     * Gets the current user
-     */
-    public User getCurrentUser() {
-        return currentUser;
-    }
-    
-    /**
-     * Clean up resources when application is shutting down
-     */
-    public void shutdown() {
-        LOGGER.info("Shutting down application");
-        if (enrichmentManager != null) {
-            enrichmentManager.shutdown();
-        }
-        if (dbManager != null) {
-            dbManager.cleanup();
-        }
+        return isOnline;
     }
 }
-

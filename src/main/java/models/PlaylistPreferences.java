@@ -15,7 +15,7 @@ public class PlaylistPreferences {
     private PlaylistParameters.PlaylistSelectionStrategy selectionStrategy;
     private Map<String, Object> preferences;
     
-    public PlaylistPreferences() {
+    public PlaylistPreferences(Map<String, List<Object>> userPreferencesMap) {
         this.name = "New Playlist";
         this.songCount = 20;
         this.genres = new ArrayList<>();
