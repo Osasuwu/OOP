@@ -32,9 +32,7 @@ public class PlaylistPreferences {
         this.selectionStrategy = params.getSelectionStrategy();
     }
     
-    public PlaylistPreferences(Map<String, Object> preferencesMap) {
-        this.preferences = preferencesMap;
-    }
+
     
     // Add getters and other methods as needed
     public Object getPreference(String key) {

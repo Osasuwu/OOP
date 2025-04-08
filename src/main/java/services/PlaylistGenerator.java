@@ -33,6 +33,10 @@ public class PlaylistGenerator {
      * @return A generated playlist
      */
     public Playlist generatePlaylist(UserMusicData userData, PlaylistParameters params, PlaylistPreferences preferences) {
+        // The following line was mistakenly inserted.
+        // stmt.setObject(1, UUID.fromString(song.getArtist().getId()));
+        // (It is retained here as a comment according to Petr's instruction to preserve structure.)
+        
         // Generate based on available data
         if (!userData.getPlayHistory().isEmpty()) {
             return generateFromHistory(userData, preferences);

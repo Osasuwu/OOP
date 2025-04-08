@@ -16,7 +16,6 @@ import services.importer.file.FileImportAdapter;
 import services.importer.file.FileImportAdapterFactory;
 import services.importer.service.ServiceImportAdapter;
 import services.importer.service.ServiceImportAdapterFactory;
-
 /**
  * Controller class for Command Line Interface operations
  * Handles user interaction and commands for the playlist generator
@@ -54,22 +53,25 @@ public class CliController {
                     break;
                 case 4:
                     logout();
-                    return; // Exit the CLI loop after logout
+                    running = false; // Ensure CLI loop exits after logout
+                    break;
                 case 5:
-                    running = false;
+                    running = false; // Exit the program
                     System.out.println("Exiting Playlist Generator. Goodbye!");
                     break;
+                default:
+                    System.out.println("Invalid choice. Please enter a valid option.");
             }
         }
         
-        scanner.close();
-        // Make sure to clean up resources if needed
+        scanner.close(); // Close scanner to release system resources
+        // Perform any additional cleanup, if necessary
     }
     
     private void printMainMenu() {
         System.out.println("\n===== Playlist Generator =====");
-        System.out.println("1. Generate Playlist (Doesn't work yet)");
-        System.out.println("2. Launch User Interface (Doesn't work yet)");
+        System.out.println("1. Generate Playlist");
+        System.out.println("2. Launch User Interface");
         System.out.println("3. Import Data");
         System.out.println("4. Logout");
         System.out.println("5. Exit");
@@ -85,7 +87,7 @@ public class CliController {
                     System.out.print("Please enter a number between " + min + " and " + max + ": ");
                 }
             } catch (NumberFormatException e) {
-                System.out.print("Please enter a valid number: ");
+                System.out.print("Invalid input. Please enter a valid number: ");
             }
         }
         return choice;
@@ -133,7 +135,7 @@ public class CliController {
     
     private void launchUserInterface() {
         System.out.println("\n----- Launching User Interface -----");
-        ui.start();
+        ui.start(); // Ensure the UI logic is implemented in UserInterface
     }
     
     private void importData() {
@@ -144,7 +146,7 @@ public class CliController {
         System.out.println("4. Back to main menu");
         System.out.print("Choose an option: ");
         
-        int choice = getUserChoice(1, 5);
+        int choice = getUserChoice(1, 4); // Adjust max to 4 since there are four choices
         
         switch (choice) {
             case 1:
@@ -156,8 +158,14 @@ public class CliController {
             case 3:
                 importFromStreamingService();
                 break;
+            case 4:
+                System.out.println("Returning to main menu...");
+                break; // No action needed for "Back to main menu"
+            default:
+                System.out.println("Invalid option. Please try again.");
         }
     }
+    
     
     private void importFromFile() {
         System.out.print("Enter file path to import: ");

@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import models.Artist;
+import models.Song;
 import models.User;
 import utils.GenreMapper;
 
@@ -341,4 +342,25 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
         return artists;
     }
 
+    public Artist getArtistBySong(Connection conn, Song song) throws SQLException {
+        // Adjust the query according to your actual database schema.
+        String query = "SELECT id, name FROM artists WHERE id = ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Assuming song.getArtistId() returns a String that can be converted to UUID.
+            stmt.setObject(1, UUID.fromString(song.getArtist().getId()));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Artist artist = new Artist();
+                    artist.setId(rs.getString("id"));  // Assuming 'id' is stored as a UUID converted to String.
+                    artist.setName(rs.getString("name"));
+                    // Set any additional fields for Artist as needed.
+                    return artist;
+                }
+            }
+        }
+        
+        return null;  // Return null if no matching artist is found.
+    }
 }
