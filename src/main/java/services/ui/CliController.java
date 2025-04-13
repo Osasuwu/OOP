@@ -16,6 +16,8 @@ import services.importer.file.FileImportAdapter;
 import services.importer.file.FileImportAdapterFactory;
 import services.importer.service.ServiceImportAdapter;
 import services.importer.service.ServiceImportAdapterFactory;
+import services.output.PlaylistExporter;
+import services.output.PlaylistExporterFactory;
 /**
  * Controller class for Command Line Interface operations
  * Handles user interaction and commands for the playlist generator
@@ -34,12 +36,11 @@ public class CliController {
     }
     
     public void start() {
-        System.out.println("Welcome to Playlist Generator CLI!");
         boolean running = true;
-        
         while (running) {
+            System.out.println("Welcome to Playlist Generator CLI!");
             printMainMenu();
-            int choice = getUserChoice(1, 5);
+            int choice = getUserChoice(1, 6);
             
             switch (choice) {
                 case 1:
@@ -52,29 +53,32 @@ public class CliController {
                     importData();
                     break;
                 case 4:
-                    logout();
-                    running = false; // Ensure CLI loop exits after logout
+                    exportPlaylist();
                     break;
                 case 5:
-                    running = false; // Exit the program
+                    if (logout()) {
+                        // Reset and continue the loop
+                        continue;
+                    }
+                    running = false;
+                    break;
+                case 6:
+                    running = false;
                     System.out.println("Exiting Playlist Generator. Goodbye!");
                     break;
-                default:
-                    System.out.println("Invalid choice. Please enter a valid option.");
             }
         }
-        
-        scanner.close(); // Close scanner to release system resources
-        // Perform any additional cleanup, if necessary
+        scanner.close();
     }
-    
+
     private void printMainMenu() {
         System.out.println("\n===== Playlist Generator =====");
         System.out.println("1. Generate Playlist");
         System.out.println("2. Launch User Interface");
         System.out.println("3. Import Data");
-        System.out.println("4. Logout");
-        System.out.println("5. Exit");
+        System.out.println("4. Export Playlist");
+        System.out.println("5. Logout");
+        System.out.println("6. Exit");
         System.out.print("Enter your choice: ");
     }
     
@@ -314,14 +318,54 @@ public class CliController {
         }
     }
     
-    private void logout() {
+    private void exportPlaylist() {
+        if (app.getCurrentPlaylist() == null) {
+            System.out.println("No playlist available to export. Please generate a playlist first.");
+            return;
+        }
+
+        System.out.println("\n----- Export Playlist -----");
+        System.out.println("Choose export format:");
+        System.out.println("1. CSV");
+        System.out.println("2. M3U");
+        System.out.println("3. Spotify");
+        System.out.print("Enter your choice: ");
+
+        int choice = getUserChoice(1, 3);
+        String format;
+        switch (choice) {
+            case 1:
+                format = "csv";
+                break;
+            case 2:
+                format = "m3u";
+                break;
+            case 3:
+                format = "spotify";
+                break;
+            default:
+                System.out.println("Invalid format choice.");
+                return;
+        }
+
+        System.out.print("Enter destination path for export: ");
+        String destination = scanner.nextLine().trim();
+
+        try {
+            PlaylistExporter exporter = PlaylistExporterFactory.getExporter(format);
+            exporter.export(app.getCurrentPlaylist(), destination);
+            System.out.println("Playlist exported successfully to: " + destination);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Export failed: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An error occurred during export: " + e.getMessage());
+        }
+    }
+    
+    private boolean logout() {
         System.out.println("\n----- Logging Out -----");
         authService.logout();
         System.out.println("You have been logged out successfully.");
-        System.out.println("Restarting application...");
-        
-        // Restart the application by launching a new instance
-        Application app = new Application();
-        app.start();
+        return true; // Return true to indicate we should restart
     }
 }
