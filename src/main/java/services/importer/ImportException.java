@@ -1,7 +1,7 @@
 package services.importer;
 
 /**
- * Exception thrown during data import operations
+ * Exception thrown when there is a problem with importing data.
  */
 public class ImportException extends Exception {
     
