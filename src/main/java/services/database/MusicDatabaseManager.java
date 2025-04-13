@@ -69,7 +69,8 @@ public class MusicDatabaseManager {
         this.artistManager = new ArtistDatabaseManager(isOnline, user);
         this.songManager = new SongDatabaseManager(isOnline, user);
         this.playHistoryManager = new PlayHistoryManager(isOnline, user);
-        this.preferenceManager = new UserPreferenceManager(isOnline, user);
+        // Pass 'this' to the UserPreferenceManager constructor instead of letting it create a new instance
+        this.preferenceManager = new UserPreferenceManager(isOnline, user, this);
         
         LOGGER.info("Initializing MusicDatabaseManager in {} mode for user {}",
             isOnline ? "online" : "offline", user != null ? user.getName() : "default");
@@ -96,7 +97,9 @@ public class MusicDatabaseManager {
             try {
                 conn.setAutoCommit(false);
                 artistManager.saveArtists(conn, userData.getArtists());
+                artistManager.saveArtistGenres(conn, userData.getArtists());
                 songManager.saveSongs(conn, userData.getSongs());
+                
                 conn.commit();
                 return null;
             } catch (SQLException e) {

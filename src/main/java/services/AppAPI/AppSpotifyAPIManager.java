@@ -14,9 +14,6 @@ import java.util.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
-import services.enrichment.DataEnrichmentManager;
-
 public class AppSpotifyAPIManager {
     private static final String SPOTIFY_API_URL = "https://api.spotify.com/v1";
     private static final int MAX_RETRIES = 3;

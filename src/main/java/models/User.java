@@ -8,13 +8,21 @@ public class User {
     private String name;
     private String email;
     private String passwordHash;
+    private String passwordSalt;
     private Map<String, List<Object>> preferences;
 
     public User(String id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = email;
+    }
+
+    public User(String id, String name, String email, String passwordHash, String passwordSalt) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
         this.passwordHash = passwordHash;
+        this.passwordSalt = passwordSalt;
     }
 
     public String getId() {
@@ -47,6 +55,14 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getPasswordSalt() {
+        return passwordSalt;
+    }
+
+    public void setPasswordSalt(String passwordSalt) {
+        this.passwordSalt = passwordSalt;
     }
 
     public Map<String, List<Object>> getPreferences() {

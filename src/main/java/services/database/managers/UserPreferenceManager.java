@@ -26,9 +26,9 @@ public class UserPreferenceManager extends BaseDatabaseManager {
     private MusicDatabaseManager dbManager;
 
 
-    public UserPreferenceManager(boolean isOnline, User user) {
+    public UserPreferenceManager(boolean isOnline, User user, MusicDatabaseManager dbManager) {
         super(isOnline, user);
-        this.dbManager = new MusicDatabaseManager(isOnline, user);
+        this.dbManager = dbManager; // Use the passed instance instead of creating a new one
         this.storageDir = Paths.get(getOfflineStoragePath(), "preferences");
         if (isOfflineMode()) {
             try {
@@ -137,7 +137,11 @@ public class UserPreferenceManager extends BaseDatabaseManager {
             return;
         }
         
-        String sql = "INSERT INTO user_preferences (user_id, type, item_name, item_id, score) VALUES (?, ?, ?, ?, ?) ON CONFLICT (user_id, item_name, item_id, type) DO UPDATE SET score = EXCLUDED.score";
+        String sql = """
+            INSERT INTO user_preferences (user_id, type, item_name, item_id, score)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT (user_id, item_name, item_id, type) DO UPDATE SET score = EXCLUDED.score
+        """;
 
         UUID userId = UUID.fromString(user.getId());
 
