@@ -56,7 +56,6 @@ public class MusicDatabaseManager {
         connectionPool = new HikariDataSource(config);
     }
 
-    private final boolean isOnline;
     private final User user;
     private final ArtistDatabaseManager artistManager;
     private final SongDatabaseManager songManager;
@@ -64,7 +63,6 @@ public class MusicDatabaseManager {
     private final UserPreferenceManager preferenceManager;
 
     public MusicDatabaseManager(boolean isOnline, User user) {
-        this.isOnline = isOnline;
         this.user = user;
         this.artistManager = new ArtistDatabaseManager(isOnline, user);
         this.songManager = new SongDatabaseManager(isOnline, user);
@@ -110,7 +108,7 @@ public class MusicDatabaseManager {
             }
         });
     }
-    
+
         public Artist getArtistBySong(Song song) {
             try (Connection conn = getConnection()) {
                 // Explicitly cast the result to Artist

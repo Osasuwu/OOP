@@ -1,9 +1,5 @@
 package utils;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -171,18 +167,5 @@ public class GenreMapper {
         if (genre == null) return false;
         String lowercaseGenre = genre.toLowerCase().trim();
         return GENRE_MAPPING.containsKey(lowercaseGenre) || GENRE_MAPPING.containsValue(lowercaseGenre);
-    }
-    
-    // Enhancement 5: Load genre mappings from database.
-    public static void loadGenresFromDatabase(Connection conn) throws SQLException {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT variant, main_genre FROM genre_mapping");
-        while (rs.next()) {
-            String variant = rs.getString("variant").toLowerCase().trim();
-            String mainGenre = rs.getString("main_genre");
-            GENRE_MAPPING.put(variant, mainGenre);
-        }
-        rs.close();
-        stmt.close();
     }
 }

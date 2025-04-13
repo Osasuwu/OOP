@@ -19,11 +19,6 @@ import utils.GenreMapper;
  * Service that generates playlists based on user music data and preferences
  */
 public class PlaylistGenerator {
-    private final GenreMapper genreMapper;
-    
-    public PlaylistGenerator() {
-        this.genreMapper = new GenreMapper();
-    }
     
     /**
      * Generate a playlist based on user data and preferences

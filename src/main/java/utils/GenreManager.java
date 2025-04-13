@@ -13,11 +13,6 @@ import java.util.*;
  */
 public class GenreManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenreManager.class);
-    private final GenreMapper genreMapper;
-
-    public GenreManager() {
-        this.genreMapper = new GenreMapper();
-    }
 
     /**
      * Normalizes all genres in the user's music data
@@ -32,7 +27,7 @@ public class GenreManager {
         for (Song song : data.getSongs()) {
             if (song.getGenres() != null && !song.getGenres().isEmpty()) {
                 Set<String> genres = new HashSet<>(song.getGenres());
-                song.setGenres(new ArrayList<>(genreMapper.normalizeGenres(genres)));
+                song.setGenres(new ArrayList<>(GenreMapper.normalizeGenres(genres)));
             }
         }
         
@@ -40,7 +35,7 @@ public class GenreManager {
         for (Artist artist : data.getArtists()) {
             if (artist.getGenres() != null && !artist.getGenres().isEmpty()) {
                 Set<String> genres = new HashSet<>(artist.getGenres());
-                artist.setGenres(new ArrayList<>(genreMapper.normalizeGenres(genres)));
+                artist.setGenres(new ArrayList<>(GenreMapper.normalizeGenres(genres)));
             }
         }
         
