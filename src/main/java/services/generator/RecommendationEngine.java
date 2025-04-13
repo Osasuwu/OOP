@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import models.Song;
-import services.data.DataFetcher;
 import utils.Logger;
 
 /**
@@ -27,7 +26,6 @@ import utils.Logger;
  */
 public class RecommendationEngine {
 
-    private final DataFetcher dataFetcher;
     private final FilterManager filterManager;
     private final Logger logger;
 
@@ -48,7 +46,6 @@ public class RecommendationEngine {
     }
 
     public RecommendationEngine() {
-        this.dataFetcher = new DataFetcher();
         this.filterManager = new FilterManager();
         this.logger = Logger.getInstance();
     }

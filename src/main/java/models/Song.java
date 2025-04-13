@@ -153,8 +153,15 @@ public class Song {
     }
 
     public void setArtistId(String artistId) {
-        if (artist != null) {
-            artist.setId(artistId);
+        if (this.artist != null) {
+            this.artist.setId(artistId);
         }
+    }
+
+    public String getArtistId() {
+        if (this.artist != null) {
+            return this.artist.getId();
+        }
+        return null;
     }
 }

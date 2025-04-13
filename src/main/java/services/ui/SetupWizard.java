@@ -5,14 +5,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 import services.config.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A wizard to guide users through initial application setup
  */
 public class SetupWizard {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SetupWizard.class);
     private final Scanner scanner;
 
     public SetupWizard() {
