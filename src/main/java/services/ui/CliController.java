@@ -1,5 +1,13 @@
 package services.ui;
 
+       output
+import services.PlaylistGeneratorApp;
+import models.*;
+import services.*;
+import services.output.*;
+import services.importer.*;
+
+      dev
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -24,9 +32,15 @@ public class CliController {
     private final Application app;
     private final Scanner scanner;
     private final UserInterface ui;
+  output
+    private Playlist currentPlaylist; // Store the current playlist
+
+    public CliController(PlaylistGeneratorApp app) {
+
     private final AuthenticationService authService = new AuthenticationService();
     
     public CliController(Application app) {
+  dev
         this.app = app;
         this.scanner = new Scanner(System.in);
         this.ui = new UserInterface();
@@ -36,11 +50,16 @@ public class CliController {
     public void start() {
         System.out.println("Welcome to Playlist Generator CLI!");
         boolean running = true;
-        
+
         while (running) {
             printMainMenu();
+  output
+            int choice = getUserChoice(1, 7); // Updated for the extra export option
+
+
             int choice = getUserChoice(1, 5);
             
+  dev
             switch (choice) {
                 case 1:
                     generatePlaylist();
@@ -52,32 +71,48 @@ public class CliController {
                     importData();
                     break;
                 case 4:
+ output
+                    exportPlaylist();
+                    break; // New case for export
+                case 5:
+                    running = false;
+
                     logout();
                     running = false; // Ensure CLI loop exits after logout
                     break;
                 case 5:
                     running = false; // Exit the program
+ dev
                     System.out.println("Exiting Playlist Generator. Goodbye!");
                     break;
                 default:
                     System.out.println("Invalid choice. Please enter a valid option.");
             }
         }
+ output
+
+        scanner.close();
+
         
         scanner.close(); // Close scanner to release system resources
         // Perform any additional cleanup, if necessary
+ dev
     }
-    
+
     private void printMainMenu() {
         System.out.println("\n===== Playlist Generator =====");
         System.out.println("1. Generate Playlist");
         System.out.println("2. Launch User Interface");
         System.out.println("3. Import Data");
+ output
+        System.out.println("4. Export Playlist"); // New option
+
         System.out.println("4. Logout");
+ dev
         System.out.println("5. Exit");
         System.out.print("Enter your choice: ");
     }
-    
+
     private int getUserChoice(int min, int max) {
         int choice = -1;
         while (choice < min || choice > max) {
@@ -92,9 +127,20 @@ public class CliController {
         }
         return choice;
     }
-    
+
     private void generatePlaylist() {
         System.out.println("\n----- Generate Playlist -----");
+ output
+
+        PlaylistParameters params = new PlaylistParameters();
+
+        System.out.print("Enter playlist name: ");
+        params.setName(scanner.nextLine().trim());
+
+        System.out.print("How many songs (10-100)? ");
+        params.setSongCount(getUserChoice(10, 100));
+
+
         PlaylistParameters params = new PlaylistParameters();
         System.out.print("Enter playlist name: ");
         params.setName(scanner.nextLine().trim());
@@ -102,6 +148,7 @@ public class CliController {
         System.out.print("How many songs (10-100)? ");
         params.setSongCount(getUserChoice(10, 100));
     
+ dev
         System.out.println("Select generation strategy:");
         System.out.println("1. Random");
         System.out.println("2. Popular");
@@ -109,7 +156,11 @@ public class CliController {
         System.out.println("4. Balanced (default)");
         System.out.print("Enter your choice: ");
         int strategyChoice = getUserChoice(1, 4);
+ output
+
+
     
+ dev
         switch (strategyChoice) {
             case 1:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.RANDOM);
@@ -123,6 +174,11 @@ public class CliController {
             default:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
         }
+ output
+
+        System.out.println("Generating playlist...");
+        currentPlaylist = app.generatePlaylist(params); // Store the playlist after generation
+
     
         System.out.println("Generating playlist...");
         boolean success = app.generatePlaylist(params);
@@ -131,13 +187,14 @@ public class CliController {
         } else {
             System.out.println("Failed to generate playlist.");
         }
+ dev
     }
-    
+
     private void launchUserInterface() {
         System.out.println("\n----- Launching User Interface -----");
         ui.start(); // Ensure the UI logic is implemented in UserInterface
     }
-    
+
     private void importData() {
         System.out.println("\n----- Import Data -----");
         System.out.println("1. Import from file");
@@ -145,9 +202,15 @@ public class CliController {
         System.out.println("3. Import from Streaming Service");
         System.out.println("4. Back to main menu");
         System.out.print("Choose an option: ");
+ output
+
+        int choice = getUserChoice(1, 4);
+
+
         
         int choice = getUserChoice(1, 4); // Adjust max to 4 since there are four choices
         
+ dev
         switch (choice) {
             case 1:
                 importFromFile();
@@ -165,6 +228,36 @@ public class CliController {
                 System.out.println("Invalid option. Please try again.");
         }
     }
+ output
+
+    private void exportPlaylist() {
+        if (currentPlaylist == null) {
+            System.out.println("No playlist generated yet!");
+            return;
+        }
+
+        System.out.println("\n----- Export Playlist -----");
+        System.out.println("Choose a format to export:");
+        System.out.println("1. CSV");
+        System.out.println("2. M3U");
+        System.out.print("Enter your choice: ");
+        int exportChoice = getUserChoice(1, 2);
+
+        System.out.print("Enter destination file path: ");
+        String destination = scanner.nextLine().trim();
+
+        String format = exportChoice == 1 ? "csv" : "m3u";
+
+        // Get the appropriate exporter from the factory
+        PlaylistExporter exporter = PlaylistExporterFactory.getExporter(format);
+        exporter.export(currentPlaylist, destination);
+    }
+
+    private void importFromFile() {
+        System.out.print("Enter file path to import: ");
+        String filePath = scanner.nextLine().trim();
+
+
     
     
     private void importFromFile() {
@@ -173,9 +266,45 @@ public class CliController {
         
         System.out.println("Importing data from " + filePath + "...");
         
+ dev
         try {
             // Create a path from the file string
             Path path = Paths.get(filePath);
+ output
+            DataImportFactory importFactory = new DataImportFactory();
+            DataImportAdapter importAdapter;
+
+            try {
+                // Get appropriate adapter based on file extension
+                importAdapter = importFactory.getAdapter(path);
+                System.out.println("Using " + importAdapter.getClass().getSimpleName() + " for import...");
+            } catch (ImportException e) {
+                // Fallback to CSV adapter if no specific adapter is found
+                System.out.println("No specific adapter found. Defaulting to CSV import...");
+                importAdapter = new CsvDataImportAdapter();
+                if (!importAdapter.canHandle(path)) {
+                    System.err.println("Unsupported file format for: " + filePath);
+                    return;
+                }
+            }
+
+            System.out.println("Importing data from: " + filePath);
+            UserMusicData importedData = importAdapter.importFromFile(path);
+
+            if (importedData != null && !importedData.isEmpty()) {
+                System.out.println("Successfully imported data from " + filePath);
+                System.out.println("Songs: " + importedData.getSongs().size());
+                System.out.println("Artists: " + importedData.getArtists().size());
+                System.out.println("Play history entries: " + importedData.getPlayHistory().size());
+
+                // Store imported data
+                app.importUserData(importedData);
+
+                // Ask if user wants to generate a playlist from the imported data
+                System.out.print("Do you want to generate a playlist from the imported data? (y/n): ");
+                if (scanner.nextLine().trim().toLowerCase().startsWith("y")) {
+                    generatePlaylistFromImported();
+
             
             // Get the appropriate adapter
             FileImportAdapterFactory factory = new FileImportAdapterFactory();
@@ -197,6 +326,7 @@ public class CliController {
                     System.out.println("Data successfully saved to database.");
                 } else {
                     System.out.println("Failed to save data to database.");
+ dev
                 }
             } else {
                 System.out.println("No usable data found in file: " + filePath);
@@ -207,14 +337,27 @@ public class CliController {
             System.out.println("Unexpected error: " + e.getMessage());
         }
     }
-    
+
     private void importFromDirectory() {
         System.out.print("Enter directory path to import from: ");
         String directoryPath = scanner.nextLine().trim();
-        
+
         try {
             BatchFileImportService batchImporter = new BatchFileImportService();
             System.out.println("Importing data from directory: " + directoryPath);
+ output
+
+            UserMusicData importedData = importService.importFromDirectory(directoryPath);
+
+            if (importedData != null && !importedData.isEmpty()) {
+                System.out.println("Successfully imported data from directory");
+                System.out.println("Songs: " + importedData.getSongs().size());
+                System.out.println("Artists: " + importedData.getArtists().size());
+                System.out.println("Play history entries: " + importedData.getPlayHistory().size());
+
+                // Store imported data
+                app.saveUserData(importedData);
+
             
             UserMusicData userData = batchImporter.importFromDirectory(Paths.get(directoryPath));
             
@@ -232,6 +375,7 @@ public class CliController {
                 } else {
                     System.out.println("Failed to save data to database.");
                 }
+ dev
             } else {
                 System.err.println("No usable data found in directory: " + directoryPath);
             }
@@ -239,6 +383,20 @@ public class CliController {
             System.err.println("Error importing data: " + e.getMessage());
         }
     }
+ output
+
+    private void importFromSpotify() {
+        System.out.println("\n----- Spotify Import -----");
+        System.out.print("Enter your Spotify user ID: ");
+        String userId = scanner.nextLine().trim();
+
+        System.out.print("Enter your Spotify access token: ");
+        String accessToken = scanner.nextLine().trim();
+
+        if (userId.isEmpty() || accessToken.isEmpty()) {
+            System.out.println("User ID and access token are required for Spotify import.");
+            return;
+
     
     private void importFromStreamingService() {
         System.out.println("\n----- Import from Streaming Service -----");
@@ -278,9 +436,25 @@ public class CliController {
         String userId = scanner.nextLine().trim();
         if (!userId.isEmpty()) {
             credentials.put("user_id", userId);
+ dev
         }
-        
+
         try {
+ output
+            DataImportService importService = new DataImportService();
+            System.out.println("Connecting to Spotify...");
+
+            UserMusicData importedData = importService.importFromStreamingService("spotify", accessToken, userId);
+
+            if (importedData != null && !importedData.isEmpty()) {
+                System.out.println("Successfully imported data from Spotify");
+                System.out.println("Songs: " + importedData.getSongs().size());
+                System.out.println("Artists: " + importedData.getArtists().size());
+                System.out.println("Play history entries: " + importedData.getPlayHistory().size());
+
+                // Store imported data
+                app.saveUserData(importedData);
+
             // Get the appropriate adapter
             ServiceImportAdapterFactory factory = new ServiceImportAdapterFactory();
             ServiceImportAdapter adapter = factory.getAdapter(serviceName);
@@ -304,6 +478,7 @@ public class CliController {
                 } else {
                     System.out.println("Failed to save data to database.");
                 }
+ dev
             } else {
                 System.out.println("No usable data found from service: " + serviceName);
             }
@@ -313,6 +488,22 @@ public class CliController {
             System.out.println("Unexpected error: " + e.getMessage());
         }
     }
+ output
+
+    private void generatePlaylistFromImported() {
+        PlaylistParameters params = new PlaylistParameters();
+
+        System.out.print("Enter playlist name: ");
+        params.setName(scanner.nextLine().trim());
+
+        System.out.print("How many songs (10-100)? ");
+        params.setSongCount(getUserChoice(10, 100));
+
+        // Default to balanced selection strategy
+        params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
+
+        currentPlaylist = app.generatePlaylistFromImportedData(params); // Generate from imported data
+
     
     private void logout() {
         System.out.println("\n----- Logging Out -----");
@@ -323,5 +514,6 @@ public class CliController {
         // Restart the application by launching a new instance
         Application app = new Application();
         app.start();
+ dev
     }
 }
