@@ -131,10 +131,11 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
             INSERT INTO artists (id, name, spotify_id, popularity, spotify_link, image_url)
             VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET 
-            spotify_id = COALESCE(EXCLUDED.spotify_id, artists.spotify_id),
-            popularity = COALESCE(EXCLUDED.popularity, artists.popularity),
-            spotify_link = COALESCE(EXCLUDED.spotify_link, artists.spotify_link),
-            image_url = COALESCE(EXCLUDED.image_url, artists.image_url)
+            name = EXCLUDED.name,
+            spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL THEN EXCLUDED.spotify_id ELSE artists.spotify_id END,
+            popularity = CASE WHEN EXCLUDED.popularity > 0 THEN EXCLUDED.popularity ELSE artists.popularity END,
+            spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL THEN EXCLUDED.spotify_link ELSE artists.spotify_link END,
+            image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL THEN EXCLUDED.image_url ELSE artists.image_url END
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "app.Application",
+            "projectName": "your-project-name"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"

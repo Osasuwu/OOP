@@ -71,15 +71,15 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET
                 artist_id = EXCLUDED.artist_id,
-                spotify_id = EXCLUDED.spotify_id,
+                spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL THEN EXCLUDED.spotify_id ELSE songs.spotify_id END,
                 title = EXCLUDED.title,
-                spotify_link = EXCLUDED.spotify_link,
-                popularity = EXCLUDED.popularity,
-                album_name = EXCLUDED.album_name,
-                release_date = EXCLUDED.release_date,
-                preview_url = EXCLUDED.preview_url,
-                image_url = EXCLUDED.image_url,
-                duration_ms = EXCLUDED.duration_ms,
+                spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL THEN EXCLUDED.spotify_link ELSE songs.spotify_link END,
+                popularity = CASE WHEN EXCLUDED.popularity > 0 THEN EXCLUDED.popularity ELSE songs.popularity END,
+                album_name = CASE WHEN EXCLUDED.album_name IS NOT NULL THEN EXCLUDED.album_name ELSE songs.album_name END,
+                release_date = CASE WHEN EXCLUDED.release_date IS NOT NULL THEN EXCLUDED.release_date ELSE songs.release_date END,
+                preview_url = CASE WHEN EXCLUDED.preview_url IS NOT NULL THEN EXCLUDED.preview_url ELSE songs.preview_url END,
+                image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL THEN EXCLUDED.image_url ELSE songs.image_url END,
+                duration_ms = CASE WHEN EXCLUDED.duration_ms > 0 THEN EXCLUDED.duration_ms ELSE songs.duration_ms END,
                 is_explicit = EXCLUDED.is_explicit            
         """;
 
