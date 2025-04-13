@@ -108,63 +108,104 @@ public class MusicDatabaseManager {
             } finally {
                 conn.setAutoCommit(originalAutoCommit);
             }
-        });
-    }
-
-    public void savePlayHistory(UserMusicData userData) throws SQLException {
-        withConnection(conn -> {
-            boolean originalAutoCommit = conn.getAutoCommit();
-            try {
-                conn.setAutoCommit(false);
-                playHistoryManager.savePlayHistory(conn, userData.getPlayHistory(), user);
-                conn.commit();
-                return null;
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(originalAutoCommit);
-            }
-        });
-    }
-
-    public void updateUserPreferences(Map<String, List<Object>> preferences) throws SQLException {
-        withConnection(conn -> {
-            boolean originalAutoCommit = conn.getAutoCommit();
-            try {
-                conn.setAutoCommit(false);
-                preferenceManager.updateCurrentUserPreferences(conn, preferences);
-                conn.commit();
-                return null;
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(originalAutoCommit);
-            }
-        });
-    }
-
-    public Connection getConnection() throws SQLException {
-        return connectionPool.getConnection();
-    }
-
-    public void cleanup() {
-        if (connectionPool != null && !connectionPool.isClosed()) {
-            connectionPool.close();
         }
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public Artist getArtistBySong(Song song) {
-        try (Connection conn = getConnection()) {
-            return artistManager.getArtistBySong(conn, song);
-        } catch (SQLException e) {
-            LOGGER.error("Failed to get artist by song", e);
-            return null;
+    
+        @FunctionalInterface
+        private interface ConnectionOperation<T> {
+            T execute(Connection conn) throws SQLException;
         }
+    
+        public void saveUserData(UserMusicData userData) throws SQLException {
+            withConnection(conn -> {
+                boolean originalAutoCommit = conn.getAutoCommit();
+                try {
+                    conn.setAutoCommit(false);
+                    artistManager.saveArtists(conn, userData.getArtists());
+                    songManager.saveSongs(conn, userData.getSongs());
+                    conn.commit();
+                    return null;
+                } catch (SQLException e) {
+                    conn.rollback();
+                    throw e;
+                } finally {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            });
+        }
+        public Artist getArtistBySong(Song song) {
+            try (Connection conn = getConnection()) {
+                // Explicitly cast the result to Artist
+                return (Artist) artistManager.getArtistBySong(conn, song);
+            } catch (SQLException e) {
+                LOGGER.error("Error retrieving artist by song: {}", e.getMessage(), e);
+                return null;
+            }
+        }
+        
+        public void savePlayHistory(UserMusicData userData) throws SQLException {
+            withConnection(conn -> {
+                boolean originalAutoCommit = conn.getAutoCommit();
+                try {
+                    conn.setAutoCommit(false);
+                    playHistoryManager.savePlayHistory(conn, userData.getPlayHistory(), user);
+                    conn.commit();
+                    return null;
+                } catch (SQLException e) {
+                    conn.rollback();
+                    throw e;
+                } finally {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            });
+        }
+    
+        public void updateUserPreferences(Map<String, List<Object>> preferences) throws SQLException {
+            withConnection(conn -> {
+                boolean originalAutoCommit = conn.getAutoCommit();
+                try {
+                    conn.setAutoCommit(false);
+                    preferenceManager.updateCurrentUserPreferences(conn, preferences);
+                    conn.commit();
+                    return null;
+                } catch (SQLException e) {
+                    conn.rollback();
+                    throw e;
+                } finally {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            });
+        }
+    
+        public Connection getConnection() throws SQLException {
+            return connectionPool.getConnection();
+        }
+    
+        public void cleanup() {
+            if (connectionPool != null && !connectionPool.isClosed()) {
+                connectionPool.close();
+            }
+        }
+    
+        public User getUser() {
+            return user;
+        }
+    
+        public java.util.Map<String, java.util.List<Object>> getCurrentUserPreferences() {
+            // Build a preferences map with keys as the name of the object and values as lists of objects.
+            // Here we provide empty lists for "songs", "artists", "genres", and "moods".
+            Map<String, List<Object>> preferences = new HashMap<>();
+            preferences.put("songs", new ArrayList<>());
+            preferences.put("artists", new ArrayList<>());
+            preferences.put("genres", new ArrayList<>());
+            preferences.put("moods", new ArrayList<>());
+            return preferences;
+        }
+        
+        public UserMusicData loadUserData() {
+            // Create a new instance of UserMusicData, ensuring all collections are initialized (if needed)
+            UserMusicData data = new UserMusicData();
+            return data;
+        }
+    
+    
     }
-}

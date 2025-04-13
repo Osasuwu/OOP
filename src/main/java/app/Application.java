@@ -1,26 +1,35 @@
 package app;
 
-import services.*;
-import services.AppAPI.*;
-import services.database.*;
-import services.output.*;
-import services.ui.*;
-import services.enrichment.DataEnrichmentManager;
-import models.*;
-import utils.*;
-import services.config.Config;
-
-import java.util.*;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import models.Playlist;
+import models.PlaylistParameters;
+import models.PlaylistPreferences;
+import models.User;
+import models.UserMusicData;
+import services.AppAPI.AppSpotifyAPIManager;
+import services.AppAPI.LastFmAPIManager;
+import services.AppAPI.MusicBrainzAPIManager;
+import services.AuthenticationService;
+import services.PlaylistGenerator;
+import services.config.Config;
+import services.database.MusicDatabaseManager;
+import services.enrichment.DataEnrichmentManager;
+import services.ui.CliController;
+import services.ui.GuiLauncher;
+import services.ui.SetupWizard;
+import utils.GenreManager;
+import utils.SpotifyAccessToken;
 
 /**
  * Main application class that serves as the entry point to the Playlist Generator.
  * Handles all core functionality including data import, playlist generation,
  * database operations, and user interface management.
  */
-public class Application {
+public class Application  {
     private Config config;
     private AuthenticationService authService;
     private MusicDatabaseManager dbManager;
@@ -35,25 +44,29 @@ public class Application {
     private Playlist generatedPlaylist;
     
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
-
+    
     public Application() {
         config = Config.getInstance();
         authService = new AuthenticationService();
         genreManager = new GenreManager();
         playlistGenerator = new PlaylistGenerator();
     }
-    
+
     public static void main(String[] args) {
+        System.out.println("Application is starting..."); // Diagnostic output
         Application app = new Application();
         app.start();
     }
     
     public void start() {
+        System.out.println("In start() method: Checking internet connectivity..."); // Diagnostic output
         // Check internet connectivity
         this.isOnline = checkInternetConnectivity();
+        System.out.println("Internet connectivity: " + isOnline); // Diagnostic output
         
         if (config.isFirstBoot()) {
             LOGGER.info("First time startup detected, launching in CLI mode");
+            System.out.println("First boot detected. Forcing CLI mode."); // Diagnostic output
             config.set("interface", "cli");
             runSetupWizard();
             // Note: Setup wizard will automatically call setFirstBootCompleted()
@@ -61,6 +74,7 @@ public class Application {
         } else {
             LOGGER.info("Normal startup, using saved config");
             String interfaceType = config.getInterface();
+            System.out.println("Loaded interface from config: " + interfaceType); // Diagnostic output
             if ("cli".equals(interfaceType)) {
                 launchCli();
             } else {
@@ -73,16 +87,20 @@ public class Application {
         try {
             // Try to connect to Spotify API
             String token = SpotifyAccessToken.getAccessToken();
+            System.out.println("Spotify token: " + token); // Diagnostic output
             return token != null && !token.isEmpty();
         } catch (Exception e) {
             LOGGER.info("No internet connection detected. Running in offline mode.");
+            System.out.println("No internet connection detected."); // Diagnostic output
             return false;
         }
     }
     
     private void launchCli() {
+        System.out.println("Launching CLI mode..."); // Diagnostic output
         // Check for saved login
         if (!authService.hasValidSession()) {
+            System.out.println("No valid session. Prompting login/signup..."); // Diagnostic output
             currentUser = authService.promptLoginOrSignup();
             if (currentUser == null) {
                 LOGGER.error("Authentication failed");
@@ -90,17 +108,19 @@ public class Application {
             }
         } else {
             currentUser = authService.getUser();
+            System.out.println("Valid session found. User: " + currentUser.getId()); // Diagnostic output
         }
-    
+        
         // Save user ID in config
         config.set("defaultUserId", currentUser.getId());
+        System.out.println("Saved defaultUserId in config: " + currentUser.getId()); // Diagnostic output
         
         // Initialize services
         initializeServices();
         
         // Start interactive CLI
         CliController cli = new CliController(this);
-        cli.start();
+        cli.start();  // This should output CLI menu text to your terminal.
     }
     
     private void initializeServices() {
@@ -110,22 +130,26 @@ public class Application {
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
         this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager);
+        System.out.println("Services initialized."); // Diagnostic output
     }
-
+    
     private void runSetupWizard() {
         LOGGER.info("Starting setup wizard...");
+        System.out.println("Running setup wizard..."); // Diagnostic output
         SetupWizard wizard = new SetupWizard();
         wizard.run(config);
         // Ensure firstBoot is set to false after setup
         config.setFirstBootCompleted();
         LOGGER.info("Setup wizard completed");
+        System.out.println("Setup wizard completed."); // Diagnostic output
     }
     
     private void launchGui() {
+        System.out.println("Launching GUI mode..."); // Diagnostic output
         GuiLauncher launcher = new GuiLauncher();
         launcher.start(config);
     }
-
+    
     /**
      * Comprehensive user data import workflow:
      * 1. Save basic song and artist data
@@ -138,11 +162,13 @@ public class Application {
      */
     public boolean importUserData(UserMusicData userData) {
         LOGGER.info("Starting data import for user: {}", currentUser.getName());
+        System.out.println("Importing user data for user: " + currentUser.getName()); // Diagnostic output
         
         try {
             // Validate input data
             if (userData == null || userData.isEmpty()) {
                 LOGGER.warn("Empty or null user data provided");
+                System.out.println("User data is empty or null."); // Diagnostic output
                 return false;
             }
             
@@ -150,19 +176,24 @@ public class Application {
                 userData.getSongs().size(),
                 userData.getArtists().size(),
                 userData.getPlayHistory().size());
-
+            System.out.println("Processing user data: " + userData.getSongs().size() + " songs, " + 
+                            userData.getArtists().size() + " artists, " + 
+                               userData.getPlayHistory().size() + " history entries."); // Diagnostic output
+            
             // Process genres before saving
             genreManager.normalizeGenres(userData);
 
             // Make a copy of play history entries to preserve them
             List<PlayHistory> originalPlayHistory = new ArrayList<>(userData.getPlayHistory());
+
             
             // Step 1: Save songs and artists to database
             dbManager.saveUserData(userData);
-            LOGGER.info("Saved basic data: {} songs, {} artists", 
+            LOGGER.info("Saved basic data: {} songs, {} artists",
                 userData.getSongs().size(),
                 userData.getArtists().size());
-
+            System.out.println("Saved basic user data."); // Diagnostic output
+            
             // Step 2: Enrich with external data (only if online)
             if (isOnline) {
                 enrichmentManager.enrichUserData(userData);
@@ -170,6 +201,7 @@ public class Application {
                 // Save the enriched data
                 dbManager.saveUserData(userData);
                 LOGGER.info("Saved enriched data to database");
+                System.out.println("Saved enriched user data."); // Diagnostic output
             }
             
             // Step 3: Ensure play history entries reference songs with correct database IDs
@@ -198,84 +230,53 @@ public class Application {
             // Step 4: Save listening history
             dbManager.savePlayHistory(userData);
             LOGGER.info("Saved {} listening history entries", userData.getPlayHistory().size());
-
+            System.out.println("Saved listening history."); // Diagnostic output
+            
             return true;
         } catch (Exception e) {
             LOGGER.error("Error during data import: {}", e.getMessage(), e);
+            System.out.println("Error during data import: " + e.getMessage()); // Diagnostic output
             return false;
         }
     }
-
-    /**
-     * Generates a playlist based on specified parameters
-     * 
-     * @param params Parameters for playlist generation
-     * @return true if generation was successful, false otherwise
-     */
+    
     public boolean generatePlaylist(PlaylistParameters params) {
         try {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
-            Map<String, List<Object>> userPreferences = dbManager.getCurrentUserPreferences();
-            PlaylistPreferences playlistPreferences = new PlaylistPreferences();
-            generatedPlaylist = playlistGenerator.generatePlaylist(params, userPreferences);
-            return generatedPlaylist != null;
-        } catch (Exception e) {
-            LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
-            return false;
-        }
-    }
-
-    /**
-     * Exports the most recently generated playlist
-     * 
-     * @param format Export format ("csv", "json", "spotify", etc.)
-     * @param destination Output destination (file path or URL)
-     * @return true if export was successful, false otherwise
-     */
-    public boolean exportPlaylist(String format, String destination) {
-        try {
-            if (generatedPlaylist == null) {
-                LOGGER.error("No playlist available to export.");
+            System.out.println("Generating playlist with name: " + params.getName()); // Diagnostic output
+        
+            // Retrieve the user preferences map (Map<String, List<Object>>)
+            Map<String, java.util.List<Object>> userPreferencesMap = dbManager.getCurrentUserPreferences();
+        
+            // Use the preferences map directly in PlaylistPreferences
+            // NOTE: Ensure that the PlaylistPreferences constructor accepts a Map<String, List<Object>>
+            PlaylistPreferences playlistPreferences = new PlaylistPreferences(userPreferencesMap);
+        
+            // Retrieve user music data
+            UserMusicData userData = dbManager.loadUserData();
+            if (userData == null) {
+                LOGGER.error("Failed to retrieve user music data.");
+                System.out.println("User music data is null."); // Diagnostic output
                 return false;
             }
-
-            PlaylistExporterFactory factory = new PlaylistExporterFactory();
-            PlaylistExporter exporter = factory.getExporter(format);
-            exporter.export(generatedPlaylist, destination);
-
-            LOGGER.info("Playlist exported successfully to {} in {} format.", destination, format);
-            return true;
-        } catch (Exception e) {
-            LOGGER.error("Error exporting playlist: {}", e.getMessage(), e);
-            return false;
+        
+            // Generate the playlist
+            generatedPlaylist = playlistGenerator.generatePlaylist(userData, params, playlistPreferences);
+        
+            if (generatedPlaylist != null) {
+                LOGGER.info("Playlist generated successfully.");
+                System.out.println("Playlist generated successfully."); // Diagnostic output
+                return true;
+            } else {
+                LOGGER.warn("Playlist generation returned null.");
+                System.out.println("Playlist generation returned null."); // Diagnostic output
+                return false;
+            }
         }
-    }
-
-    /**
-     * Gets the currently generated playlist
-     */
-    public Playlist getGeneratedPlaylist() {
-        return generatedPlaylist;
-    }
-    
-    /**
-     * Gets the current user
-     */
-    public User getCurrentUser() {
-        return currentUser;
-    }
-    
-    /**
-     * Clean up resources when application is shutting down
-     */
-    public void shutdown() {
-        LOGGER.info("Shutting down application");
-        if (enrichmentManager != null) {
-            enrichmentManager.shutdown();
+        catch (Exception e) {
+            LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
+            System.out.println("Error generating playlist: " + e.getMessage()); // Diagnostic output
         }
-        if (dbManager != null) {
-            dbManager.cleanup();
-        }
+        return isOnline;
     }
 }
-

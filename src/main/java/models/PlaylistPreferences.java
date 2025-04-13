@@ -15,7 +15,7 @@ public class PlaylistPreferences {
     private PlaylistParameters.PlaylistSelectionStrategy selectionStrategy;
     private Map<String, Object> preferences;
     
-    public PlaylistPreferences() {
+    public PlaylistPreferences(Map<String, List<Object>> userPreferencesMap) {
         this.name = "New Playlist";
         this.songCount = 20;
         this.genres = new ArrayList<>();
@@ -32,9 +32,7 @@ public class PlaylistPreferences {
         this.selectionStrategy = params.getSelectionStrategy();
     }
     
-    public PlaylistPreferences(Map<String, Object> preferencesMap) {
-        this.preferences = preferencesMap;
-    }
+
     
     // Add getters and other methods as needed
     public Object getPreference(String key) {

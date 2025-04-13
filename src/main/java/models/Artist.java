@@ -15,9 +15,31 @@ public class Artist {
     private List<Album> albums;
     private double score;
 
+    // Constructor accepting only the artist name
     public Artist(String name) {
+        this(); // Call the default constructor to initialize lists and defaults
         this.artistName = name;
+    }
+
+    // Valid no-argument constructor
+    public Artist() {
+        this.id = "";
+        this.artistName = "";
+        this.spotifyId = "";
+        this.SpotifyLink = "";
+        this.popularity = 0;
+        this.imageUrl = "";
         this.genres = new ArrayList<>();
+        this.songs = new ArrayList<>();
+        this.albums = new ArrayList<>();
+        this.score = 0.0;
+    }
+
+    // Additional constructor accepting both id and name
+    public Artist(String id, String name) {
+        this(); // Initialize defaults
+        this.id = id;
+        this.artistName = name;
     }
 
     public String getName() {
@@ -109,5 +131,14 @@ public class Artist {
     @Override
     public String toString() {
         return artistName;
+    }
+
+    /**
+     * Returns a list of top songs for the artist.
+     * You can update this logic later to return a meaningful list of songs.
+     */
+    public List<Song> getTopSongs() {
+        // For now, return an empty list; later you can implement actual logic.
+        return new ArrayList<>();
     }
 }

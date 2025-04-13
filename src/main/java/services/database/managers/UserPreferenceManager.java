@@ -1,23 +1,31 @@
 package services.database.managers;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-import java.io.*;
-import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import models.Artist;
+import models.Song;
 import models.User;
 import services.database.MusicDatabaseManager;
-import models.Song;
-import models.Artist;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserPreferenceManager extends BaseDatabaseManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserPreferenceManager.class);

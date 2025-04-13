@@ -1,15 +1,21 @@
 package services.ui;
 
-import models.*;
-import services.*;
-import services.importer.*;
-import services.importer.file.*;
-import services.importer.service.*;
-import app.Application;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
+import app.Application;
+import models.PlaylistParameters;
+import models.UserMusicData;
+import services.AuthenticationService;
+import services.importer.ImportException;
+import services.importer.file.BatchFileImportService;
+import services.importer.file.FileImportAdapter;
+import services.importer.file.FileImportAdapterFactory;
+import services.importer.service.ServiceImportAdapter;
+import services.importer.service.ServiceImportAdapterFactory;
 /**
  * Controller class for Command Line Interface operations
  * Handles user interaction and commands for the playlist generator
@@ -24,8 +30,9 @@ public class CliController {
         this.app = app;
         this.scanner = new Scanner(System.in);
         this.ui = new UserInterface();
+        System.out.println("CliController initialized successfully.");
     }
-
+    
     public void start() {
         System.out.println("Welcome to Playlist Generator CLI!");
         boolean running = true;
@@ -46,22 +53,25 @@ public class CliController {
                     break;
                 case 4:
                     logout();
-                    return; // Exit the CLI loop after logout
+                    running = false; // Ensure CLI loop exits after logout
+                    break;
                 case 5:
-                    running = false;
+                    running = false; // Exit the program
                     System.out.println("Exiting Playlist Generator. Goodbye!");
                     break;
+                default:
+                    System.out.println("Invalid choice. Please enter a valid option.");
             }
         }
         
-        scanner.close();
-        app.shutdown(); // Make sure to clean up resources
+        scanner.close(); // Close scanner to release system resources
+        // Perform any additional cleanup, if necessary
     }
     
     private void printMainMenu() {
         System.out.println("\n===== Playlist Generator =====");
-        System.out.println("1. Generate Playlist (Doesn't work yet)");
-        System.out.println("2. Launch User Interface (Doesn't work yet)");
+        System.out.println("1. Generate Playlist");
+        System.out.println("2. Launch User Interface");
         System.out.println("3. Import Data");
         System.out.println("4. Logout");
         System.out.println("5. Exit");
@@ -77,7 +87,7 @@ public class CliController {
                     System.out.print("Please enter a number between " + min + " and " + max + ": ");
                 }
             } catch (NumberFormatException e) {
-                System.out.print("Please enter a valid number: ");
+                System.out.print("Invalid input. Please enter a valid number: ");
             }
         }
         return choice;
@@ -85,15 +95,13 @@ public class CliController {
     
     private void generatePlaylist() {
         System.out.println("\n----- Generate Playlist -----");
-        
         PlaylistParameters params = new PlaylistParameters();
-        
         System.out.print("Enter playlist name: ");
         params.setName(scanner.nextLine().trim());
-        
+    
         System.out.print("How many songs (10-100)? ");
         params.setSongCount(getUserChoice(10, 100));
-        
+    
         System.out.println("Select generation strategy:");
         System.out.println("1. Random");
         System.out.println("2. Popular");
@@ -101,7 +109,7 @@ public class CliController {
         System.out.println("4. Balanced (default)");
         System.out.print("Enter your choice: ");
         int strategyChoice = getUserChoice(1, 4);
-        
+    
         switch (strategyChoice) {
             case 1:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.RANDOM);
@@ -115,14 +123,19 @@ public class CliController {
             default:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
         }
-        
+    
         System.out.println("Generating playlist...");
-        app.generatePlaylist(params);
+        boolean success = app.generatePlaylist(params);
+        if (success) {
+            System.out.println("Playlist generated successfully!");
+        } else {
+            System.out.println("Failed to generate playlist.");
+        }
     }
     
     private void launchUserInterface() {
         System.out.println("\n----- Launching User Interface -----");
-        ui.start();
+        ui.start(); // Ensure the UI logic is implemented in UserInterface
     }
     
     private void importData() {
@@ -133,7 +146,7 @@ public class CliController {
         System.out.println("4. Back to main menu");
         System.out.print("Choose an option: ");
         
-        int choice = getUserChoice(1, 5);
+        int choice = getUserChoice(1, 4); // Adjust max to 4 since there are four choices
         
         switch (choice) {
             case 1:
@@ -145,8 +158,14 @@ public class CliController {
             case 3:
                 importFromStreamingService();
                 break;
+            case 4:
+                System.out.println("Returning to main menu...");
+                break; // No action needed for "Back to main menu"
+            default:
+                System.out.println("Invalid option. Please try again.");
         }
     }
+    
     
     private void importFromFile() {
         System.out.print("Enter file path to import: ");
@@ -220,7 +239,7 @@ public class CliController {
             System.err.println("Error importing data: " + e.getMessage());
         }
     }
-
+    
     private void importFromStreamingService() {
         System.out.println("\n----- Import from Streaming Service -----");
         System.out.println("1. Spotify");
