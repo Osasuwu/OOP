@@ -1,5 +1,7 @@
 package app;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -10,6 +12,8 @@ import models.PlaylistParameters;
 import models.PlaylistPreferences;
 import models.User;
 import models.UserMusicData;
+import models.PlayHistory;
+import models.Song;
 import services.AppAPI.AppSpotifyAPIManager;
 import services.AppAPI.LastFmAPIManager;
 import services.AppAPI.MusicBrainzAPIManager;
@@ -184,7 +188,7 @@ public class Application  {
             genreManager.normalizeGenres(userData);
 
             // Make a copy of play history entries to preserve them
-            List<PlayHistory> originalPlayHistory = new ArrayList<>(userData.getPlayHistory());
+            ArrayList<PlayHistory> originalPlayHistory = new ArrayList<>(userData.getPlayHistory());
 
             
             // Step 1: Save songs and artists to database
