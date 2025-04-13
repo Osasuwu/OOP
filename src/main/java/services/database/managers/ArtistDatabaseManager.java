@@ -260,19 +260,18 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
         }
 
         String sql = """
-            INSERT INTO artist_genres (artist_id, genre)
+            INSERT INTO artist_genres (artist_name, genre)
             VALUES (?, ?)
-            ON CONFLICT (artist_id, genre) DO NOTHING
+            ON CONFLICT (artist_name, genre) DO NOTHING
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             for (Artist artist : artists) {
-                if (artist.getId() == null || artist.getGenres() == null) {
+                if (artist.getName() == null || artist.getGenres() == null) {
                     continue;
                 }
                 for (String genre : artist.getGenres()) {
-                    // Convert String ID to UUID
-                    stmt.setObject(1, UUID.fromString(artist.getId()));
+                    stmt.setString(1, artist.getName());;
                     stmt.setString(2, GenreMapper.normalizeGenre(genre));
                     stmt.addBatch();
                 }

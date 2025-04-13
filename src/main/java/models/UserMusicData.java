@@ -1,15 +1,12 @@
 package models;
 
 import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Container for user music data, including artists, songs, and listening history.
  * Provides methods to find, add, and manipulate the data.
  */
 public class UserMusicData {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserMusicData.class);
     
     private List<Artist> artists;
     private List<Song> songs;

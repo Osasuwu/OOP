@@ -31,12 +31,14 @@ public class CsvFileImportAdapter implements FileImportAdapter {
     private static final Pattern DATE_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}|^\"?[A-Z][a-z]+ \\d{1,2}, \\d{4}");
     private static final Pattern SPOTIFY_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9]{22}$");
     private static final Pattern URL_PATTERN = Pattern.compile("^https?://");
-    
-    // Column index mappings
-    private Map<Integer, String> columnMappings = new HashMap<>();
+
+    // A map to track used timestamps for each song to ensure uniqueness
+    private Map<String, Set<Long>> songTimestamps = new HashMap<>();
     
     @Override
     public UserMusicData importFromFile(Path filePath) throws ImportException {
+        // Reset the timestamp tracking map for each new import
+        songTimestamps.clear();
         LOGGER.info("Starting CSV import from file: {}", filePath);
         
         try (InputStream inputStream = Files.newInputStream(filePath)) {
@@ -298,13 +300,21 @@ public class CsvFileImportAdapter implements FileImportAdapter {
             
             // Create play history entry if we have a date
             if (playDate != null) {
-                userData.addPlayHistory(new PlayHistory(song, playDate));
-                LOGGER.debug("Added play history entry with date: {}", playDate);
-            } else {
-                // Still create a history entry with current date if no date found
-                // This represents that the song exists in the user's library
-                userData.addPlayHistory(new PlayHistory(song));
-                LOGGER.debug("Added play history entry with current date (no date found in data)");
+                long timestamp = playDate.getTime();
+                String songKey = song.getTitle() + "|" + song.getArtist().getName();
+                
+                // Ensure unique timestamp for the song
+                if (!songTimestamps.containsKey(songKey)) {
+                    songTimestamps.put(songKey, new HashSet<>());
+                }
+                
+                while (songTimestamps.get(songKey).contains(timestamp)) {
+                    timestamp++; // Increment timestamp to ensure uniqueness
+                }
+                
+                songTimestamps.get(songKey).add(timestamp);
+                userData.addPlayHistory(new PlayHistory(song, new Date(timestamp)));
+                LOGGER.debug("Added play history entry with unique timestamp: {}", timestamp);
             }
             
             return true;
@@ -323,39 +333,62 @@ public class CsvFileImportAdapter implements FileImportAdapter {
         // Clean the date string
         dateStr = dateStr.replace("\"", "").trim();
         
+        LOGGER.debug("Attempting to parse date string: '{}'", dateStr);
+        
         // List of date formats to try
         SimpleDateFormat[] formats = {
+            // ISO formats
             new SimpleDateFormat("yyyy-MM-dd"),
-            new SimpleDateFormat("yyyy/MM/dd"),
-            new SimpleDateFormat("MM/dd/yyyy"),
-            new SimpleDateFormat("dd/MM/yyyy"),
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX"),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
-            new SimpleDateFormat("MMMM d, yyyy 'at' hh:mma")
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"),
+            
+            // Common date formats
+            new SimpleDateFormat("yyyy/MM/dd"),
+            new SimpleDateFormat("MM/dd/yyyy"),
+            new SimpleDateFormat("dd/MM/yyyy"),
+            new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"),
+            
+            // Text formats
+            new SimpleDateFormat("MMMM d, yyyy", Locale.US),
+            new SimpleDateFormat("MMMM d, yyyy 'at' hh:mma", Locale.US),
+            new SimpleDateFormat("MMM d, yyyy", Locale.US),
+            new SimpleDateFormat("E, MMM dd yyyy", Locale.US)
         };
         
         // Try each format
         for (SimpleDateFormat format : formats) {
             try {
                 format.setLenient(true);
-                return format.parse(dateStr);
+                Date parsedDate = format.parse(dateStr);
+                LOGGER.debug("Successfully parsed date '{}' using format '{}'", dateStr, format.toPattern());
+                return parsedDate;
             } catch (ParseException e) {
                 // Try next format
             }
         }
         
-        // Try to parse epoch milliseconds
+        // Try to parse epoch milliseconds or seconds
         try {
-            long epochMillis = Long.parseLong(dateStr);
-            return new Date(epochMillis);
+            if (dateStr.matches("\\d{10}")) {  // 10 digits (seconds)
+                long epochSeconds = Long.parseLong(dateStr);
+                LOGGER.debug("Parsed date as epoch seconds: {}", epochSeconds);
+                return new Date(epochSeconds * 1000);
+            } else if (dateStr.matches("\\d{13}")) {  // 13 digits (milliseconds)
+                long epochMillis = Long.parseLong(dateStr);
+                LOGGER.debug("Parsed date as epoch milliseconds: {}", epochMillis);
+                return new Date(epochMillis);
+            }
         } catch (NumberFormatException e) {
-            // Not a number
+            // Not a valid number
         }
         
         // Try parsing with manual AM/PM handling
         try {
+            // Pattern for "Month Day, Year HH:MMAM/PM" format
             Pattern p = Pattern.compile("(.*?)(\\d{1,2}:\\d{2})(AM|PM).*", Pattern.CASE_INSENSITIVE);
             Matcher m = p.matcher(dateStr);
             if (m.matches()) {
@@ -365,10 +398,23 @@ public class CsvFileImportAdapter implements FileImportAdapter {
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy 'at' hh:mma", Locale.US);
                 String reformattedDate = datePart + " at " + timePart + ampm;
+                LOGGER.debug("Reformatted date string to: '{}'", reformattedDate);
+                return dateFormat.parse(reformattedDate);
+            }
+            
+            // Try to handle Spotify's specific timestamp format "YYYY-MM-DDThh:mm:ss"
+            Pattern spotifyPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2})T(\\d{2}:\\d{2}:\\d{2})");
+            Matcher spotifyMatcher = spotifyPattern.matcher(dateStr);
+            if (spotifyMatcher.matches()) {
+                String datePart = spotifyMatcher.group(1);
+                String timePart = spotifyMatcher.group(2);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String reformattedDate = datePart + " " + timePart;
+                LOGGER.debug("Reformatted Spotify timestamp to: '{}'", reformattedDate);
                 return dateFormat.parse(reformattedDate);
             }
         } catch (Exception e) {
-            LOGGER.debug("Failed to parse date with pattern matching: {}", dateStr);
+            LOGGER.debug("Failed to parse date with pattern matching: {}", e.getMessage());
         }
 
         LOGGER.debug("Failed to parse date: '{}'", dateStr);

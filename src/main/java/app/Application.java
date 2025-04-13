@@ -182,6 +182,10 @@ public class Application  {
             
             // Process genres before saving
             genreManager.normalizeGenres(userData);
+
+            // Make a copy of play history entries to preserve them
+            List<PlayHistory> originalPlayHistory = new ArrayList<>(userData.getPlayHistory());
+
             
             // Step 1: Save songs and artists to database
             dbManager.saveUserData(userData);
@@ -200,7 +204,30 @@ public class Application  {
                 System.out.println("Saved enriched user data."); // Diagnostic output
             }
             
-            // Step 3: Save listening history
+            // Step 3: Ensure play history entries reference songs with correct database IDs
+            // Create a map of song title+artist to updated song objects from the database
+            Map<String, Song> songMap = new HashMap<>();
+            for (Song song : userData.getSongs()) {
+                String key = (song.getTitle() + ":" + song.getArtist().getName()).toLowerCase();
+                songMap.put(key, song);
+            }
+            
+            // Update song references in play history entries
+            for (PlayHistory entry : originalPlayHistory) {
+                Song originalSong = entry.getSong();
+                String key = (originalSong.getTitle() + ":" + originalSong.getArtist().getName()).toLowerCase();
+                Song updatedSong = songMap.get(key);
+                
+                if (updatedSong != null) {
+                    // Replace the song reference with the one that has the correct database ID
+                    entry.setSong(updatedSong);
+                }
+            }
+            
+            // Set the updated play history back to the user data
+            userData.setPlayHistory(originalPlayHistory);
+
+            // Step 4: Save listening history
             dbManager.savePlayHistory(userData);
             LOGGER.info("Saved {} listening history entries", userData.getPlayHistory().size());
             System.out.println("Saved listening history."); // Diagnostic output

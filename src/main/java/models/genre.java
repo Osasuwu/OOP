@@ -1,10 +1,10 @@
 package models;
 
-public class genre {
+public class Genre {
     private String id;
     private String name;
 
-    public genre(String id, String name) {
+    public Genre(String id, String name) {
         this.id = id;
         this.name = name;
     }

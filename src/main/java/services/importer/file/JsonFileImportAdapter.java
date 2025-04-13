@@ -23,7 +23,6 @@ public class JsonFileImportAdapter implements FileImportAdapter {
     private static final Pattern ARTIST_KEYS_PATTERN = Pattern.compile("(?i)artist(_name)?|performer");
     private static final Pattern ALBUM_KEYS_PATTERN = Pattern.compile("(?i)album(_name)?");
     private static final Pattern GENRE_KEYS_PATTERN = Pattern.compile("(?i)genre");
-    private static final Pattern ID_KEYS_PATTERN = Pattern.compile("(?i)id|spotify(_id)?");
     private static final Pattern DATE_KEYS_PATTERN = Pattern.compile("(?i)date|timestamp|played(_at)?|time");
     
     // Date formats to try when parsing
@@ -35,9 +34,15 @@ public class JsonFileImportAdapter implements FileImportAdapter {
         new SimpleDateFormat("MM/dd/yyyy HH:mm:ss"),
         new SimpleDateFormat("MMMM d, yyyy 'at' hh:mma", Locale.US)
     };
+
+    // A map to track used timestamps for each song to ensure uniqueness
+    private Map<String, Set<Long>> songTimestamps = new HashMap<>();
     
     @Override
     public UserMusicData importFromFile(Path filePath) throws ImportException {
+        // Reset the timestamp tracking map for each new import
+        songTimestamps.clear();
+        
         LOGGER.info("Starting JSON import from file: {}", filePath);
         try (InputStream inputStream = Files.newInputStream(filePath)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -211,9 +216,24 @@ public class JsonFileImportAdapter implements FileImportAdapter {
                 }
             }
             
-            // Create play history if date exists
+            // Create play history if date exists with unique timestamp
             if (playDate != null) {
-                userData.addPlayHistory(new PlayHistory(song, playDate));
+                String songId = song.getId();
+                long timestamp = playDate.getTime();
+                
+                // Ensure timestamp is unique by adding increments if necessary
+                timestamp = getUniqueTimestamp(songId, timestamp);
+                
+                // Create a new play history with the unique timestamp
+                Date uniqueDate = new Date(timestamp);
+                userData.addPlayHistory(new PlayHistory(song, uniqueDate));
+                
+                // Add to our tracking map
+                trackTimestamp(songId, timestamp);
+                
+                if (timestamp != playDate.getTime()) {
+                    LOGGER.debug("Adjusted timestamp for song '{}' to ensure uniqueness", song.getTitle());
+                }
             }
             
             return true;
@@ -314,6 +334,26 @@ public class JsonFileImportAdapter implements FileImportAdapter {
         }
         
         return null;
+    }
+    
+    private long getUniqueTimestamp(String songId, long originalTimestamp) {
+        long uniqueTimestamp = originalTimestamp;
+        
+        // If this timestamp is already used for this song, keep incrementing by 1ms
+        // until we find an unused timestamp
+        while (!isUniqueTimestamp(songId, uniqueTimestamp)) {
+            uniqueTimestamp += 1; // Add 1 millisecond
+        }
+        
+        return uniqueTimestamp;
+    }
+    
+    private boolean isUniqueTimestamp(String songId, long timestamp) {
+        return !songTimestamps.containsKey(songId) || !songTimestamps.get(songId).contains(timestamp);
+    }
+    
+    private void trackTimestamp(String songId, long timestamp) {
+        songTimestamps.computeIfAbsent(songId, k -> new HashSet<>()).add(timestamp);
     }
     
     @Override
