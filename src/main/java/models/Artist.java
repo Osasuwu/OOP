@@ -7,7 +7,7 @@ public class Artist {
     private String id;
     private String artistName;
     private String spotifyId;
-    private String SpotifyLink;
+    private String spotifyLink; // Fixed capitalization
     private int popularity;
     private String imageUrl;
     private List<String> genres;
@@ -26,7 +26,7 @@ public class Artist {
         this.id = "";
         this.artistName = "";
         this.spotifyId = "";
-        this.SpotifyLink = "";
+        this.spotifyLink = ""; // Fixed capitalization
         this.popularity = 0;
         this.imageUrl = "";
         this.genres = new ArrayList<>();
@@ -67,11 +67,11 @@ public class Artist {
     }
 
     public String getSpotifyLink() {
-        return SpotifyLink;
+        return spotifyLink; // Fixed capitalization
     }
 
     public void setSpotifyLink(String spotifyLink) {
-        this.SpotifyLink = spotifyLink;
+        this.spotifyLink = spotifyLink; // Fixed capitalization
     }
 
     public String getImageUrl() {

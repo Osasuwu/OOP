@@ -108,30 +108,9 @@ public class MusicDatabaseManager {
             } finally {
                 conn.setAutoCommit(originalAutoCommit);
             }
-        }
-    
-        @FunctionalInterface
-        private interface ConnectionOperation<T> {
-            T execute(Connection conn) throws SQLException;
-        }
-    
-        public void saveUserData(UserMusicData userData) throws SQLException {
-            withConnection(conn -> {
-                boolean originalAutoCommit = conn.getAutoCommit();
-                try {
-                    conn.setAutoCommit(false);
-                    artistManager.saveArtists(conn, userData.getArtists());
-                    songManager.saveSongs(conn, userData.getSongs());
-                    conn.commit();
-                    return null;
-                } catch (SQLException e) {
-                    conn.rollback();
-                    throw e;
-                } finally {
-                    conn.setAutoCommit(originalAutoCommit);
-                }
-            });
-        }
+        });
+    }
+
         public Artist getArtistBySong(Song song) {
             try (Connection conn = getConnection()) {
                 // Explicitly cast the result to Artist
@@ -188,17 +167,6 @@ public class MusicDatabaseManager {
     
         public User getUser() {
             return user;
-        }
-    
-        public java.util.Map<String, java.util.List<Object>> getCurrentUserPreferences() {
-            // Build a preferences map with keys as the name of the object and values as lists of objects.
-            // Here we provide empty lists for "songs", "artists", "genres", and "moods".
-            Map<String, List<Object>> preferences = new HashMap<>();
-            preferences.put("songs", new ArrayList<>());
-            preferences.put("artists", new ArrayList<>());
-            preferences.put("genres", new ArrayList<>());
-            preferences.put("moods", new ArrayList<>());
-            return preferences;
         }
         
         public UserMusicData loadUserData() {

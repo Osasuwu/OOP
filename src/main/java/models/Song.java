@@ -138,10 +138,9 @@ public class Song {
 
     public String getFilePath(){
         return filePath;
-
     }
 
-    public void SetFilePath(String filePath){
+    public void setFilePath(String filePath){
         this.filePath = filePath;
     }
 
