@@ -128,6 +128,34 @@ public class CliController {
         boolean success = app.generatePlaylist(params);
         if (success) {
             System.out.println("Playlist generated successfully!");
+            System.out.println("Do you want to export it? (y/n)");
+            String exportChoice = scanner.nextLine().trim().toLowerCase();
+            if (exportChoice.equals("y")) {
+                System.out.println("Select export format: ");
+                System.out.println("1. CSV");
+                System.out.println("2. M3U");
+                System.out.println("3. Spotify");
+                System.out.print("Enter your choice: ");
+
+                int formatChoice = getUserChoice(1, 3);
+                String format;
+                switch (formatChoice) {
+                    case 1:
+                        format = "csv";
+                        break;
+                    case 2:
+                        format = "m3u";
+                        break;
+                    case 3:
+                        format = "spotify";
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Defaulting to CSV.");
+                        format = "csv";
+                }
+
+                app.exportPlaylist(format);
+            }
         } else {
             System.out.println("Failed to generate playlist.");
         }

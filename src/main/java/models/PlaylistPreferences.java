@@ -16,18 +16,35 @@ public class PlaylistPreferences {
     private Map<String, List<Object>> preferences;
     
     public PlaylistPreferences(Map<String, List<Object>> userPreferencesMap) {
-        this.name = (String) userPreferencesMap.get("name").get(0);
-        this.songCount = (int) userPreferencesMap.get("songCount").get(0);
-        this.genres = new ArrayList<>();
-        for (Object genre : userPreferencesMap.get("genres")) {
-            genres.add((String) genre);
-        }
-        this.excludeArtists = new ArrayList<>();
-        for (Object artist : userPreferencesMap.get("excludeArtists")) {
-            excludeArtists.add((String) artist);
-        }
-        this.selectionStrategy = PlaylistParameters.PlaylistSelectionStrategy.valueOf((String) userPreferencesMap.get("selectionStrategy").get(0));
         this.preferences = userPreferencesMap;
+        
+        // Add null checks before accessing map values
+        List<Object> nameList = userPreferencesMap.get("name");
+        this.name = (nameList != null && !nameList.isEmpty()) ? (String) nameList.get(0) : "Default Playlist";
+        
+        List<Object> songCountList = userPreferencesMap.get("songCount");
+        this.songCount = (songCountList != null && !songCountList.isEmpty()) ? (int) songCountList.get(0) : 10;
+        
+        this.genres = new ArrayList<>();
+        List<Object> genresList = userPreferencesMap.get("genres");
+        if (genresList != null) {
+            for (Object genre : genresList) {
+                genres.add((String) genre);
+            }
+        }
+        
+        this.excludeArtists = new ArrayList<>();
+        List<Object> excludeArtistsList = userPreferencesMap.get("excludeArtists");
+        if (excludeArtistsList != null) {
+            for (Object artist : excludeArtistsList) {
+                excludeArtists.add((String) artist);
+            }
+        }
+        
+        List<Object> strategyList = userPreferencesMap.get("selectionStrategy");
+        this.selectionStrategy = (strategyList != null && !strategyList.isEmpty()) ? 
+            PlaylistParameters.PlaylistSelectionStrategy.valueOf((String) strategyList.get(0)) : 
+            PlaylistParameters.PlaylistSelectionStrategy.RANDOM; // Default to RANDOM if not specified
     }
     
     // Constructor from PlaylistParameters
@@ -38,8 +55,6 @@ public class PlaylistPreferences {
         this.excludeArtists = new ArrayList<>(params.getExcludeArtists());
         this.selectionStrategy = params.getSelectionStrategy();
     }
-    
-
     
     // Add getters and other methods as needed
     public Object getPreference(String key) {

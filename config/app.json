@@ -1,5 +1,6 @@
 {
   "dataDirectory": "./data",
+  "exportPath": "./exports",
   "firstBoot": false,
   "defaultUserId": "50fa6391-ff9d-40eb-a75a-9799e5685782",
   "uiPreferences": {
