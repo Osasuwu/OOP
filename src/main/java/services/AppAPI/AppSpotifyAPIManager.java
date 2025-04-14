@@ -62,25 +62,37 @@ public class AppSpotifyAPIManager {
                     if (jsonResponse.has("album") && !jsonResponse.isNull("album")) {
                         JSONObject album = jsonResponse.getJSONObject("album");
                         trackData.put("album", album.getString("name"));
+                        trackData.put("release_date", album.getString("release_date"));
+                        if (album.has("images") && album.getJSONArray("images").length() > 0) {
+                            trackData.put("image_url", album.getJSONArray("images").getJSONObject(0).getString("url"));
+                        }
                     }
-                    
-                    // Extract duration
-                    if (jsonResponse.has("duration_ms")) {
-                        trackData.put("duration_ms", jsonResponse.getInt("duration_ms"));
-                    }
-                    
+
                     // Extract artists
                     if (jsonResponse.has("artists") && jsonResponse.getJSONArray("artists").length() > 0) {
                         JSONArray artists = jsonResponse.getJSONArray("artists");
                         JSONObject artist = artists.getJSONObject(0);
                         trackData.put("artist", artist.getString("name"));
-                        
-                        // Get artist details including genres
-                        String artistId = artist.getString("id");
-                        Map<String, Object> artistInfo = getArtistInfo(artistId);
-                        if (artistInfo.containsKey("genres")) {
-                            trackData.put("genres", artistInfo.get("genres"));
-                        }
+                    }
+                    
+                    if (jsonResponse.has("duration_ms")) {
+                        trackData.put("duration_ms", jsonResponse.getInt("duration_ms"));
+                    }
+                    
+                    if (jsonResponse.has("popularity")) {
+                        trackData.put("popularity", jsonResponse.getInt("popularity"));
+                    }
+
+                    if (jsonResponse.has("explicit")) {
+                        trackData.put("explicit", jsonResponse.getBoolean("explicit"));
+                    }
+
+                    if (jsonResponse.has("external_urls") && jsonResponse.getJSONObject("external_urls").has("spotify")) {
+                        trackData.put("spotify_link", jsonResponse.getJSONObject("external_urls").getString("spotify"));
+                    }
+
+                    if (jsonResponse.has("prewiew_url")) {
+                        trackData.put("preview_url", jsonResponse.getString("preview_url"));
                     }
                 }
                 break;

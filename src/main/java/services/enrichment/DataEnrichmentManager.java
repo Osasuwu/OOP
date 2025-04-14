@@ -81,7 +81,7 @@ public class DataEnrichmentManager {
                 .count();
                 
             long songsWithAdditionalInfo = userData.getSongs().stream()
-                .filter(s -> s.getReleaseDate() != null || !s.getGenres().isEmpty())
+                .filter(s -> s.getReleaseDate() != null || s.getPopularity() > 0 || s.getImageUrl() != null)
                 .count();
                 
             LOGGER.info("Enrichment completed. {} artists with genres, {} songs with additional info",
