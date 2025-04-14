@@ -1,6 +1,7 @@
 package services.AppAPI;
 
 import utils.SpotifyAccessToken;
+import utils.CacheManager;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,8 +27,14 @@ public class AppSpotifyAPIManager {
     public AppSpotifyAPIManager() {
         try {
             this.accessToken = SpotifyAccessToken.getAccessToken();
+            if (this.accessToken == null || this.accessToken.isEmpty()) {
+                System.err.println("Warning: Received empty Spotify access token");
+            } else {
+                System.out.println("Successfully obtained Spotify access token");
+            }
         } catch (IOException | URISyntaxException e) {
             System.err.println("Failed to get Spotify access token: " + e.getMessage());
+            e.printStackTrace();
         }
         this.client = HttpClient.newHttpClient();
     }
@@ -38,10 +45,20 @@ public class AppSpotifyAPIManager {
      * @return Map containing track data
      */
     public Map<String, Object> getTrackInfo(String trackId) throws Exception {
+        // First check cache
+        Map<String, Object> cachedData = CacheManager.getCachedSpotifyTrackById(trackId);
+        if (cachedData != null && !cachedData.isEmpty()) {
+            return cachedData;
+        }
+        
+        // If not in cache, fetch from API
         Map<String, Object> trackData = new HashMap<>();
         
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
+                // Make sure we have a valid token
+                ensureValidToken();
+                
                 String endpoint = SPOTIFY_API_URL + "/tracks/" + trackId;
                 
                 HttpRequest request = HttpRequest.newBuilder()
@@ -91,9 +108,27 @@ public class AppSpotifyAPIManager {
                         trackData.put("spotify_link", jsonResponse.getJSONObject("external_urls").getString("spotify"));
                     }
 
-                    if (jsonResponse.has("prewiew_url")) {
+                    if (jsonResponse.has("preview_url") && !jsonResponse.isNull("preview_url")) {
                         trackData.put("preview_url", jsonResponse.getString("preview_url"));
                     }
+                    
+                    // Save to cache
+                    CacheManager.cacheSpotifyTrack(trackId, trackData);
+                } else if (response.statusCode() == 401) {
+                    // Token expired, try to refresh and retry
+                    refreshAccessToken();
+                    continue;
+                } else if (response.statusCode() == 429) {
+                    System.err.println("Rate limit exceeded. Waiting before retry...");
+                    Thread.sleep(2000 * attempt); // Exponential backoff
+                    continue;
+                } else {
+                    System.err.println("Error getting track info: " + response.statusCode() + " - " + response.body());
+                    if (attempt == MAX_RETRIES) {
+                        throw new IOException("Failed to get track info after " + MAX_RETRIES + " attempts");
+                    }
+                    Thread.sleep(RETRY_DELAY_MS * attempt);
+                    continue;
                 }
                 break;
             } catch (Exception e) {
@@ -112,10 +147,19 @@ public class AppSpotifyAPIManager {
      * @return Map containing track data
      */
     public Map<String, Object> searchTrack(String title, String artist) throws Exception {
+        // Check cache first
+        Map<String, Object> cachedData = CacheManager.getCachedSpotifyTrackByTitleAndArtist(title, artist);
+        if (cachedData != null && !cachedData.isEmpty()) {
+            return cachedData;
+        }
+        
         Map<String, Object> trackData = new HashMap<>();
         
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
+                // Make sure we have a valid token
+                ensureValidToken();
+                
                 String query = URLEncoder.encode("track:" + title + " artist:" + artist, StandardCharsets.UTF_8);
                 String endpoint = SPOTIFY_API_URL + "/search?q=" + query + "&type=track&limit=1";
                 
@@ -140,8 +184,29 @@ public class AppSpotifyAPIManager {
                         
                         // Extract track ID and get full details
                         String trackId = track.getString("id");
-                        return getTrackInfo(trackId);
+                        Map<String, Object> fullTrackData = getTrackInfo(trackId);
+                        
+                        // Cache it by title/artist as well for future lookups
+                        if (!fullTrackData.isEmpty()) {
+                            // Make sure it has title and artist for future cache lookups
+                            if (!fullTrackData.containsKey("title")) fullTrackData.put("title", title);
+                            if (!fullTrackData.containsKey("artist")) fullTrackData.put("artist", artist);
+                            
+                            // We don't need to call cacheSpotifyTrack here because getTrackInfo already does it
+                        }
+                        
+                        return fullTrackData;
                     }
+                } else if (response.statusCode() == 401) {
+                    // Token expired, try to refresh and retry
+                    refreshAccessToken();
+                    continue;
+                } else if (response.statusCode() == 429) {
+                    System.err.println("Rate limit exceeded. Waiting before retry...");
+                    Thread.sleep(2000 * attempt); // Exponential backoff
+                    continue;
+                } else {
+                    System.err.println("Error searching track: " + response.statusCode() + " - " + response.body());
                 }
                 break;
             } catch (Exception e) {
@@ -159,10 +224,19 @@ public class AppSpotifyAPIManager {
      * @return Map containing artist data
      */
     public Map<String, Object> getArtistInfo(String artistId) throws Exception {
+        // First check cache
+        Map<String, Object> cachedData = CacheManager.getCachedSpotifyArtistById(artistId);
+        if (cachedData != null && !cachedData.isEmpty()) {
+            return cachedData;
+        }
+        
         Map<String, Object> artistData = new HashMap<>();
         
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
+                // Make sure we have a valid token
+                ensureValidToken();
+                
                 String endpoint = SPOTIFY_API_URL + "/artists/" + artistId;
                 
                 HttpRequest request = HttpRequest.newBuilder()
@@ -200,6 +274,19 @@ public class AppSpotifyAPIManager {
                         }
                         artistData.put("genres", genres);
                     }
+                    
+                    // Save to cache
+                    CacheManager.cacheSpotifyArtist(artistId, artistData);
+                } else if (response.statusCode() == 401) {
+                    // Token expired, try to refresh and retry
+                    refreshAccessToken();
+                    continue;
+                } else if (response.statusCode() == 429) {
+                    System.err.println("Rate limit exceeded. Waiting before retry...");
+                    Thread.sleep(2000 * attempt); // Exponential backoff
+                    continue;
+                } else {
+                    System.err.println("Error getting artist info: " + response.statusCode() + " - " + response.body());
                 }
                 break;
             } catch (Exception e) {
@@ -217,14 +304,24 @@ public class AppSpotifyAPIManager {
      * @return Map containing artist data
      */
     public Map<String, Object> getArtistInfoByName(String artistName) throws Exception {
+        // Check cache first
+        Map<String, Object> cachedData = CacheManager.getCachedSpotifyArtistByName(artistName);
+        if (cachedData != null && !cachedData.isEmpty()) {
+            return cachedData;
+        }
+        
         // Find the artist ID first
         String artistId = getArtistSpotifyId(artistName);
         if (artistId == null) {
+            System.err.println("Artist not found on Spotify: " + artistName);
             return new HashMap<>(); // Return empty map if artist not found
         }
         
         // Get full artist info using the ID
-        return getArtistInfo(artistId);
+        Map<String, Object> artistInfo = getArtistInfo(artistId);
+        
+        // Return the data
+        return artistInfo;
     }
     
     /**
@@ -243,9 +340,17 @@ public class AppSpotifyAPIManager {
      */
     public void refreshAccessToken() {
         try {
-            this.accessToken = SpotifyAccessToken.getAccessToken();
+            System.out.println("Refreshing Spotify access token...");
+            String newToken = SpotifyAccessToken.getAccessToken();
+            if (newToken != null && !newToken.isEmpty()) {
+                this.accessToken = newToken;
+                System.out.println("Successfully refreshed Spotify access token");
+            } else {
+                System.err.println("Failed to refresh Spotify access token: received empty token");
+            }
         } catch (IOException | URISyntaxException e) {
             System.err.println("Failed to refresh Spotify access token: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -261,13 +366,16 @@ public class AppSpotifyAPIManager {
         // First, find the artist ID
         String artistId = getArtistSpotifyId(artistName);
         if (artistId == null) {
-            System.out.println("Artist not found on Spotify: " + artistName);
+            System.err.println("Artist not found on Spotify: " + artistName);
             return songs;
         }
         
         // Then get their top tracks
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
+                // Make sure we have a valid token
+                ensureValidToken();
+                
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(SPOTIFY_API_URL + "/artists/" + artistId + "/top-tracks?market=US"))
                     .header("Authorization", "Bearer " + accessToken)
@@ -275,45 +383,57 @@ public class AppSpotifyAPIManager {
                     .build();
                 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                JSONObject jsonResponse = new JSONObject(response.body());
                 
-                if (jsonResponse.has("tracks")) {
-                    JSONArray tracks = jsonResponse.getJSONArray("tracks");
-                    int count = Math.min(tracks.length(), limit);
+                if (response.statusCode() == 200) {
+                    JSONObject jsonResponse = new JSONObject(response.body());
                     
-                    for (int i = 0; i < count; i++) {
-                        JSONObject track = tracks.getJSONObject(i);
-                        Map<String, Object> songData = new HashMap<>();
+                    if (jsonResponse.has("tracks")) {
+                        JSONArray tracks = jsonResponse.getJSONArray("tracks");
+                        int count = Math.min(tracks.length(), limit);
                         
-                        songData.put("title", track.getString("name"));
-                        songData.put("artist", artistName);
-                        songData.put("spotify_id", track.getString("id"));
-                        songData.put("popularity", track.getInt("popularity"));
-                        songData.put("duration_ms", track.getInt("duration_ms"));
-                        songData.put("spotify_uri", track.getString("uri"));
-                        songData.put("explicit", track.getBoolean("explicit"));
-                        
-                        JSONObject album = track.getJSONObject("album");
-                        songData.put("album_name", album.getString("name"));
-                        songData.put("release_date", album.getString("release_date"));
-                        
-                        if (album.has("images") && album.getJSONArray("images").length() > 0) {
-                            songData.put("image_url", album.getJSONArray("images").getJSONObject(0).getString("url"));
+                        for (int i = 0; i < count; i++) {
+                            JSONObject track = tracks.getJSONObject(i);
+                            Map<String, Object> songData = new HashMap<>();
+                            
+                            songData.put("title", track.getString("name"));
+                            songData.put("artist", artistName);
+                            songData.put("spotify_id", track.getString("id"));
+                            songData.put("popularity", track.getInt("popularity"));
+                            songData.put("duration_ms", track.getInt("duration_ms"));
+                            songData.put("spotify_uri", track.getString("uri"));
+                            songData.put("explicit", track.getBoolean("explicit"));
+                            
+                            JSONObject album = track.getJSONObject("album");
+                            songData.put("album_name", album.getString("name"));
+                            songData.put("release_date", album.getString("release_date"));
+                            
+                            if (album.has("images") && album.getJSONArray("images").length() > 0) {
+                                songData.put("image_url", album.getJSONArray("images").getJSONObject(0).getString("url"));
+                            }
+                            
+                            // Cache track data
+                            CacheManager.cacheSpotifyTrack(track.getString("id"), songData);
+                            
+                            songs.add(songData);
                         }
-                        
-                        songs.add(songData);
                     }
+                } else if (response.statusCode() == 401) {
+                    // Token expired, try to refresh and retry
+                    refreshAccessToken();
+                    continue;
+                } else if (response.statusCode() == 429) {
+                    System.err.println("Rate limit exceeded. Waiting before retry...");
+                    Thread.sleep(2000 * attempt); // Exponential backoff
+                    continue;
+                } else {
+                    System.err.println("Error getting artist songs: " + response.statusCode() + " - " + response.body());
                 }
                 break;
             } catch (Exception e) {
                 if (attempt == MAX_RETRIES) throw e;
                 Thread.sleep(RETRY_DELAY_MS * attempt);
                 // Refresh token if expired
-                try {
-                    this.accessToken = SpotifyAccessToken.getAccessToken();
-                } catch (Exception ex) {
-                    System.err.println("Failed to refresh token: " + ex.getMessage());
-                }
+                refreshAccessToken();
             }
         }
         
@@ -328,6 +448,9 @@ public class AppSpotifyAPIManager {
     private String getArtistSpotifyId(String artistName) throws Exception {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
+                // Make sure we have a valid token
+                ensureValidToken();
+                
                 String query = String.format("q=artist:%s&type=artist&limit=1", 
                     URLEncoder.encode(artistName, StandardCharsets.UTF_8));
                 
@@ -338,22 +461,44 @@ public class AppSpotifyAPIManager {
                     .build();
                 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                JSONObject jsonResponse = new JSONObject(response.body());
                 
-                if (jsonResponse.has("artists") && !jsonResponse.isNull("artists")) {
-                    JSONObject artists = jsonResponse.getJSONObject("artists");
-                    if (artists.has("items") && artists.getJSONArray("items").length() > 0) {
-                        return artists.getJSONArray("items").getJSONObject(0).getString("id");
+                if (response.statusCode() == 200) {
+                    JSONObject jsonResponse = new JSONObject(response.body());
+                    
+                    if (jsonResponse.has("artists") && !jsonResponse.isNull("artists")) {
+                        JSONObject artists = jsonResponse.getJSONObject("artists");
+                        if (artists.has("items") && artists.getJSONArray("items").length() > 0) {
+                            return artists.getJSONArray("items").getJSONObject(0).getString("id");
+                        }
                     }
+                } else if (response.statusCode() == 401) {
+                    // Token expired, try to refresh and retry
+                    refreshAccessToken();
+                    continue;
+                } else if (response.statusCode() == 429) {
+                    System.err.println("Rate limit exceeded. Waiting before retry...");
+                    Thread.sleep(2000 * attempt); // Exponential backoff
+                    continue;
+                } else {
+                    System.err.println("Error searching for artist: " + response.statusCode() + " - " + response.body());
                 }
                 return null;
             } catch (Exception e) {
                 if (attempt == MAX_RETRIES) throw e;
                 Thread.sleep(RETRY_DELAY_MS * attempt);
                 // Refresh token if expired
-                this.accessToken = SpotifyAccessToken.getAccessToken();
+                refreshAccessToken();
             }
         }
         return null;
+    }
+    
+    /**
+     * Ensures we have a valid access token
+     */
+    private void ensureValidToken() {
+        if (accessToken == null || accessToken.isEmpty()) {
+            refreshAccessToken();
+        }
     }
 }

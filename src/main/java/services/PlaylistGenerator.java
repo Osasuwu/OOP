@@ -7,107 +7,126 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import models.Artist;
 import models.Playlist;
 import models.PlaylistParameters;
 import models.PlaylistPreferences;
 import models.Song;
-import models.UserMusicData;
+import services.database.MusicDatabaseManager;
 import utils.GenreMapper;
+import utils.Logger;
 
 /**
- * Service that generates playlists based on user music data and preferences
+ * Service that generates playlists based on user preferences and parameters
  */
 public class PlaylistGenerator {
     
+    private MusicDatabaseManager dbManager;
+    private Logger logger;
+    
+    public PlaylistGenerator() {
+        this.logger = Logger.getInstance();
+    }
+    
     /**
-     * Generate a playlist based on user data and preferences
-     * @param userData The user's music data
+     * Sets the database manager for retrieving songs
+     * @param dbManager The music database manager
+     */
+    public void setDatabaseManager(MusicDatabaseManager dbManager) {
+        this.dbManager = dbManager;
+    }
+    
+    /**
+     * Generate a playlist based on parameters and preferences
      * @param params Playlist generation parameters
      * @param preferences Playlist generation preferences
      * @return A generated playlist
      */
-    public Playlist generatePlaylist(UserMusicData userData, PlaylistParameters params, PlaylistPreferences preferences) {
-        // The following line was mistakenly inserted.
-        // stmt.setObject(1, UUID.fromString(song.getArtist().getId()));
-        // (It is retained here as a comment according to Petr's instruction to preserve structure.)
+    public Playlist generatePlaylist(PlaylistParameters params, PlaylistPreferences preferences) {
+        // Create a new playlist with the specified name
+        Playlist playlist = new Playlist(params.getName());
         
-        // Generate based on available data
-        if (!userData.getPlayHistory().isEmpty()) {
-            return generateFromHistory(userData, preferences);
-        } else if (!userData.getSongs().isEmpty()) {
-            return generateFromSongs(userData, preferences);
-        } else if (!userData.getArtists().isEmpty()) {
-            return generateFromArtists(userData, preferences);
+        try {
+            // Get songs from database based on preferences
+            List<Song> candidateSongs = fetchCandidateSongs(params, preferences);
+            
+            // If no songs were found, return empty playlist
+            if (candidateSongs.isEmpty()) {
+                logger.warning("No candidate songs found for playlist generation");
+                return playlist;
+            }
+            
+            // Apply filters and select songs based on preferences
+            List<Song> selectedSongs = filterAndSelectSongs(candidateSongs, preferences);
+            playlist.setSongs(selectedSongs);
+            
+            logger.info("Generated playlist with " + selectedSongs.size() + " songs");
+        } catch (Exception e) {
+            logger.error("Error generating playlist: " + e.getMessage());
+            e.printStackTrace();
         }
         
-        return generateFromUserInput(preferences);
+        return playlist;
     }
     
+    /**
+     * Fetches candidate songs from the database based on parameters and preferences
+     */
+    private List<Song> fetchCandidateSongs(PlaylistParameters params, PlaylistPreferences preferences) {
+        if (dbManager == null) {
+            logger.error("Database manager is not initialized");
+            return new ArrayList<>();
+        }
+        
+        // Fetch songs based on parameters
+        List<Song> candidateSongs = new ArrayList<>();
+        
+        // If specific genres are specified in parameters, use them
+        if (params.getGenres() != null && !params.getGenres().isEmpty()) {
+            for (String genre : params.getGenres()) {
+                candidateSongs.addAll(dbManager.getSongsByGenre(genre));
+            }
+        }
+        // If specific artists are specified in parameters, use them
+        else if (params.getArtists() != null && !params.getArtists().isEmpty()) {
+            for (String artist : params.getArtists()) {
+                candidateSongs.addAll(dbManager.getSongsByArtist(artist));
+            }
+        }
+        // Otherwise, use preferences from user's history
+        else {
+            // If preferences indicate genres, use them
+            if (preferences.getGenres() != null && !preferences.getGenres().isEmpty()) {
+                for (String genre : preferences.getGenres()) {
+                    candidateSongs.addAll(dbManager.getSongsByGenre(genre));
+                }
+            } else {
+                // Get user's top songs
+                candidateSongs = dbManager.getTopSongs(preferences.getSongCount() * 3);
+            }
+        }
+        
+        // If we still don't have enough songs, get popular songs
+        if (candidateSongs.size() < preferences.getSongCount()) {
+            candidateSongs.addAll(dbManager.getPopularSongs(preferences.getSongCount() * 2));
+        }
+        
+        return candidateSongs;
+    }
+    
+    /**
+     * For basic testing and backward compatibility
+     */
     public Playlist generate(PlaylistParameters params) {
-        // For initial testing, implement a simple dummy generation:
         Playlist playlist = new Playlist(params.getName());
         List<Song> songs = new ArrayList<>();
     
-        // For demonstration, create a number of dummy songs equal to params.getSongCount()
         int count = params.getSongCount();
         for (int i = 0; i < count; i++) {
-            // Create dummy song titles and artists.
             Song song = new Song("Song " + (i + 1), "Artist " + (i + 1));
             songs.add(song);
         }
     
-        playlist.setSongs(songs);  // Make sure Playlist has a setSongs(List<Song>) method.
-        return playlist;
-    }
-    
-    private Playlist generateFromHistory(UserMusicData userData, PlaylistPreferences preferences) {
-        // Create a default playlist using play history information
-        Playlist playlist = new Playlist();
-        playlist.setName(preferences.getName());
-        
-        // For history-based generation, we use available songs as candidate songs
-        List<Song> candidateSongs = new ArrayList<>(userData.getSongs());
-        
-        // Apply filters and select songs based on the preferences
-        List<Song> selectedSongs = filterAndSelectSongs(candidateSongs, preferences);
-        playlist.setSongs(selectedSongs);
-        
-        return playlist;
-    }
-    
-    private Playlist generateFromSongs(UserMusicData userData, PlaylistPreferences preferences) {
-        Playlist playlist = new Playlist();
-        playlist.setName(preferences.getName());
-        
-        List<Song> candidateSongs = new ArrayList<>(userData.getSongs());
-        List<Song> selectedSongs = filterAndSelectSongs(candidateSongs, preferences);
-        playlist.setSongs(selectedSongs);
-        
-        return playlist;
-    }
-    
-    private Playlist generateFromArtists(UserMusicData userData, PlaylistPreferences preferences) {
-        Playlist playlist = new Playlist();
-        playlist.setName(preferences.getName());
-        
-        // Create candidate songs from artist data by gathering top songs
-        List<Song> candidateSongs = new ArrayList<>();
-        for (Artist artist : userData.getArtists()) {
-            candidateSongs.addAll(artist.getTopSongs());
-        }
-        
-        List<Song> selectedSongs = filterAndSelectSongs(candidateSongs, preferences);
-        playlist.setSongs(selectedSongs);
-        
-        return playlist;
-    }
-    
-    private Playlist generateFromUserInput(PlaylistPreferences preferences) {
-        // Create an empty playlist when no user data is available
-        Playlist playlist = new Playlist();
-        playlist.setName(preferences.getName());
-        playlist.setSongs(new ArrayList<>());
+        playlist.setSongs(songs);
         return playlist;
     }
     
@@ -182,8 +201,12 @@ public class PlaylistGenerator {
     }
     
     private List<Song> selectPopularSongs(List<Song> candidateSongs, int count) {
-        // Assumes candidateSongs are already sorted by play count (if available)
-        return candidateSongs.subList(0, Math.min(count, candidateSongs.size()));
+        // Sort by popularity and take the top ones
+        List<Song> sorted = candidateSongs.stream()
+            .sorted((s1, s2) -> Integer.compare(s2.getPopularity(), s1.getPopularity()))
+            .collect(Collectors.toList());
+        
+        return sorted.subList(0, Math.min(count, sorted.size()));
     }
     
     private List<Song> selectDiverseSongs(List<Song> candidateSongs, int count) {

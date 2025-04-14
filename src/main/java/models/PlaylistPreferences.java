@@ -13,14 +13,21 @@ public class PlaylistPreferences {
     private List<String> genres;
     private List<String> excludeArtists;
     private PlaylistParameters.PlaylistSelectionStrategy selectionStrategy;
-    private Map<String, Object> preferences;
+    private Map<String, List<Object>> preferences;
     
     public PlaylistPreferences(Map<String, List<Object>> userPreferencesMap) {
-        this.name = "New Playlist";
-        this.songCount = 20;
+        this.name = (String) userPreferencesMap.get("name").get(0);
+        this.songCount = (int) userPreferencesMap.get("songCount").get(0);
         this.genres = new ArrayList<>();
+        for (Object genre : userPreferencesMap.get("genres")) {
+            genres.add((String) genre);
+        }
         this.excludeArtists = new ArrayList<>();
-        this.selectionStrategy = PlaylistParameters.PlaylistSelectionStrategy.BALANCED;
+        for (Object artist : userPreferencesMap.get("excludeArtists")) {
+            excludeArtists.add((String) artist);
+        }
+        this.selectionStrategy = PlaylistParameters.PlaylistSelectionStrategy.valueOf((String) userPreferencesMap.get("selectionStrategy").get(0));
+        this.preferences = userPreferencesMap;
     }
     
     // Constructor from PlaylistParameters
@@ -39,7 +46,7 @@ public class PlaylistPreferences {
         return preferences.get(key);
     }
     
-    public Map<String, Object> getAllPreferences() {
+    public Map<String, List<Object>> getAllPreferences() {
         return preferences;
     }
 

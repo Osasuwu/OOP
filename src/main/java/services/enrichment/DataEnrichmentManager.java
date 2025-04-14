@@ -4,6 +4,7 @@ import models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.AppAPI.*;
+import utils.CacheManager;
 
 import java.util.concurrent.*;
 import java.util.*;
@@ -30,6 +31,10 @@ public class DataEnrichmentManager {
     private AtomicInteger artistsProcessed = new AtomicInteger(0);
     private AtomicInteger songsProcessed = new AtomicInteger(0);
     
+    // Rate limiting constants
+    private static final int SPOTIFY_REQUESTS_PER_SECOND = 2; // Maximum 2 requests per second to avoid 429 errors
+    private static final RateLimiter spotifyRateLimiter = new RateLimiter(SPOTIFY_REQUESTS_PER_SECOND);
+    
     /**
      * Creates a new DataEnrichmentManager
      * 
@@ -47,6 +52,39 @@ public class DataEnrichmentManager {
         this.musicBrainzManager = musicBrainzManager;
         this.lastFmManager = lastFmManager;
         this.executorService = Executors.newFixedThreadPool(3);
+    }
+    
+    /**
+     * Rate limiter class to prevent API rate limit errors
+     */
+    private static class RateLimiter {
+        private final long intervalMs;
+        private long lastRequestTime = 0;
+        private final Object lock = new Object();
+        
+        public RateLimiter(int requestsPerSecond) {
+            this.intervalMs = 1000 / requestsPerSecond;
+        }
+        
+        /**
+         * Wait until allowed to make another request based on rate limits
+         */
+        public void acquire() {
+            synchronized (lock) {
+                long currentTime = System.currentTimeMillis();
+                long elapsedTime = currentTime - lastRequestTime;
+                
+                if (elapsedTime < intervalMs) {
+                    try {
+                        Thread.sleep(intervalMs - elapsedTime);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                
+                lastRequestTime = System.currentTimeMillis();
+            }
+        }
     }
     
     /**
@@ -81,7 +119,7 @@ public class DataEnrichmentManager {
                 .count();
                 
             long songsWithAdditionalInfo = userData.getSongs().stream()
-                .filter(s -> s.getReleaseDate() != null || s.getPopularity() > 0 || s.getImageUrl() != null)
+                .filter(s -> s.getReleaseDate() != null || s.getPopularity() > 0 || s.getImageUrl() != null || s.getPreviewUrl() != null || s.getSpotifyLink() != null || s.getAlbumName() != null)
                 .count();
                 
             LOGGER.info("Enrichment completed. {} artists with genres, {} songs with additional info",
@@ -126,9 +164,11 @@ public class DataEnrichmentManager {
         // Wait for all futures to complete
         for (Future<Void> future : futures) {
             try {
-                future.get(5, TimeUnit.SECONDS);
+                future.get(30, TimeUnit.SECONDS); // Increased timeout to 30 seconds
+            } catch (TimeoutException e) {
+                LOGGER.warn("Artist enrichment timed out after 30 seconds");
             } catch (Exception e) {
-                LOGGER.warn("Artist enrichment task interrupted: {}", e.getMessage());
+                LOGGER.warn("Artist enrichment failed: {}", e.getMessage());
             }
         }
     }
@@ -140,43 +180,67 @@ public class DataEnrichmentManager {
      */
     private void enrichArtistById(Artist artist) {
         try {
+            // First check cache
+            Map<String, Object> cachedData = CacheManager.getCachedSpotifyArtistById(artist.getSpotifyId());
+            if (cachedData != null && !cachedData.isEmpty()) {
+                LOGGER.info("Using cached data for artist: {} (ID: {})", artist.getName(), artist.getSpotifyId());
+                updateArtistFromSpotify(artist, cachedData);
+                return;
+            }
+            
+            // Respect rate limits if we need to make an API call
+            spotifyRateLimiter.acquire();
+            
             // Get artist info from Spotify using ID
             Map<String, Object> spotifyInfo = spotifyManager.getArtistInfo(artist.getSpotifyId());
             if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
                 updateArtistFromSpotify(artist, spotifyInfo);
                 LOGGER.debug("Enriched artist {} using Spotify ID", artist.getName());
+                
+                // The spotifyManager now handles caching internally
             }
             
-            // FIXED: Only try enrichment by name if we haven't already tried using ID
-            // This prevents infinite recursion when data cannot be found
             // If still missing data, try other sources using name
-            if ((artist.getImageUrl() == null || artist.getGenres().isEmpty()) && 
+            if ((artist.getImageUrl() == null || artist.getGenres() == null || artist.getGenres().isEmpty()) && 
                 spotifyInfo != null && !spotifyInfo.isEmpty()) {
-                // Try Last.fm and MusicBrainz directly without calling enrichArtistByName
-                // Last.fm
-                try {
-                    Map<String, Object> lastFmInfo = lastFmManager.getArtistInfo(artist.getName());
-                    if (lastFmInfo != null && !lastFmInfo.isEmpty()) {
-                        updateArtistFromLastFm(artist, lastFmInfo);
-                        LOGGER.debug("Supplemented artist {} using Last.fm", artist.getName());
+                
+                // Try Last.fm
+                Map<String, Object> cachedLastFm = CacheManager.getCachedLastFmData(artist.getName());
+                if (cachedLastFm != null && !cachedLastFm.isEmpty()) {
+                    updateArtistFromLastFm(artist, cachedLastFm);
+                } else {
+                    try {
+                        Map<String, Object> lastFmInfo = lastFmManager.getArtistInfo(artist.getName());
+                        if (lastFmInfo != null && !lastFmInfo.isEmpty()) {
+                            updateArtistFromLastFm(artist, lastFmInfo);
+                            CacheManager.cacheLastFmData(artist.getName(), lastFmInfo);
+                            LOGGER.debug("Supplemented artist {} using Last.fm", artist.getName());
+                        }
+                    } catch (Exception e) {
+                        LOGGER.warn("Failed to get Last.fm data for {}: {}", artist.getName(), e.getMessage());
                     }
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to get Last.fm data for {}: {}", artist.getName(), e.getMessage());
                 }
                 
                 // MusicBrainz if still needed
-                if (artist.getImageUrl() == null || artist.getGenres().isEmpty()) {
-                    try {
-                        Map<String, Object> mbInfo = musicBrainzManager.getArtistInfo(artist.getName());
-                        if (mbInfo != null && !mbInfo.isEmpty()) {
-                            updateArtistFromMusicBrainz(artist, mbInfo);
-                            LOGGER.debug("Supplemented artist {} using MusicBrainz", artist.getName());
+                if (artist.getImageUrl() == null || artist.getGenres() == null || artist.getGenres().isEmpty()) {
+                    Map<String, Object> cachedMB = CacheManager.getCachedMusicBrainzData(artist.getName());
+                    if (cachedMB != null && !cachedMB.isEmpty()) {
+                        updateArtistFromMusicBrainz(artist, cachedMB);
+                    } else {
+                        try {
+                            Map<String, Object> mbInfo = musicBrainzManager.getArtistInfo(artist.getName());
+                            if (mbInfo != null && !mbInfo.isEmpty()) {
+                                updateArtistFromMusicBrainz(artist, mbInfo);
+                                CacheManager.cacheMusicBrainzData(artist.getName(), mbInfo);
+                                LOGGER.debug("Supplemented artist {} using MusicBrainz", artist.getName());
+                            }
+                        } catch (Exception e) {
+                            LOGGER.warn("Failed to get MusicBrainz data for {}: {}", artist.getName(), e.getMessage());
                         }
-                    } catch (Exception e) {
-                        LOGGER.warn("Failed to get MusicBrainz data for {}: {}", artist.getName(), e.getMessage());
                     }
                 }
             }
+            
         } catch (Exception e) {
             LOGGER.warn("Failed to enrich artist {} by ID: {}", artist.getName(), e.getMessage());
         }
@@ -188,29 +252,54 @@ public class DataEnrichmentManager {
      * @param artist The artist to enrich
      */
     private void enrichArtistByName(Artist artist) {
-        try {            
+        try {
+            // First check cache by name
+            Map<String, Object> cachedData = CacheManager.getCachedSpotifyArtistByName(artist.getName());
+            if (cachedData != null && !cachedData.isEmpty()) {
+                LOGGER.info("Using cached data for artist by name: {}", artist.getName());
+                updateArtistFromSpotify(artist, cachedData);
+                return;
+            }
+            
+            // Respect rate limits
+            spotifyRateLimiter.acquire();
+            
             // Try to get artist info from Spotify
             Map<String, Object> spotifyInfo = spotifyManager.getArtistInfoByName(artist.getName());
             if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
                 updateArtistFromSpotify(artist, spotifyInfo);
                 LOGGER.debug("Enriched artist {} using Spotify name search", artist.getName());
+                
+                // The spotifyManager now handles caching internally
             }
 
-            // If no genres, try MusicBrainz
-            if (artist.getImageUrl() == null || artist.getGenres().isEmpty()) {
-                Map<String, Object> mbInfo = musicBrainzManager.getArtistInfo(artist.getName());
-                if (mbInfo != null && !mbInfo.isEmpty()) {
-                    updateArtistFromMusicBrainz(artist, mbInfo);
-                    LOGGER.debug("Enriched artist {} using MusicBrainz", artist.getName());
+            // If no genres or still missing data, try MusicBrainz
+            if (artist.getImageUrl() == null || artist.getGenres() == null || artist.getGenres().isEmpty()) {
+                Map<String, Object> cachedMB = CacheManager.getCachedMusicBrainzData(artist.getName());
+                if (cachedMB != null && !cachedMB.isEmpty()) {
+                    updateArtistFromMusicBrainz(artist, cachedMB);
+                } else {
+                    Map<String, Object> mbInfo = musicBrainzManager.getArtistInfo(artist.getName());
+                    if (mbInfo != null && !mbInfo.isEmpty()) {
+                        updateArtistFromMusicBrainz(artist, mbInfo);
+                        CacheManager.cacheMusicBrainzData(artist.getName(), mbInfo);
+                        LOGGER.debug("Enriched artist {} using MusicBrainz", artist.getName());
+                    }
                 }
             }
 
             // If still no genres yet, try Last.fm
             if (artist.getGenres() == null || artist.getGenres().isEmpty()) {
-                Map<String, Object> lastFmInfo = lastFmManager.getArtistInfo(artist.getName());
-                if (lastFmInfo != null && !lastFmInfo.isEmpty()) {
-                    updateArtistFromLastFm(artist, lastFmInfo);
-                    LOGGER.debug("Enriched artist {} using Last.fm", artist.getName());
+                Map<String, Object> cachedLastFm = CacheManager.getCachedLastFmData(artist.getName());
+                if (cachedLastFm != null && !cachedLastFm.isEmpty()) {
+                    updateArtistFromLastFm(artist, cachedLastFm);
+                } else {
+                    Map<String, Object> lastFmInfo = lastFmManager.getArtistInfo(artist.getName());
+                    if (lastFmInfo != null && !lastFmInfo.isEmpty()) {
+                        updateArtistFromLastFm(artist, lastFmInfo);
+                        CacheManager.cacheLastFmData(artist.getName(), lastFmInfo);
+                        LOGGER.debug("Enriched artist {} using Last.fm", artist.getName());
+                    }
                 }
             }
         } catch (Exception e) {
@@ -251,7 +340,7 @@ public class DataEnrichmentManager {
         // Wait for all futures to complete
         for (Future<Void> future : futures) {
             try {
-                future.get(5, TimeUnit.SECONDS);
+                future.get(30, TimeUnit.SECONDS); // Increased timeout to 30 seconds
             } catch (Exception e) {
                 LOGGER.warn("Song enrichment task interrupted: {}", e.getMessage());
             }
@@ -265,35 +354,26 @@ public class DataEnrichmentManager {
      */
     private void enrichSongById(Song song) {
         try {
+            // Check cache first
+            Map<String, Object> cachedData = CacheManager.getCachedSpotifyTrackById(song.getSpotifyId());
+            if (cachedData != null && !cachedData.isEmpty()) {
+                LOGGER.info("Using cached data for song: {} by {} (ID: {})", 
+                         song.getTitle(), song.getArtist().getName(), song.getSpotifyId());
+                updateSongFromSpotify(song, cachedData);
+                return;
+            }
+            
+            // Respect rate limits if we need to make an API call
+            spotifyRateLimiter.acquire();
+            
             // Try to get song info from Spotify using ID
             Map<String, Object> spotifyInfo = spotifyManager.getTrackInfo(song.getSpotifyId());
             if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
                 updateSongFromSpotify(song, spotifyInfo);
                 LOGGER.debug("Enriched song {} by {} using Spotify ID", 
                           song.getTitle(), song.getArtist().getName());
-            }
-            
-            // FIXED: Only try enrichment by name if we haven't already tried using ID
-            // and we successfully got some Spotify data but still missing some fields
-            if (song.getReleaseDate() == null || song.getGenres().isEmpty() || song.getImageUrl() == null) {
-                if (spotifyInfo != null && !spotifyInfo.isEmpty()) {
-                    // Try to get additional info using name and artist without full enrichment call
-                    try {                        
-                        // If we're missing specific data points, try targeted API calls
-                        // instead of the full enrichment process to avoid loops
-                        if (song.getGenres().isEmpty()) {
-                            // Could add specific targeted API call for genres here
-                        }
-                        
-                        if (song.getImageUrl() == null) {
-                            // Could add specific API call for images here
-                        }
-                        
-                    } catch (Exception e) {
-                        LOGGER.warn("Failed to get additional info for song {}: {}", 
-                                 song.getTitle(), e.getMessage());
-                    }
-                }
+                
+                // The spotifyManager now handles caching internally
             }
         } catch (Exception e) {
             LOGGER.warn("Failed to enrich song {} by ID: {}", song.getTitle(), e.getMessage());
@@ -307,6 +387,19 @@ public class DataEnrichmentManager {
      */
     private void enrichSongByNameAndArtist(Song song) {
         try {
+            // Check cache first
+            Map<String, Object> cachedData = CacheManager.getCachedSpotifyTrackByTitleAndArtist(
+                song.getTitle(), song.getArtist().getName());
+            if (cachedData != null && !cachedData.isEmpty()) {
+                LOGGER.info("Using cached data for song by name/artist: {} by {}", 
+                         song.getTitle(), song.getArtist().getName());
+                updateSongFromSpotify(song, cachedData);
+                return;
+            }
+            
+            // Respect rate limits if we need to make an API call
+            spotifyRateLimiter.acquire();
+            
             // URL encode the title and artist name
             String encodedTitle = encodeForUrl(song.getTitle());
             String encodedArtistName = encodeForUrl(song.getArtist().getName());
@@ -317,10 +410,9 @@ public class DataEnrichmentManager {
                 updateSongFromSpotify(song, spotifyInfo);
                 LOGGER.debug("Enriched song {} by {} using Spotify search", 
                           song.getTitle(), song.getArtist().getName());
-            }
-            
-            // Could add additional sources here for song data (like MusicBrainz, Last.fm)
-            
+                
+                // The spotifyManager now handles caching internally
+            }            
         } catch (Exception e) {
             LOGGER.warn("Failed to enrich song {} by name and artist: {}", 
                      song.getTitle(), e.getMessage());
@@ -434,12 +526,6 @@ public class DataEnrichmentManager {
         
         if (spotifyInfo.containsKey("popularity")) {
             song.setPopularity(((Number) spotifyInfo.get("popularity")).intValue());
-        }
-        
-        if (spotifyInfo.containsKey("genres")) {
-            @SuppressWarnings("unchecked")
-            List<String> genres = (List<String>) spotifyInfo.get("genres");
-            song.setGenres(genres);
         }
         
         if (spotifyInfo.containsKey("album") && (song.getAlbumName() == null || song.getAlbumName().isEmpty())) {

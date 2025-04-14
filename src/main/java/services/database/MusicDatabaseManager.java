@@ -109,69 +109,117 @@ public class MusicDatabaseManager {
         });
     }
 
-        public Artist getArtistBySong(Song song) {
-            try (Connection conn = getConnection()) {
-                // Explicitly cast the result to Artist
-                return (Artist) artistManager.getArtistBySong(conn, song);
-            } catch (SQLException e) {
-                LOGGER.error("Error retrieving artist by song: {}", e.getMessage(), e);
-                return null;
-            }
+    public Artist getArtistBySong(Song song) {
+        try (Connection conn = getConnection()) {
+            // Explicitly cast the result to Artist
+            return (Artist) artistManager.getArtistBySong(conn, song);
+        } catch (SQLException e) {
+            LOGGER.error("Error retrieving artist by song: {}", e.getMessage(), e);
+            return null;
         }
-        
-        public void savePlayHistory(UserMusicData userData) throws SQLException {
-            withConnection(conn -> {
-                boolean originalAutoCommit = conn.getAutoCommit();
-                try {
-                    conn.setAutoCommit(false);
-                    playHistoryManager.savePlayHistory(conn, userData.getPlayHistory(), user);
-                    conn.commit();
-                    return null;
-                } catch (SQLException e) {
-                    conn.rollback();
-                    throw e;
-                } finally {
-                    conn.setAutoCommit(originalAutoCommit);
-                }
-            });
-        }
-    
-        public void updateUserPreferences(Map<String, List<Object>> preferences) throws SQLException {
-            withConnection(conn -> {
-                boolean originalAutoCommit = conn.getAutoCommit();
-                try {
-                    conn.setAutoCommit(false);
-                    preferenceManager.updateCurrentUserPreferences(conn, preferences);
-                    conn.commit();
-                    return null;
-                } catch (SQLException e) {
-                    conn.rollback();
-                    throw e;
-                } finally {
-                    conn.setAutoCommit(originalAutoCommit);
-                }
-            });
-        }
-    
-        public Connection getConnection() throws SQLException {
-            return connectionPool.getConnection();
-        }
-    
-        public void cleanup() {
-            if (connectionPool != null && !connectionPool.isClosed()) {
-                connectionPool.close();
-            }
-        }
-    
-        public User getUser() {
-            return user;
-        }
-        
-        public UserMusicData loadUserData() {
-            // Create a new instance of UserMusicData, ensuring all collections are initialized (if needed)
-            UserMusicData data = new UserMusicData();
-            return data;
-        }
-    
-    
     }
+    
+    public void savePlayHistory(UserMusicData userData) throws SQLException {
+        withConnection(conn -> {
+            boolean originalAutoCommit = conn.getAutoCommit();
+            try {
+                conn.setAutoCommit(false);
+                playHistoryManager.savePlayHistory(conn, userData.getPlayHistory(), user);
+                conn.commit();
+                return null;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(originalAutoCommit);
+            }
+        });
+    }
+
+    public void updateUserPreferences(Map<String, List<Object>> preferences) throws SQLException {
+        withConnection(conn -> {
+            boolean originalAutoCommit = conn.getAutoCommit();
+            try {
+                conn.setAutoCommit(false);
+                preferenceManager.updateCurrentUserPreferences(conn, preferences);
+                conn.commit();
+                return null;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(originalAutoCommit);
+            }
+        });
+    }
+
+    public Connection getConnection() throws SQLException {
+        return connectionPool.getConnection();
+    }
+
+    public void cleanup() {
+        if (connectionPool != null && !connectionPool.isClosed()) {
+            connectionPool.close();
+        }
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    /**
+     * Retrieves songs by genre from the database
+     * @param genre The genre to filter by
+     * @return A list of songs matching the genre
+     */
+    public List<Song> getSongsByGenre(String genre) {
+        try {
+            return withConnection(conn -> songManager.getSongsByGenre(conn, genre));
+        } catch (SQLException e) {
+            LOGGER.error("Error retrieving songs by genre: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+    
+    /**
+     * Retrieves songs by artist name from the database
+     * @param artistName The name of the artist
+     * @return A list of songs by the artist
+     */
+    public List<Song> getSongsByArtist(String artistName) {
+        try {
+            return withConnection(conn -> songManager.getSongsByArtistName(conn, artistName));
+        } catch (SQLException e) {
+            LOGGER.error("Error retrieving songs by artist: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+    
+    /**
+     * Retrieves the most popular songs from the database
+     * @param limit Maximum number of songs to retrieve
+     * @return A list of popular songs
+     */
+    public List<Song> getPopularSongs(int limit) {
+        try {
+            return withConnection(conn -> songManager.getPopularSongs(conn, limit));
+        } catch (SQLException e) {
+            LOGGER.error("Error retrieving popular songs: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+    
+    /**
+     * Retrieves the user's top songs based on play history
+     * @param limit Maximum number of songs to retrieve
+     * @return A list of the user's top songs
+     */
+    public List<Song> getTopSongs(int limit) {
+        try {
+            return withConnection(conn -> playHistoryManager.getUserTopSongs(conn, user, limit));
+        } catch (SQLException e) {
+            LOGGER.error("Error retrieving top songs: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+}

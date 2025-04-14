@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.io.*;
 import java.nio.file.*;
 
@@ -13,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import models.Artist;
 import models.Song;
 import models.User;
 
@@ -45,13 +47,10 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             return;
         }
 
-        // First, get all existing songs to avoid conflicts with the unique constraint
+        // First, get all existing songs by Spotify ID to avoid conflicts with the unique constraint
+        Map<String, UUID> existingSongsBySpotifyId = getExistingSongsBySpotifyId(conn, songs);
         Map<String, UUID> existingSongsByTitleAndArtist = getExistingSongsByTitleAndArtist(conn, songs);
         
-        // Also get existing songs by Spotify ID to avoid unique constraint violations
-        Map<String, UUID> existingSongsBySpotifyId = getExistingSongsBySpotifyId(conn, songs);
-        
-        // Update UUIDs for any song with matching titles and artists or Spotify IDs in the database
         for (Song song : songs) {
             // First check by Spotify ID
             if (song.getSpotifyId() != null && existingSongsBySpotifyId.containsKey(song.getSpotifyId())) {
@@ -70,17 +69,17 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             INSERT INTO songs (id, artist_id, spotify_id, title, spotify_link, popularity, album_name, release_date, preview_url, image_url, duration_ms, is_explicit)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET
-                artist_id = EXCLUDED.artist_id,
-                spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL THEN EXCLUDED.spotify_id ELSE songs.spotify_id END,
-                title = EXCLUDED.title,
-                spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL THEN EXCLUDED.spotify_link ELSE songs.spotify_link END,
-                popularity = CASE WHEN EXCLUDED.popularity > 0 THEN EXCLUDED.popularity ELSE songs.popularity END,
-                album_name = CASE WHEN EXCLUDED.album_name IS NOT NULL THEN EXCLUDED.album_name ELSE songs.album_name END,
-                release_date = CASE WHEN EXCLUDED.release_date IS NOT NULL THEN EXCLUDED.release_date ELSE songs.release_date END,
-                preview_url = CASE WHEN EXCLUDED.preview_url IS NOT NULL THEN EXCLUDED.preview_url ELSE songs.preview_url END,
-                image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL THEN EXCLUDED.image_url ELSE songs.image_url END,
-                duration_ms = CASE WHEN EXCLUDED.duration_ms > 0 THEN EXCLUDED.duration_ms ELSE songs.duration_ms END,
-                is_explicit = EXCLUDED.is_explicit            
+            artist_id = EXCLUDED.artist_id,
+            spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL AND EXCLUDED.spotify_id != '' THEN EXCLUDED.spotify_id ELSE songs.spotify_id END,
+            title = EXCLUDED.title,
+            spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL AND EXCLUDED.spotify_link != '' THEN EXCLUDED.spotify_link ELSE songs.spotify_link END,
+            popularity = CASE WHEN EXCLUDED.popularity > 0 THEN EXCLUDED.popularity ELSE songs.popularity END,
+            album_name = CASE WHEN EXCLUDED.album_name IS NOT NULL AND EXCLUDED.album_name != '' THEN EXCLUDED.album_name ELSE songs.album_name END,
+            release_date = CASE WHEN EXCLUDED.release_date IS NOT NULL THEN EXCLUDED.release_date ELSE songs.release_date END,
+            preview_url = CASE WHEN EXCLUDED.preview_url IS NOT NULL AND EXCLUDED.preview_url != '' THEN EXCLUDED.preview_url ELSE songs.preview_url END,
+            image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL AND EXCLUDED.image_url != '' THEN EXCLUDED.image_url ELSE songs.image_url END,
+            duration_ms = CASE WHEN EXCLUDED.duration_ms > 0 THEN EXCLUDED.duration_ms ELSE songs.duration_ms END,
+            is_explicit = EXCLUDED.is_explicit            
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -101,12 +100,12 @@ public class SongDatabaseManager extends BaseDatabaseManager {
                 stmt.setString(10, song.getImageUrl());
                 stmt.setLong(11, song.getDurationMs());
                 stmt.setBoolean(12, song.isExplicit());
-
+                
                 stmt.addBatch();
                 batchCount++;
                 
                 if (batchCount % 100 == 0) {
-                    stmt.executeBatch();
+                    stmt.executeBatch(); // Execute every 100 records to avoid memory issues
                     LOGGER.info("Saved {}/{} songs", batchCount, songs.size());
                 }
             }
@@ -114,7 +113,6 @@ public class SongDatabaseManager extends BaseDatabaseManager {
                 stmt.executeBatch();
                 LOGGER.info("Saved all {}/{} songs", batchCount, songs.size());
             }
-            
         } catch (SQLException e) {
             LOGGER.error("Error saving songs to database", e);
             throw e;
@@ -311,5 +309,184 @@ public class SongDatabaseManager extends BaseDatabaseManager {
         }
         
         return songs;
+    }
+
+    /**
+     * Retrieves songs by genre from the database.
+     * @param conn The database connection.
+     * @param genre The genre to filter by.
+     * @return A list of songs matching the genre.
+     * @throws SQLException If an error occurs while querying the database.
+     */
+    public List<Song> getSongsByGenre(Connection conn, String genre) throws SQLException {
+        List<Song> songs = new ArrayList<>();
+        
+        if (isOfflineMode()) {
+            return getSongsByGenreOffline(genre);
+        }
+
+        String sql = """
+            SELECT s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit,
+                   a.id as artist_id, a.name as artist_name, a.image_url as artist_image_url
+            FROM songs s
+            JOIN artists a ON s.artist_id = a.id
+            JOIN song_genres sg ON s.id = sg.song_id
+            WHERE LOWER(sg.genre) = LOWER(?)
+            ORDER BY s.popularity DESC
+            LIMIT 100
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, genre);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    songs.add(createSongFromResultSet(rs));
+                }
+            }
+        }
+        
+        LOGGER.debug("Found {} songs with genre '{}'", songs.size(), genre);
+        return songs;
+    }
+    
+    /**
+     * Retrieves songs by artist name from the database.
+     * @param conn The database connection.
+     * @param artistName The name of the artist.
+     * @return A list of songs by the artist.
+     * @throws SQLException If an error occurs while querying the database.
+     */
+    public List<Song> getSongsByArtistName(Connection conn, String artistName) throws SQLException {
+        List<Song> songs = new ArrayList<>();
+        
+        if (isOfflineMode()) {
+            return getSongsByArtistNameOffline(artistName);
+        }
+
+        String sql = """
+            SELECT s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit,
+                   a.id as artist_id, a.name as artist_name, a.image_url as artist_image_url
+            FROM songs s
+            JOIN artists a ON s.artist_id = a.id
+            WHERE LOWER(a.name) = LOWER(?)
+            ORDER BY s.popularity DESC
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, artistName);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    songs.add(createSongFromResultSet(rs));
+                }
+            }
+        }
+        
+        LOGGER.debug("Found {} songs by artist '{}'", songs.size(), artistName);
+        return songs;
+    }
+    
+    /**
+     * Retrieves the most popular songs from the database.
+     * @param conn The database connection.
+     * @param limit Maximum number of songs to retrieve.
+     * @return A list of popular songs.
+     * @throws SQLException If an error occurs while querying the database.
+     */
+    public List<Song> getPopularSongs(Connection conn, int limit) throws SQLException {
+        List<Song> songs = new ArrayList<>();
+        
+        if (isOfflineMode()) {
+            return getPopularSongsOffline(limit);
+        }
+
+        String sql = """
+            SELECT s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit,
+                   a.id as artist_id, a.name as artist_name, a.image_url as artist_image_url
+            FROM songs s
+            JOIN artists a ON s.artist_id = a.id
+            ORDER BY s.popularity DESC
+            LIMIT ?
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    songs.add(createSongFromResultSet(rs));
+                }
+            }
+        }
+        
+        LOGGER.debug("Found {} popular songs", songs.size());
+        return songs;
+    }
+    
+    /**
+     * Helper method to create a Song object from a ResultSet.
+     * @param rs The ResultSet containing song data.
+     * @return A Song object.
+     * @throws SQLException If an error occurs while accessing the ResultSet.
+     */
+    private Song createSongFromResultSet(ResultSet rs) throws SQLException {
+        Song song = new Song(rs.getString("title"), rs.getString("artist_name"));
+        song.setId(rs.getString("id"));
+        song.setSpotifyId(rs.getString("spotify_id"));
+        song.setAlbumName(rs.getString("album_name"));
+        song.setPopularity(rs.getInt("popularity"));
+        song.setDurationMs(rs.getLong("duration_ms"));
+        song.setExplicit(rs.getBoolean("is_explicit"));
+        
+        // Create artist object
+        Artist artist = new Artist(rs.getString("artist_name"));
+        artist.setId(rs.getString("artist_id"));
+        artist.setImageUrl(rs.getString("artist_image_url"));
+        
+        // Set artist in song
+        song.setArtist(artist);
+        
+        return song;
+    }
+    
+    // Offline fallback implementations
+    
+    private List<Song> getSongsByGenreOffline(String genre) {
+        List<Song> result = new ArrayList<>();
+        Map<String, Song> songs = loadSongsFromFile();
+        
+        for (Song song : songs.values()) {
+            if (song.getGenres() != null && 
+                song.getGenres().stream()
+                    .anyMatch(g -> g.toLowerCase().contains(genre.toLowerCase()))) {
+                result.add(song);
+            }
+        }
+        
+        return result;
+    }
+    
+    private List<Song> getSongsByArtistNameOffline(String artistName) {
+        List<Song> result = new ArrayList<>();
+        Map<String, Song> songs = loadSongsFromFile();
+        
+        for (Song song : songs.values()) {
+            if (song.getArtist() != null && 
+                song.getArtist().getName().toLowerCase().contains(artistName.toLowerCase())) {
+                result.add(song);
+            }
+        }
+        
+        return result;
+    }
+    
+    private List<Song> getPopularSongsOffline(int limit) {
+        Map<String, Song> songs = loadSongsFromFile();
+        
+        return songs.values().stream()
+            .sorted((s1, s2) -> Integer.compare(s2.getPopularity(), s1.getPopularity()))
+            .limit(limit)
+            .collect(Collectors.toList());
     }
 }

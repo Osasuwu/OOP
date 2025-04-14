@@ -134,6 +134,10 @@ public class Application  {
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
         this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager);
+        
+        // Set the database manager in the playlist generator
+        this.playlistGenerator.setDatabaseManager(dbManager);
+        
         System.out.println("Services initialized."); // Diagnostic output
     }
     
@@ -252,20 +256,10 @@ public class Application  {
             // Retrieve the user preferences map (Map<String, List<Object>>)
             Map<String, java.util.List<Object>> userPreferencesMap = dbManager.getCurrentUserPreferences();
         
-            // Use the preferences map directly in PlaylistPreferences
-            // NOTE: Ensure that the PlaylistPreferences constructor accepts a Map<String, List<Object>>
             PlaylistPreferences playlistPreferences = new PlaylistPreferences(userPreferencesMap);
         
-            // Retrieve user music data
-            UserMusicData userData = dbManager.loadUserData();
-            if (userData == null) {
-                LOGGER.error("Failed to retrieve user music data.");
-                System.out.println("User music data is null."); // Diagnostic output
-                return false;
-            }
-        
             // Generate the playlist
-            generatedPlaylist = playlistGenerator.generatePlaylist(userData, params, playlistPreferences);
+            generatedPlaylist = playlistGenerator.generatePlaylist(params, playlistPreferences);
         
             if (generatedPlaylist != null) {
                 LOGGER.info("Playlist generated successfully.");
