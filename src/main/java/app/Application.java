@@ -66,7 +66,6 @@ public class Application  {
     }
     
     public void start() {
-        System.out.println("In start() method: Checking internet connectivity..."); // Diagnostic output
         // Check internet connectivity
         this.isOnline = checkInternetConnectivity();
         System.out.println("Internet connectivity: " + isOnline); // Diagnostic output
@@ -136,7 +135,7 @@ public class Application  {
         this.spotifyManager = new AppSpotifyAPIManager();
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
-        this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager);
+        this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager, dbManager);
         
         // Set the database manager in the playlist generator
         this.playlistGenerator.setDatabaseManager(dbManager);
@@ -209,8 +208,6 @@ public class Application  {
             if (isOnline) {
                 enrichmentManager.enrichUserData(userData);
                 
-                // Save the enriched data
-                dbManager.saveUserData(userData);
                 LOGGER.info("Saved enriched data to database");
                 System.out.println("Saved enriched user data."); // Diagnostic output
             }

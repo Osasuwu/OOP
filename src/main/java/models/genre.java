@@ -4,6 +4,7 @@ public class Genre {
 
     private String id;
     private String name;
+    private double score;
 
     public Genre(String id, String name) {
         this.id = id;
@@ -24,5 +25,13 @@ public class Genre {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
     }
 }

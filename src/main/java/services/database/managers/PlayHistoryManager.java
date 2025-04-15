@@ -20,6 +20,7 @@ import models.Artist;
 import models.PlayHistory;
 import models.Song;
 import models.User;
+import models.UserMusicData;
 
 public class PlayHistoryManager extends BaseDatabaseManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlayHistoryManager.class);

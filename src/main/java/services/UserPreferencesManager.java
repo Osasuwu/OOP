@@ -21,16 +21,20 @@ public class UserPreferencesManager {
      * @param userData The user's music data
      * @return Map of preferences
      */
-    public Map<String, Object> calculateUserPreferences(UserMusicData userData) {
+    public Map<String, List<Object>> calculateUserPreferences(UserMusicData userData) {
         LOGGER.debug("Calculating user preferences");
-        Map<String, Object> preferences = new HashMap<>();
+        Map<String, List<Object>> preferences = new HashMap<>();
         
         // Calculate genre preferences
         Map<String, Integer> genreCounts = new HashMap<>();
-        for (Song song : userData.getSongs()) {
-            for (String genre : song.getGenres()) {
-                String normalizedGenre = GenreMapper.normalizeGenre(genre);
-                genreCounts.merge(normalizedGenre, 1, Integer::sum);
+        if (userData.getSongs() != null) {
+            for (Song song : userData.getSongs()) {
+                if (song.getGenres() != null) {
+                    for (String genre : song.getGenres()) {
+                        String normalizedGenre = GenreMapper.normalizeGenre(genre);
+                        genreCounts.merge(normalizedGenre, 1, Integer::sum);
+                    }
+                }
             }
         }
         
@@ -41,15 +45,19 @@ public class UserPreferencesManager {
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
             
-        preferences.put("favorite_genres", topGenres);
+        preferences.put("favorite_genres", new ArrayList<>(topGenres.stream().map(g -> (Object) g).collect(Collectors.toList())));
         LOGGER.debug("Found {} top genres", topGenres.size());
         
         // Calculate artist preferences
-        Map<String, Integer> artistCounts = userData.getPlayHistory().stream()
-            .collect(Collectors.groupingBy(
-                ph -> ph.getSong().getArtist().getName(),
-                Collectors.collectingAndThen(Collectors.counting(), Long::intValue)
-            ));
+        Map<String, Integer> artistCounts = new HashMap<>();
+        if (userData.getPlayHistory() != null) {
+            artistCounts = userData.getPlayHistory().stream()
+                .filter(ph -> ph.getSong() != null && ph.getSong().getArtist() != null)
+                .collect(Collectors.groupingBy(
+                    ph -> ph.getSong().getArtist().getName(),
+                    Collectors.collectingAndThen(Collectors.counting(), Long::intValue)
+                ));
+        }
             
         List<String> topArtists = artistCounts.entrySet().stream()
             .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
@@ -57,7 +65,7 @@ public class UserPreferencesManager {
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
             
-        preferences.put("favorite_artists", topArtists);
+        preferences.put("favorite_artists", new ArrayList<>(topArtists.stream().map(a -> (Object) a).collect(Collectors.toList())));
         LOGGER.debug("Found {} top artists", topArtists.size());
         
         // Calculate favorite decades
@@ -68,12 +76,7 @@ public class UserPreferencesManager {
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
         
-        preferences.put("favorite_decades", topDecades);
-        
-        // Add mood preferences if available
-        // if (!userData.getPreferredMoods().isEmpty()) {
-        //     preferences.put("preferred_moods", userData.getPreferredMoods());
-        // }
+        preferences.put("favorite_decades", new ArrayList<>(topDecades.stream().map(d -> (Object) d).collect(Collectors.toList())));
         
         return preferences;
     }
@@ -81,11 +84,13 @@ public class UserPreferencesManager {
     private Map<String, Integer> calculateDecadeCounts(UserMusicData userData) {
         Map<String, Integer> decadeCounts = new HashMap<>();
         
-        for (Song song : userData.getSongs()) {
-            if (song.getReleaseDate() != null) {
-                int year = song.getReleaseDate().getYear() + 1900;
-                String decade = (year / 10) * 10 + "s";
-                decadeCounts.merge(decade, 1, Integer::sum);
+        if (userData.getSongs() != null) {
+            for (Song song : userData.getSongs()) {
+                if (song.getReleaseDate() != null) {
+                    int year = song.getReleaseDate().getYear() + 1900;
+                    String decade = (year / 10) * 10 + "s";
+                    decadeCounts.merge(decade, 1, Integer::sum);
+                }
             }
         }
         
