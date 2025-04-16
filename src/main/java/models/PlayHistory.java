@@ -12,7 +12,8 @@ public class PlayHistory {
     private boolean completed; // Whether the song was played to completion
     private String source; // Source of the play (e.g., "spotify", "local")
     
-    public PlayHistory() {
+    public PlayHistory(Song song) {
+        this.song = song;
         this.timestamp = new Date();
         this.durationMs = 0;
         this.completed = false;

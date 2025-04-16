@@ -1,0 +1,20 @@
+{
+  "dataDirectory": "./data",
+  "exportPath": "./exports",
+  "firstBoot": false,
+  "defaultUserId": "50fa6391-ff9d-40eb-a75a-9799e5685782",
+  "uiPreferences": {
+    "showNotifications": true,
+    "theme": "light",
+    "fontScale": 1.0
+  },
+  "apiKeys": {
+    "lastfm": "",
+    "spotify": "",
+    "musicbrainz": ""
+  },
+  "interface": "cli",
+  "lastLoginId": "50fa6391-ff9d-40eb-a75a-9799e5685782",
+  "lastUsername": "default",
+  "email": "default"
+}
