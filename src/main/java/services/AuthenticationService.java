@@ -132,8 +132,8 @@ public class AuthenticationService {
 
     public User login(String username, String email, String password) throws SQLException {
         try {
-            // Check if user exists and get password hash and salt
-            String sql = "SELECT id, username, email, password_hash, password_salt FROM users WHERE username = ? AND email = ?";
+            // Call the login_user stored procedure instead of direct SQL
+            String sql = "SELECT * FROM login_user(?, ?)";
             try (Connection conn = dbManager.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, username);
@@ -166,47 +166,38 @@ public class AuthenticationService {
     }
 
     public User signUp(String username, String email, String password) throws SQLException {
-        // Check if user already exists
-        String checkSql = "SELECT id FROM users WHERE username = ? OR email = ?";
-        try (Connection conn = dbManager.getConnection()) {
-            try (PreparedStatement stmt = conn.prepareStatement(checkSql)) {
-                stmt.setString(1, username);
-                stmt.setString(2, email);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    LOGGER.warn("User already exists: {}", username);
-                    return null;
-                }
-            }
-
+        try {
             // Generate salt and hash for password
             String salt = PasswordUtils.generateSalt();
             String passwordHash = PasswordUtils.hashPassword(password, salt);
 
-            // Create new user
-            String insertSql = "INSERT INTO users (id, username, email, password_hash, password_salt, created_at) VALUES (?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
-                String userId = UUID.randomUUID().toString();
-                stmt.setObject(1, UUID.fromString(userId));
-                stmt.setString(2, username);
-                stmt.setString(3, email);
-                stmt.setString(4, passwordHash);
-                stmt.setString(5, salt);
-                stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+            // Call register_user stored procedure
+            String sql = "SELECT register_user(?, ?, ?, ?)";
+            try (Connection conn = dbManager.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, username);
+                stmt.setString(2, email);
+                stmt.setString(3, passwordHash);
+                stmt.setString(4, salt);
                 
-                int rows = stmt.executeUpdate();
-                if (rows > 0) {
-                    this.currentUser = new User(userId, username, email, passwordHash, salt);
-                    saveLogin();
-                    LOGGER.info("New user created successfully: {}", username);
-                    return currentUser;
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    String userId = rs.getString(1);
+                    if (userId != null) {
+                        this.currentUser = new User(userId, username, email, passwordHash, salt);
+                        saveLogin();
+                        LOGGER.info("New user created successfully: {}", username);
+                        return currentUser;
+                    }
                 }
             }
+            
+            LOGGER.warn("User already exists or registration failed: {}", username);
+            return null;
         } catch (SQLException e) {
             LOGGER.error("Database error during signup: {}", e.getMessage());
             throw e;
         }
-        return null;
     }
 
     // For backward compatibility with existing code
@@ -269,16 +260,16 @@ public class AuthenticationService {
             String newSalt = PasswordUtils.generateSalt();
             String newPasswordHash = PasswordUtils.hashPassword(newPassword, newSalt);
             
-            // Update the password in the database
-            String updateSql = "UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?";
+            // Call the change_password stored procedure
+            String sql = "SELECT change_password(?, ?, ?)";
             try (Connection conn = dbManager.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(updateSql)) {
-                stmt.setString(1, newPasswordHash);
-                stmt.setString(2, newSalt);
-                stmt.setObject(3, UUID.fromString(currentUser.getId()));
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setObject(1, UUID.fromString(currentUser.getId()));
+                stmt.setString(2, newPasswordHash);
+                stmt.setString(3, newSalt);
                 
-                int rows = stmt.executeUpdate();
-                if (rows > 0) {
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next() && rs.getBoolean(1)) {
                     // Update the current user object
                     currentUser.setPasswordHash(newPasswordHash);
                     currentUser.setPasswordSalt(newSalt);
