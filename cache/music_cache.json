@@ -1,7 +1,2716 @@
 {
   "artists": {},
+  "musicbrainz_data": {},
   "songs": {},
   "genres": {},
+  "lastfm_data": {},
   "playlists": {},
-  "users": {}
+  "spotify_songs": {},
+  "users": {},
+  "spotify_artists": {
+    "5zV9afUO4DVqJeRaZvfNev": {
+      "name": "POLKADOT STINGRAY",
+      "spotify_link": "https://open.spotify.com/artist/5zV9afUO4DVqJeRaZvfNev",
+      "spotify_id": "5zV9afUO4DVqJeRaZvfNev",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb28a86510ee944803ee6f8ceb",
+      "genres": [
+        "polka",
+        "japanese indie",
+        "j-rock",
+        "j-pop"
+      ],
+      "popularity": 50
+    },
+    "5cIc3SBFuBLVxJz58W2tU9": {
+      "name": "Oh Wonder",
+      "spotify_link": "https://open.spotify.com/artist/5cIc3SBFuBLVxJz58W2tU9",
+      "spotify_id": "5cIc3SBFuBLVxJz58W2tU9",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba1bbe478917fbc2c2e48c7c9",
+      "popularity": 67
+    },
+    "7J3jiKIiROsYOlJeEml34X": {
+      "name": "demotapes",
+      "spotify_link": "https://open.spotify.com/artist/7J3jiKIiROsYOlJeEml34X",
+      "spotify_id": "7J3jiKIiROsYOlJeEml34X",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6cb3bd6f5bf54abb9b577d08",
+      "genres": ["stutter house"],
+      "popularity": 46
+    },
+    "294HwRjVYrw7dYo0k2zM2T": {
+      "name": "Mona San",
+      "spotify_link": "https://open.spotify.com/artist/294HwRjVYrw7dYo0k2zM2T",
+      "spotify_id": "294HwRjVYrw7dYo0k2zM2T",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2a4a8801e1ab6e2c7d55fd5f",
+      "genres": ["future bass"],
+      "popularity": 26
+    },
+    "0Y6dVaC9DZtPNH4591M42W": {
+      "name": "TV Girl",
+      "spotify_link": "https://open.spotify.com/artist/0Y6dVaC9DZtPNH4591M42W",
+      "spotify_id": "0Y6dVaC9DZtPNH4591M42W",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebd80695211689a9c8c3fee3b0",
+      "popularity": 84
+    },
+    "4pfy05cNNTacuOQ6SiSu4v": {
+      "name": "Lyn Lapid",
+      "spotify_link": "https://open.spotify.com/artist/4pfy05cNNTacuOQ6SiSu4v",
+      "spotify_id": "4pfy05cNNTacuOQ6SiSu4v",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1f991aafba136fec37a208a7",
+      "popularity": 62
+    },
+    "7gW0r5CkdEUMm42w9XpyZO": {
+      "name": "Laufey",
+      "spotify_link": "https://open.spotify.com/artist/7gW0r5CkdEUMm42w9XpyZO",
+      "spotify_id": "7gW0r5CkdEUMm42w9XpyZO",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb45f87eec5d15b4dd4ef5c66e",
+      "popularity": 82
+    },
+    "5PHOUKyz1tjA3vaDPIIVE0": {
+      "name": "Armando Trovajoli",
+      "spotify_link": "https://open.spotify.com/artist/5PHOUKyz1tjA3vaDPIIVE0",
+      "spotify_id": "5PHOUKyz1tjA3vaDPIIVE0",
+      "image_url": "https://i.scdn.co/image/7b492a5d583bf56c75835e4cd1d85d18a9e31b22",
+      "popularity": 56
+    },
+    "0NIPkIjTV8mB795yEIiPYL": {
+      "name": "Wallows",
+      "spotify_link": "https://open.spotify.com/artist/0NIPkIjTV8mB795yEIiPYL",
+      "spotify_id": "0NIPkIjTV8mB795yEIiPYL",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebfde4e7d59f6d8868e2ffdaf5",
+      "genres": ["indie"],
+      "popularity": 74
+    },
+    "08tfDO4dSrwxax35a3HIMC": {
+      "name": "Toshifumi Hinata",
+      "spotify_link": "https://open.spotify.com/artist/08tfDO4dSrwxax35a3HIMC",
+      "spotify_id": "08tfDO4dSrwxax35a3HIMC",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebdadc39b529c3f371b54310c9",
+      "genres": ["japanese classical"],
+      "popularity": 55
+    },
+    "18Eu7uJEMPWwwt1QUdCglQ": {
+      "name": "INZO",
+      "spotify_link": "https://open.spotify.com/artist/18Eu7uJEMPWwwt1QUdCglQ",
+      "spotify_id": "18Eu7uJEMPWwwt1QUdCglQ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb382e89b80104602147dadc7d",
+      "genres": ["future bass"],
+      "popularity": 54
+    },
+    "007sKkNVfvWhsIquL7NtKW": {
+      "name": "Jaron Löwenberg",
+      "spotify_link": "https://open.spotify.com/artist/007sKkNVfvWhsIquL7NtKW",
+      "spotify_id": "007sKkNVfvWhsIquL7NtKW",
+      "popularity": 51
+    },
+    "07MiScs25YZlJ3OrsF3GIK": {
+      "name": "Mihka!",
+      "spotify_link": "https://open.spotify.com/artist/07MiScs25YZlJ3OrsF3GIK",
+      "spotify_id": "07MiScs25YZlJ3OrsF3GIK",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb482aa767f46cb51ee5a45dc3",
+      "genres": [
+        "future bass",
+        "dubstep"
+      ],
+      "popularity": 27
+    },
+    "3CwWzT9t3z7DARyhDIzwIG": {
+      "name": "Sawyer Hill",
+      "spotify_link": "https://open.spotify.com/artist/3CwWzT9t3z7DARyhDIzwIG",
+      "spotify_id": "3CwWzT9t3z7DARyhDIzwIG",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb480a4e77f57f3b819fe363b0",
+      "popularity": 56
+    },
+    "4Rus30xX4FOv2cyeFI79Qh": {
+      "name": "Elijah Fox",
+      "spotify_link": "https://open.spotify.com/artist/4Rus30xX4FOv2cyeFI79Qh",
+      "spotify_id": "4Rus30xX4FOv2cyeFI79Qh",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc2b3c18187029164af151920",
+      "popularity": 56
+    },
+    "3U2oWd07HPgl60o8RBMG4P": {
+      "name": "miraie",
+      "spotify_link": "https://open.spotify.com/artist/3U2oWd07HPgl60o8RBMG4P",
+      "spotify_id": "3U2oWd07HPgl60o8RBMG4P",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb77e2c61be30369e75384de89",
+      "genres": [
+        "hyperpop",
+        "j-dance",
+        "future bass"
+      ],
+      "popularity": 40
+    },
+    "56C07WwXqmNmRXSmkmJFsK": {
+      "name": "CJ Music",
+      "spotify_link": "https://open.spotify.com/artist/56C07WwXqmNmRXSmkmJFsK",
+      "spotify_id": "56C07WwXqmNmRXSmkmJFsK",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb77fd7a8332eda729ce1cccdf",
+      "popularity": 41
+    },
+    "1RjRHE0popjV7rhcHdp376": {
+      "name": "SIE Sound Team",
+      "spotify_link": "https://open.spotify.com/artist/1RjRHE0popjV7rhcHdp376",
+      "spotify_id": "1RjRHE0popjV7rhcHdp376",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2732472601180911ff89445cbc8",
+      "genres": [
+        "japanese vgm",
+        "soundtrack"
+      ],
+      "popularity": 52
+    },
+    "60ELFqAhwT7jwRKJV6Rgfx": {
+      "name": "Mazde",
+      "spotify_link": "https://open.spotify.com/artist/60ELFqAhwT7jwRKJV6Rgfx",
+      "spotify_id": "60ELFqAhwT7jwRKJV6Rgfx",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf95a177f4d3c9dc153f3f82a",
+      "popularity": 45
+    },
+    "6lcwlkAjBPSKnFBZjjZFJs": {
+      "name": "Alex G",
+      "spotify_link": "https://open.spotify.com/artist/6lcwlkAjBPSKnFBZjjZFJs",
+      "spotify_id": "6lcwlkAjBPSKnFBZjjZFJs",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb36923516613d3cbef9dd3952",
+      "popularity": 78
+    },
+    "4MrQDA45Gd0llLrwFUzimG": {
+      "name": "Flawed Mangoes",
+      "spotify_link": "https://open.spotify.com/artist/4MrQDA45Gd0llLrwFUzimG",
+      "spotify_id": "4MrQDA45Gd0llLrwFUzimG",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb06e11c5b4dbc53557bb3b007",
+      "popularity": 68
+    },
+    "3jdMkaMs7875drsoUevvyu": {
+      "name": "Tsu Nami",
+      "spotify_link": "https://open.spotify.com/artist/3jdMkaMs7875drsoUevvyu",
+      "spotify_id": "3jdMkaMs7875drsoUevvyu",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc4103bb9d8695877c4108b50",
+      "genres": [
+        "stutter house",
+        "future bass",
+        "melodic bass"
+      ],
+      "popularity": 37
+    },
+    "3J8YGHzxEZzHRYVxGmQCvJ": {
+      "name": "Dazey and the Scouts",
+      "spotify_link": "https://open.spotify.com/artist/3J8YGHzxEZzHRYVxGmQCvJ",
+      "spotify_id": "3J8YGHzxEZzHRYVxGmQCvJ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9ccd106476d168df7bef1ed2",
+      "popularity": 59
+    },
+    "5j4HeCoUlzhfWtjAfM1acR": {
+      "name": "Stromae",
+      "spotify_link": "https://open.spotify.com/artist/5j4HeCoUlzhfWtjAfM1acR",
+      "spotify_id": "5j4HeCoUlzhfWtjAfM1acR",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebcc129f1c9b5047760d66aae2",
+      "genres": ["french pop"],
+      "popularity": 78
+    },
+    "0YHgnSkV3S5mvSSCTRWDi5": {
+      "name": "Poor Man's Poison",
+      "spotify_link": "https://open.spotify.com/artist/0YHgnSkV3S5mvSSCTRWDi5",
+      "spotify_id": "0YHgnSkV3S5mvSSCTRWDi5",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb722d0d90fff7b80f6ec6a6a2",
+      "genres": ["gothic country"],
+      "popularity": 66
+    },
+    "0Hh9X3QxTHPE2dlAS1g8IN": {
+      "name": "Rome in Silver",
+      "spotify_link": "https://open.spotify.com/artist/0Hh9X3QxTHPE2dlAS1g8IN",
+      "spotify_id": "0Hh9X3QxTHPE2dlAS1g8IN",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb640a68b46e08f523de535564",
+      "genres": ["future bass"],
+      "popularity": 36
+    },
+    "41cBCgJoK9bpY0Qy2SWIRN": {
+      "name": "Cece Coakley",
+      "spotify_link": "https://open.spotify.com/artist/41cBCgJoK9bpY0Qy2SWIRN",
+      "spotify_id": "41cBCgJoK9bpY0Qy2SWIRN",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb3a54382879a6c7b467480e2c",
+      "popularity": 36
+    },
+    "72d9M6vsm5VoKqYCySYs2t": {
+      "name": "Byegone",
+      "spotify_link": "https://open.spotify.com/artist/72d9M6vsm5VoKqYCySYs2t",
+      "spotify_id": "72d9M6vsm5VoKqYCySYs2t",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb06352c2f430bc11ed8e838df",
+      "popularity": 16
+    },
+    "43wv0HUG3etwI4roO8ZsFf": {
+      "name": "Melissa La Flamme",
+      "spotify_link": "https://open.spotify.com/artist/43wv0HUG3etwI4roO8ZsFf",
+      "spotify_id": "43wv0HUG3etwI4roO8ZsFf",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273d7df616575552bcbefad69fb",
+      "popularity": 0
+    },
+    "4DjFZ82RGWJeq3BnlbMZk3": {
+      "name": "Maplebrook",
+      "spotify_link": "https://open.spotify.com/artist/4DjFZ82RGWJeq3BnlbMZk3",
+      "spotify_id": "4DjFZ82RGWJeq3BnlbMZk3",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb8958a50f02d539f051bd5c0e",
+      "genres": ["slowcore"],
+      "popularity": 1
+    },
+    "7jOY91ZU7kn86slH3fBbaD": {
+      "name": "Louie Zong",
+      "spotify_link": "https://open.spotify.com/artist/7jOY91ZU7kn86slH3fBbaD",
+      "spotify_id": "7jOY91ZU7kn86slH3fBbaD",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe58ed665cbaf7af02b69dabd",
+      "popularity": 52
+    },
+    "6oWIS1UZp9dR74eYez74vX": {
+      "name": "Tikkle Me",
+      "spotify_link": "https://open.spotify.com/artist/6oWIS1UZp9dR74eYez74vX",
+      "spotify_id": "6oWIS1UZp9dR74eYez74vX",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb11cdba68e26612a427836c77",
+      "popularity": 51
+    },
+    "4fv1OFJywZ7DHCz3mVQQ45": {
+      "name": "Grabbitz",
+      "spotify_link": "https://open.spotify.com/artist/4fv1OFJywZ7DHCz3mVQQ45",
+      "spotify_id": "4fv1OFJywZ7DHCz3mVQQ45",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb28e2c7c2dadb4a9e2ae5b86c",
+      "popularity": 61
+    },
+    "5cf9GoOwKQ2GaBFZT6Wvwo": {
+      "name": "Theophany",
+      "spotify_link": "https://open.spotify.com/artist/5cf9GoOwKQ2GaBFZT6Wvwo",
+      "spotify_id": "5cf9GoOwKQ2GaBFZT6Wvwo",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2734a97ea50ee6acfe4db388e13",
+      "popularity": 40
+    },
+    "3jwKAvUYZUeARRBlFUWkzj": {
+      "name": "Shiggy Jr.",
+      "spotify_link": "https://open.spotify.com/artist/3jwKAvUYZUeARRBlFUWkzj",
+      "spotify_id": "3jwKAvUYZUeARRBlFUWkzj",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4a12ff88f4e66ffcb9fc2341",
+      "genres": [
+        "japanese indie",
+        "j-pop",
+        "j-rock",
+        "anime"
+      ],
+      "popularity": 32
+    },
+    "4Bu9DnBZ12oX7MiiaJy9hK": {
+      "name": "Carter Vail",
+      "spotify_link": "https://open.spotify.com/artist/4Bu9DnBZ12oX7MiiaJy9hK",
+      "spotify_id": "4Bu9DnBZ12oX7MiiaJy9hK",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb46883daf058e7cd07e532cae",
+      "popularity": 48
+    },
+    "68NOjWuVYBRXzYwhel3jAl": {
+      "name": "SIAMES",
+      "spotify_link": "https://open.spotify.com/artist/68NOjWuVYBRXzYwhel3jAl",
+      "spotify_id": "68NOjWuVYBRXzYwhel3jAl",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb5c5d6f612c1489de4c86caa",
+      "popularity": 55
+    },
+    "3yRBlQnEPNnucMU0lAaxCt": {
+      "name": "Grace Gardner",
+      "spotify_link": "https://open.spotify.com/artist/3yRBlQnEPNnucMU0lAaxCt",
+      "spotify_id": "3yRBlQnEPNnucMU0lAaxCt",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb465419c50eb74c8e1c455df0",
+      "popularity": 34
+    },
+    "0lawSNBxNgJFQYJnQzLH8c": {
+      "name": "khai dreams",
+      "spotify_link": "https://open.spotify.com/artist/0lawSNBxNgJFQYJnQzLH8c",
+      "spotify_id": "0lawSNBxNgJFQYJnQzLH8c",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb2832f950e436a01999ed58e",
+      "popularity": 55
+    },
+    "3AFsnAC0H9hes71BeRypbq": {
+      "name": "Fish in a Birdcage",
+      "spotify_link": "https://open.spotify.com/artist/3AFsnAC0H9hes71BeRypbq",
+      "spotify_id": "3AFsnAC0H9hes71BeRypbq",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb634aa69a50363eadd90d19fb",
+      "genres": ["dark cabaret"],
+      "popularity": 62
+    },
+    "2pr1PCMOLhwSz1Lr0ovB32": {
+      "name": "Lila Dupont",
+      "spotify_link": "https://open.spotify.com/artist/2pr1PCMOLhwSz1Lr0ovB32",
+      "spotify_id": "2pr1PCMOLhwSz1Lr0ovB32",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6f1482046414d6e8eb554f11",
+      "popularity": 37
+    },
+    "6xRbdqe7I2llmjw533rYnG": {
+      "name": "Amélie Farren",
+      "spotify_link": "https://open.spotify.com/artist/6xRbdqe7I2llmjw533rYnG",
+      "spotify_id": "6xRbdqe7I2llmjw533rYnG",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0b49798f3f811e188a250ded",
+      "popularity": 59
+    },
+    "5lLVsxABqSuosfqAoLQeXV": {
+      "name": "Dan Stevens",
+      "spotify_link": "https://open.spotify.com/artist/5lLVsxABqSuosfqAoLQeXV",
+      "spotify_id": "5lLVsxABqSuosfqAoLQeXV",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2505bc4c408e5ae6b602289f",
+      "popularity": 49
+    },
+    "6Ad91Jof8Niiw0lGLLi3NW": {
+      "name": "YUNGBLUD",
+      "spotify_link": "https://open.spotify.com/artist/6Ad91Jof8Niiw0lGLLi3NW",
+      "spotify_id": "6Ad91Jof8Niiw0lGLLi3NW",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb500931ffc686f1699034e4e5",
+      "popularity": 71
+    },
+    "7meq0SFt3BxWzjbt5EVBbT": {
+      "name": "Epic Mountain",
+      "spotify_link": "https://open.spotify.com/artist/7meq0SFt3BxWzjbt5EVBbT",
+      "spotify_id": "7meq0SFt3BxWzjbt5EVBbT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebdb410d7f0a526cf2e62cdeb1",
+      "popularity": 41
+    },
+    "1CcPlAmcnJjC4FnaPVzv2v": {
+      "name": "I Monster",
+      "spotify_link": "https://open.spotify.com/artist/1CcPlAmcnJjC4FnaPVzv2v",
+      "spotify_id": "1CcPlAmcnJjC4FnaPVzv2v",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9e016d614d975b8922a3aa97",
+      "popularity": 59
+    },
+    "2EXpthNgSeTDeX8nGwxppp": {
+      "name": "Paris Paloma",
+      "spotify_link": "https://open.spotify.com/artist/2EXpthNgSeTDeX8nGwxppp",
+      "spotify_id": "2EXpthNgSeTDeX8nGwxppp",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe3405040145b2ab1d8e25651",
+      "popularity": 72
+    },
+    "6jlwBcuB3gOuSR4Hb6MmVU": {
+      "name": "Richard Carter",
+      "spotify_link": "https://open.spotify.com/artist/6jlwBcuB3gOuSR4Hb6MmVU",
+      "spotify_id": "6jlwBcuB3gOuSR4Hb6MmVU",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5aaa808557a136c03779974c",
+      "popularity": 50
+    },
+    "06bDwgCHeMAwhgI8il4Y5k": {
+      "name": "Set It Off",
+      "spotify_link": "https://open.spotify.com/artist/06bDwgCHeMAwhgI8il4Y5k",
+      "spotify_id": "06bDwgCHeMAwhgI8il4Y5k",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf4aaf6625336859f8c1f8665",
+      "popularity": 67
+    },
+    "0I6yADrmeyvw66g7yjkqIF": {
+      "name": "The Living Tombstone",
+      "spotify_link": "https://open.spotify.com/artist/0I6yADrmeyvw66g7yjkqIF",
+      "spotify_id": "0I6yADrmeyvw66g7yjkqIF",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf174faa646c1183dd0c953a3",
+      "popularity": 72
+    },
+    "3mCLwcR4Gcuw8uAQkeBoEH": {
+      "name": "Regina Pimentel",
+      "spotify_link": "https://open.spotify.com/artist/3mCLwcR4Gcuw8uAQkeBoEH",
+      "spotify_id": "3mCLwcR4Gcuw8uAQkeBoEH",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5685f4bb964e9dfba2f98399",
+      "popularity": 20
+    },
+    "10exVja0key0uqUkk6LJRT": {
+      "name": "Vance Joy",
+      "spotify_link": "https://open.spotify.com/artist/10exVja0key0uqUkk6LJRT",
+      "spotify_id": "10exVja0key0uqUkk6LJRT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb8f074ec8c25406680bf26422",
+      "genres": ["folk pop"],
+      "popularity": 77
+    },
+    "5CXAbK2R1Jepg9bl76AZ39": {
+      "name": "barking continues",
+      "spotify_link": "https://open.spotify.com/artist/5CXAbK2R1Jepg9bl76AZ39",
+      "spotify_id": "5CXAbK2R1Jepg9bl76AZ39",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc01e6f757bf7a58941e618dd",
+      "popularity": 24
+    },
+    "6vopmRBXGtMV0MMVJtzbWD": {
+      "name": "Boku no Lyric no Boyomi",
+      "spotify_link": "https://open.spotify.com/artist/6vopmRBXGtMV0MMVJtzbWD",
+      "spotify_id": "6vopmRBXGtMV0MMVJtzbWD",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2737eb69cdb3f082b3766105e25",
+      "genres": [
+        "japanese indie",
+        "j-pop",
+        "j-r&b"
+      ],
+      "popularity": 36
+    },
+    "5Ey3CuclF1I1yTc1i0YDgc": {
+      "name": "Timothy Edward Carpenter",
+      "spotify_link": "https://open.spotify.com/artist/5Ey3CuclF1I1yTc1i0YDgc",
+      "spotify_id": "5Ey3CuclF1I1yTc1i0YDgc",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb14eb930ec7f1fc8699b2ff7d",
+      "popularity": 23
+    },
+    "6gTMvsgE1Q1iTbowL2JMH0": {
+      "name": "Eli Rainsberry",
+      "spotify_link": "https://open.spotify.com/artist/6gTMvsgE1Q1iTbowL2JMH0",
+      "spotify_id": "6gTMvsgE1Q1iTbowL2JMH0",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe8c2f675a63464b9cceb7fc5",
+      "popularity": 26
+    },
+    "6bmlMHgSheBauioMgKv2tn": {
+      "name": "Powfu",
+      "spotify_link": "https://open.spotify.com/artist/6bmlMHgSheBauioMgKv2tn",
+      "spotify_id": "6bmlMHgSheBauioMgKv2tn",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb33ef55ab15e9527d169961c8",
+      "popularity": 70
+    },
+    "4eyVchx2EoP0MhAUX0Vj1X": {
+      "name": "kittito",
+      "spotify_link": "https://open.spotify.com/artist/4eyVchx2EoP0MhAUX0Vj1X",
+      "spotify_id": "4eyVchx2EoP0MhAUX0Vj1X",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6d95ead3607a733615e071f9",
+      "genres": ["melodic bass"],
+      "popularity": 14
+    },
+    "4UKSvoK7sV3294V39V0pfu": {
+      "name": "Khatumu",
+      "spotify_link": "https://open.spotify.com/artist/4UKSvoK7sV3294V39V0pfu",
+      "spotify_id": "4UKSvoK7sV3294V39V0pfu",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9517e249aa84e590a751f332",
+      "popularity": 40
+    },
+    "0XW7mqhbaQnRtHmwfAVg64": {
+      "name": "Tisoki",
+      "spotify_link": "https://open.spotify.com/artist/0XW7mqhbaQnRtHmwfAVg64",
+      "spotify_id": "0XW7mqhbaQnRtHmwfAVg64",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7befd86b015d38e869db28f1",
+      "genres": [
+        "dubstep",
+        "riddim",
+        "bass music",
+        "bass house"
+      ],
+      "popularity": 44
+    },
+    "6l6zabESz1QE4me8Cz3uux": {
+      "name": "OddKidOut",
+      "spotify_link": "https://open.spotify.com/artist/6l6zabESz1QE4me8Cz3uux",
+      "spotify_id": "6l6zabESz1QE4me8Cz3uux",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb33e1d818ea360d51f2459917",
+      "genres": ["future bass"],
+      "popularity": 41
+    },
+    "6psCCMHymYfQy6VvYRr6cs": {
+      "name": "Loving Caliber",
+      "spotify_link": "https://open.spotify.com/artist/6psCCMHymYfQy6VvYRr6cs",
+      "spotify_id": "6psCCMHymYfQy6VvYRr6cs",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2cb9a27d4aaeb6ae91de4361",
+      "popularity": 56
+    },
+    "3Y5beqfWSBs03tsB2YMvTd": {
+      "name": "August Greenwood",
+      "spotify_link": "https://open.spotify.com/artist/3Y5beqfWSBs03tsB2YMvTd",
+      "spotify_id": "3Y5beqfWSBs03tsB2YMvTd",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebda7d022e23ea27af406b8ef7",
+      "popularity": 34
+    },
+    "1CY3FNIK3p5bqE0NYiFMi8": {
+      "name": "Keith Power",
+      "spotify_link": "https://open.spotify.com/artist/1CY3FNIK3p5bqE0NYiFMi8",
+      "spotify_id": "1CY3FNIK3p5bqE0NYiFMi8",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb0f8490c0939429f69a56c89",
+      "genres": ["sea shanties"],
+      "popularity": 51
+    },
+    "1moxjboGR7GNWYIMWsRjgG": {
+      "name": "Florence + The Machine",
+      "spotify_link": "https://open.spotify.com/artist/1moxjboGR7GNWYIMWsRjgG",
+      "spotify_id": "1moxjboGR7GNWYIMWsRjgG",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe3c37f869b830d1cf1ec829a",
+      "genres": ["baroque pop"],
+      "popularity": 80
+    },
+    "0Dkj3iE06TJGxGIrGCmwVf": {
+      "name": "Nxdia",
+      "spotify_link": "https://open.spotify.com/artist/0Dkj3iE06TJGxGIrGCmwVf",
+      "spotify_id": "0Dkj3iE06TJGxGIrGCmwVf",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbd569d3074e8ddbba9db370a",
+      "popularity": 60
+    },
+    "49vNfTzZU1nXv2xO34z5RY": {
+      "name": "CloudNone",
+      "spotify_link": "https://open.spotify.com/artist/49vNfTzZU1nXv2xO34z5RY",
+      "spotify_id": "49vNfTzZU1nXv2xO34z5RY",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebcd3e7b18d588a04d288013a4",
+      "popularity": 40
+    },
+    "1S5WLkcajugOGAx0DfVyIf": {
+      "name": "ACM Awards New Artist Nominees",
+      "spotify_link": "https://open.spotify.com/artist/1S5WLkcajugOGAx0DfVyIf",
+      "spotify_id": "1S5WLkcajugOGAx0DfVyIf",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2a9fe9f5cd26cce51a8f3f94",
+      "popularity": 23
+    },
+    "3vmtDGkzacafVdenyPHPMb": {
+      "name": "Murray Gold",
+      "spotify_link": "https://open.spotify.com/artist/3vmtDGkzacafVdenyPHPMb",
+      "spotify_id": "3vmtDGkzacafVdenyPHPMb",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2733e6c3c7ba4e1648308b05a8d",
+      "genres": ["soundtrack"],
+      "popularity": 52
+    },
+    "22y08IZx7u6SWpsfap1Cub": {
+      "name": "Rio Romeo",
+      "spotify_link": "https://open.spotify.com/artist/22y08IZx7u6SWpsfap1Cub",
+      "spotify_id": "22y08IZx7u6SWpsfap1Cub",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb008dad861961edbb7e46ea25",
+      "popularity": 68
+    },
+    "62yK4L5PltHkFUuG3QuTs8": {
+      "name": "Connor Spiotto",
+      "spotify_link": "https://open.spotify.com/artist/62yK4L5PltHkFUuG3QuTs8",
+      "spotify_id": "62yK4L5PltHkFUuG3QuTs8",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb3ef16cf85c242aa571e06cf4",
+      "popularity": 43
+    },
+    "0CSvPQ4Atj6NEcmymnbx7B": {
+      "name": "Reinaeiry",
+      "spotify_link": "https://open.spotify.com/artist/0CSvPQ4Atj6NEcmymnbx7B",
+      "spotify_id": "0CSvPQ4Atj6NEcmymnbx7B",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb72106116f91ebff96a2b493d",
+      "popularity": 50
+    },
+    "0q0K0FV5t8OnVpbIQTXOhI": {
+      "name": "fusq",
+      "spotify_link": "https://open.spotify.com/artist/0q0K0FV5t8OnVpbIQTXOhI",
+      "spotify_id": "0q0K0FV5t8OnVpbIQTXOhI",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1859f9bffa4273c7873eeb31",
+      "genres": [
+        "future bass",
+        "j-dance"
+      ],
+      "popularity": 41
+    },
+    "1muzcpVFKmKSrT7rVNAwBB": {
+      "name": "late night drive home",
+      "spotify_link": "https://open.spotify.com/artist/1muzcpVFKmKSrT7rVNAwBB",
+      "spotify_id": "1muzcpVFKmKSrT7rVNAwBB",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb89b3bebec405a7caf41b9985",
+      "popularity": 55
+    },
+    "0u18Cq5stIQLUoIaULzDmA": {
+      "name": "DROELOE",
+      "spotify_link": "https://open.spotify.com/artist/0u18Cq5stIQLUoIaULzDmA",
+      "spotify_id": "0u18Cq5stIQLUoIaULzDmA",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0fd33655e8a7b3554e65dc43",
+      "genres": ["future bass"],
+      "popularity": 53
+    },
+    "55FVjkpZs1zuo3zqBgrKtC": {
+      "name": "Kaivon",
+      "spotify_link": "https://open.spotify.com/artist/55FVjkpZs1zuo3zqBgrKtC",
+      "spotify_id": "55FVjkpZs1zuo3zqBgrKtC",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb3c38fcddee5e35d4a1bc5802",
+      "genres": [
+        "future bass",
+        "melodic bass",
+        "edm"
+      ],
+      "popularity": 48
+    },
+    "5Lm1CMoa8VOCBCLZesAcvc": {
+      "name": "Autoheart",
+      "spotify_link": "https://open.spotify.com/artist/5Lm1CMoa8VOCBCLZesAcvc",
+      "spotify_id": "5Lm1CMoa8VOCBCLZesAcvc",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebacc76e8af6bb99b89fce69cb",
+      "popularity": 54
+    },
+    "4TkCMPznXOjlsYLfzIU1rw": {
+      "name": "Geek Music",
+      "spotify_link": "https://open.spotify.com/artist/4TkCMPznXOjlsYLfzIU1rw",
+      "spotify_id": "4TkCMPznXOjlsYLfzIU1rw",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7c3e821249e3b4455323cc6d",
+      "genres": ["anime"],
+      "popularity": 63
+    },
+    "0RpddSzUHfncUWNJXKOsjy": {
+      "name": "Neon Trees",
+      "spotify_link": "https://open.spotify.com/artist/0RpddSzUHfncUWNJXKOsjy",
+      "spotify_id": "0RpddSzUHfncUWNJXKOsjy",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2781a8f12aac83aaff949017",
+      "popularity": 67
+    },
+    "6mPZJXtFVaakznkRxdgWtC": {
+      "name": "Throttle",
+      "spotify_link": "https://open.spotify.com/artist/6mPZJXtFVaakznkRxdgWtC",
+      "spotify_id": "6mPZJXtFVaakznkRxdgWtC",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1e5c06b9400b4c93f38b960d",
+      "genres": ["future house"],
+      "popularity": 53
+    },
+    "1k5UEOU4igPC0NoHjEekha": {
+      "name": "Milkoi",
+      "spotify_link": "https://open.spotify.com/artist/1k5UEOU4igPC0NoHjEekha",
+      "spotify_id": "1k5UEOU4igPC0NoHjEekha",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebaa5621839a04d1749fdc0770",
+      "genres": [
+        "j-dance",
+        "japanese vgm",
+        "future bass"
+      ],
+      "popularity": 42
+    },
+    "3vVDncwsr2d6svvsH8WVYO": {
+      "name": "Joe Zempel",
+      "spotify_link": "https://open.spotify.com/artist/3vVDncwsr2d6svvsH8WVYO",
+      "spotify_id": "3vVDncwsr2d6svvsH8WVYO",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4c23b664d11f2a417e5d30c7",
+      "popularity": 20
+    },
+    "0pouttXEXIHvguV90fhB39": {
+      "name": "runo plum",
+      "spotify_link": "https://open.spotify.com/artist/0pouttXEXIHvguV90fhB39",
+      "spotify_id": "0pouttXEXIHvguV90fhB39",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb384a4e6d301d37106b042cd6",
+      "popularity": 43
+    },
+    "4WKvmQIY4gK8XWXg9Gksnd": {
+      "name": "Sushisingz",
+      "spotify_link": "https://open.spotify.com/artist/4WKvmQIY4gK8XWXg9Gksnd",
+      "spotify_id": "4WKvmQIY4gK8XWXg9Gksnd",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb73704278fa89a01c50aa956",
+      "popularity": 38
+    },
+    "0992VRpOtjqDFNoSHneK6L": {
+      "name": "Knife Girl",
+      "spotify_link": "https://open.spotify.com/artist/0992VRpOtjqDFNoSHneK6L",
+      "spotify_id": "0992VRpOtjqDFNoSHneK6L",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbe3fd3cf80c1dba54e0d4c1c",
+      "popularity": 28
+    },
+    "5Vo1hnCRmCM6M4thZCInCj": {
+      "name": "OFFICIAL HIGE DANDISM",
+      "spotify_link": "https://open.spotify.com/artist/5Vo1hnCRmCM6M4thZCInCj",
+      "spotify_id": "5Vo1hnCRmCM6M4thZCInCj",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf9f7513528a90d1dde6d3aaa",
+      "genres": [
+        "j-pop",
+        "anime",
+        "j-rock"
+      ],
+      "popularity": 72
+    },
+    "7GGv4mV9JTJK9e7nIzUliU": {
+      "name": "The Moldy Peaches",
+      "spotify_link": "https://open.spotify.com/artist/7GGv4mV9JTJK9e7nIzUliU",
+      "spotify_id": "7GGv4mV9JTJK9e7nIzUliU",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273a6b3afcdd15b2b561e684337",
+      "genres": ["folk punk"],
+      "popularity": 54
+    },
+    "4YUBqnGDhH4JphZIhi9cdB": {
+      "name": "Laxcity",
+      "spotify_link": "https://open.spotify.com/artist/4YUBqnGDhH4JphZIhi9cdB",
+      "spotify_id": "4YUBqnGDhH4JphZIhi9cdB",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe99f8485d0a1e3d735815d19",
+      "genres": ["future bass"],
+      "popularity": 38
+    },
+    "2uaMjmR0IE0K3oKTQrNZVQ": {
+      "name": "Genevieve Stokes",
+      "spotify_link": "https://open.spotify.com/artist/2uaMjmR0IE0K3oKTQrNZVQ",
+      "spotify_id": "2uaMjmR0IE0K3oKTQrNZVQ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb43981e9ec1ec9e5f29ee8cb0",
+      "popularity": 53
+    },
+    "6ERwcThkHmFXYHH3TagPOY": {
+      "name": "Mudeth",
+      "spotify_link": "https://open.spotify.com/artist/6ERwcThkHmFXYHH3TagPOY",
+      "spotify_id": "6ERwcThkHmFXYHH3TagPOY",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273d53d081f549094e2b1337410",
+      "popularity": 39
+    },
+    "2krDA9qCEfYKl4QjZcruhy": {
+      "name": "Cozmoe",
+      "spotify_link": "https://open.spotify.com/artist/2krDA9qCEfYKl4QjZcruhy",
+      "spotify_id": "2krDA9qCEfYKl4QjZcruhy",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebd411cfe2266ff2b1f98e5c2c",
+      "popularity": 33
+    },
+    "2fRZyxhGkcXXFwe7tGan1U": {
+      "name": "Aubory Bugg",
+      "spotify_link": "https://open.spotify.com/artist/2fRZyxhGkcXXFwe7tGan1U",
+      "spotify_id": "2fRZyxhGkcXXFwe7tGan1U",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb55fd2ec6565469641ca26de9",
+      "popularity": 32
+    },
+    "2BQWHuvxG4kMYnfghdaCIy": {
+      "name": "Fox Stevenson",
+      "spotify_link": "https://open.spotify.com/artist/2BQWHuvxG4kMYnfghdaCIy",
+      "spotify_id": "2BQWHuvxG4kMYnfghdaCIy",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebfd41fd2e856ab672e071a8ed",
+      "genres": [
+        "drum and bass",
+        "dubstep",
+        "drumstep"
+      ],
+      "popularity": 57
+    },
+    "01qG5pbsKe96w87ZMjphP4": {
+      "name": "helloworld",
+      "spotify_link": "https://open.spotify.com/artist/01qG5pbsKe96w87ZMjphP4",
+      "spotify_id": "01qG5pbsKe96w87ZMjphP4",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebba3ea4c33d18c7c7fb86b364",
+      "genres": [
+        "melodic bass",
+        "future bass"
+      ],
+      "popularity": 31
+    },
+    "0Kc65Qv0ju9H2cMNnP3Tqd": {
+      "name": "Nikita, the Wicked",
+      "spotify_link": "https://open.spotify.com/artist/0Kc65Qv0ju9H2cMNnP3Tqd",
+      "spotify_id": "0Kc65Qv0ju9H2cMNnP3Tqd",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1de23c58a9a14c91e1cf8a9f",
+      "genres": [
+        "uk garage",
+        "bass music"
+      ],
+      "popularity": 45
+    },
+    "2CttZr3C2Hsf3lh3dWRblc": {
+      "name": "Teesa",
+      "spotify_link": "https://open.spotify.com/artist/2CttZr3C2Hsf3lh3dWRblc",
+      "spotify_id": "2CttZr3C2Hsf3lh3dWRblc",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb953a21165bca148cd358691f",
+      "popularity": 42
+    },
+    "3jOstUTkEu2JkjvRdBA5Gu": {
+      "name": "Weezer",
+      "spotify_link": "https://open.spotify.com/artist/3jOstUTkEu2JkjvRdBA5Gu",
+      "spotify_id": "3jOstUTkEu2JkjvRdBA5Gu",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb3cd35451daa1b690cfbbb2d4",
+      "genres": ["alternative rock"],
+      "popularity": 76
+    },
+    "5ivCbtrcD5N4rD337xIb2z": {
+      "name": "MisterWives",
+      "spotify_link": "https://open.spotify.com/artist/5ivCbtrcD5N4rD337xIb2z",
+      "spotify_id": "5ivCbtrcD5N4rD337xIb2z",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6f744edb0d19dc47cc5e5cf9",
+      "popularity": 53
+    },
+    "38WbKH6oKAZskBhqDFA8Uj": {
+      "name": "ZUTOMAYO",
+      "spotify_link": "https://open.spotify.com/artist/38WbKH6oKAZskBhqDFA8Uj",
+      "spotify_id": "38WbKH6oKAZskBhqDFA8Uj",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb38a96d85b0580670123280e",
+      "genres": [
+        "j-pop",
+        "j-rock",
+        "anime",
+        "japanese indie"
+      ],
+      "popularity": 68
+    },
+    "1dWEYMPtNmvSVaDNLgB6NV": {
+      "name": "Saint Motel",
+      "spotify_link": "https://open.spotify.com/artist/1dWEYMPtNmvSVaDNLgB6NV",
+      "spotify_id": "1dWEYMPtNmvSVaDNLgB6NV",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebde9ed0b3261ebc3b71f1e3df",
+      "popularity": 65
+    },
+    "0pCNk4D3E2xtszsm6hMsWr": {
+      "name": "K.Flay",
+      "spotify_link": "https://open.spotify.com/artist/0pCNk4D3E2xtszsm6hMsWr",
+      "spotify_id": "0pCNk4D3E2xtszsm6hMsWr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb1b04bd0cf3284572c899e12",
+      "popularity": 64
+    },
+    "2PY7Tnti22LPC3beiiqN1U": {
+      "name": "Sam Day",
+      "spotify_link": "https://open.spotify.com/artist/2PY7Tnti22LPC3beiiqN1U",
+      "spotify_id": "2PY7Tnti22LPC3beiiqN1U",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb512db1fda2dfbeb0d9d9987c",
+      "genres": [
+        "stutter house",
+        "future bass"
+      ],
+      "popularity": 33
+    },
+    "7gAYvcQFmAruyvwGjxrSUr": {
+      "name": "Absofacto",
+      "spotify_link": "https://open.spotify.com/artist/7gAYvcQFmAruyvwGjxrSUr",
+      "spotify_id": "7gAYvcQFmAruyvwGjxrSUr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb46f8e8e0abe37b3952989476",
+      "popularity": 50
+    },
+    "5jy9tglmQRLmTmcqz2qyUa": {
+      "name": "Eliza McLamb",
+      "spotify_link": "https://open.spotify.com/artist/5jy9tglmQRLmTmcqz2qyUa",
+      "spotify_id": "5jy9tglmQRLmTmcqz2qyUa",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb3f41e01a69fcf118cda48acc",
+      "popularity": 37
+    },
+    "6CwfuxIqcltXDGjfZsMd9A": {
+      "name": "MARINA",
+      "spotify_link": "https://open.spotify.com/artist/6CwfuxIqcltXDGjfZsMd9A",
+      "spotify_id": "6CwfuxIqcltXDGjfZsMd9A",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc28e02e9bb9bf19358669fef",
+      "popularity": 76
+    },
+    "09C3CKFxKEw1n1Z7kvT3jb": {
+      "name": "Deathpact",
+      "spotify_link": "https://open.spotify.com/artist/09C3CKFxKEw1n1Z7kvT3jb",
+      "spotify_id": "09C3CKFxKEw1n1Z7kvT3jb",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb627ea1e93b4c25cdf41d4a6b",
+      "genres": [
+        "dubstep",
+        "bass music"
+      ],
+      "popularity": 48
+    },
+    "2MtWgdVxiYNJaqMKd32f0l": {
+      "name": "plasterbrain",
+      "spotify_link": "https://open.spotify.com/artist/2MtWgdVxiYNJaqMKd32f0l",
+      "spotify_id": "2MtWgdVxiYNJaqMKd32f0l",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2073bdc1f645867d55c2a0c4",
+      "genres": ["breakcore"],
+      "popularity": 40
+    },
+    "7hp6PmppZj6iiolLVT4iEZ": {
+      "name": "Alix Page",
+      "spotify_link": "https://open.spotify.com/artist/7hp6PmppZj6iiolLVT4iEZ",
+      "spotify_id": "7hp6PmppZj6iiolLVT4iEZ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebafeb586a26cb429491e46d55",
+      "popularity": 35
+    },
+    "3LVPGE5jPPwtbGslx07YR0": {
+      "name": "Kishi Bashi",
+      "spotify_link": "https://open.spotify.com/artist/3LVPGE5jPPwtbGslx07YR0",
+      "spotify_id": "3LVPGE5jPPwtbGslx07YR0",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb15728de6054f36c05d2d7b3",
+      "genres": ["chamber pop"],
+      "popularity": 52
+    },
+    "6NRSfOnXw4qaypEfIV2QXn": {
+      "name": "Dutch Melrose",
+      "spotify_link": "https://open.spotify.com/artist/6NRSfOnXw4qaypEfIV2QXn",
+      "spotify_id": "6NRSfOnXw4qaypEfIV2QXn",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebad49d2a4beceeab4cec87f9e",
+      "popularity": 67
+    },
+    "2BL3PP6aTKJ1jqbRgfQa71": {
+      "name": "The Honeysticks",
+      "spotify_link": "https://open.spotify.com/artist/2BL3PP6aTKJ1jqbRgfQa71",
+      "spotify_id": "2BL3PP6aTKJ1jqbRgfQa71",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebafcdb9d7cd792f815471a94e",
+      "popularity": 44
+    },
+    "2DBFAP6nXms5yPochyh2sZ": {
+      "name": "Kristiane",
+      "spotify_link": "https://open.spotify.com/artist/2DBFAP6nXms5yPochyh2sZ",
+      "spotify_id": "2DBFAP6nXms5yPochyh2sZ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2a6e6638fbdecbfc8edfb62a",
+      "popularity": 32
+    },
+    "2FRWOUWpWia0iFjAjlCXWg": {
+      "name": "Dane Jacobs",
+      "spotify_link": "https://open.spotify.com/artist/2FRWOUWpWia0iFjAjlCXWg",
+      "spotify_id": "2FRWOUWpWia0iFjAjlCXWg",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb49eb45530b2f5e4e2b6f65a",
+      "popularity": 5
+    },
+    "3wOQaMNQU0rbzWyGXIudmE": {
+      "name": "Wabie",
+      "spotify_link": "https://open.spotify.com/artist/3wOQaMNQU0rbzWyGXIudmE",
+      "spotify_id": "3wOQaMNQU0rbzWyGXIudmE",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb906418526cf60db6756f0a8d",
+      "genres": ["bedroom pop"],
+      "popularity": 55
+    },
+    "0HthCchcL0kVLHTr113Vk1": {
+      "name": "mxmtoon",
+      "spotify_link": "https://open.spotify.com/artist/0HthCchcL0kVLHTr113Vk1",
+      "spotify_id": "0HthCchcL0kVLHTr113Vk1",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0a34700e7ec63cd33d4006f9",
+      "genres": [
+        "bedroom pop",
+        "indie pop"
+      ],
+      "popularity": 63
+    },
+    "3lm9jn7J1MrABuW3Ri8Hqq": {
+      "name": "Sunil Rana Hiyunri",
+      "spotify_link": "https://open.spotify.com/artist/3lm9jn7J1MrABuW3Ri8Hqq",
+      "spotify_id": "3lm9jn7J1MrABuW3Ri8Hqq",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273f4cab01f52e5bc75de14f3d8",
+      "genres": ["bhajan"],
+      "popularity": 26
+    },
+    "3g2kUQ6tHLLbmkV7T4GPtL": {
+      "name": "Fiona Apple",
+      "spotify_link": "https://open.spotify.com/artist/3g2kUQ6tHLLbmkV7T4GPtL",
+      "spotify_id": "3g2kUQ6tHLLbmkV7T4GPtL",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf178cbda9bd9a389581ff021",
+      "genres": [
+        "art pop",
+        "chamber pop"
+      ],
+      "popularity": 66
+    },
+    "0RTKQvv9vzY8xZtIwGFlHP": {
+      "name": "Demibby",
+      "spotify_link": "https://open.spotify.com/artist/0RTKQvv9vzY8xZtIwGFlHP",
+      "spotify_id": "0RTKQvv9vzY8xZtIwGFlHP",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb58324c110b27279a8f4423ff",
+      "popularity": 10
+    },
+    "5dHfLBNU8zoypgKefzEB1c": {
+      "name": "Pomplamoose",
+      "spotify_link": "https://open.spotify.com/artist/5dHfLBNU8zoypgKefzEB1c",
+      "spotify_id": "5dHfLBNU8zoypgKefzEB1c",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebee718af93308cc3503c2bd24",
+      "popularity": 57
+    },
+    "5zVu34ozw0BzXIcNHqkO0u": {
+      "name": "Liana Flores",
+      "spotify_link": "https://open.spotify.com/artist/5zVu34ozw0BzXIcNHqkO0u",
+      "spotify_id": "5zVu34ozw0BzXIcNHqkO0u",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6c1f703864a0d99d0ba56fe4",
+      "popularity": 67
+    },
+    "6GqQziMdX3FNMhEx9zd3NX": {
+      "name": "Tutara Peak",
+      "spotify_link": "https://open.spotify.com/artist/6GqQziMdX3FNMhEx9zd3NX",
+      "spotify_id": "6GqQziMdX3FNMhEx9zd3NX",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebacb57962128ad1ab148cb1bd",
+      "popularity": 27
+    },
+    "29O9ZebFa65aIEvMaW5pQY": {
+      "name": "Snail's House",
+      "spotify_link": "https://open.spotify.com/artist/29O9ZebFa65aIEvMaW5pQY",
+      "spotify_id": "29O9ZebFa65aIEvMaW5pQY",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb37ce1606bdfa85907d4add14",
+      "genres": [
+        "future bass",
+        "j-dance"
+      ],
+      "popularity": 52
+    },
+    "3Os4q49SgEN0Tv3fxKw3Sp": {
+      "name": "Delaney Bailey",
+      "spotify_link": "https://open.spotify.com/artist/3Os4q49SgEN0Tv3fxKw3Sp",
+      "spotify_id": "3Os4q49SgEN0Tv3fxKw3Sp",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0955f82fcafa04e91f107857",
+      "popularity": 58
+    },
+    "6V394G6torkxVfqL39qEgK": {
+      "name": "All Artist Adella",
+      "spotify_link": "https://open.spotify.com/artist/6V394G6torkxVfqL39qEgK",
+      "spotify_id": "6V394G6torkxVfqL39qEgK",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b27308233c5411aa0e6e89c7310c",
+      "genres": [
+        "dangdut",
+        "sholawat"
+      ],
+      "popularity": 15
+    },
+    "0ZUvK7zGdXLd78mQr3t1Tw": {
+      "name": "Ricky Montgomery",
+      "spotify_link": "https://open.spotify.com/artist/0ZUvK7zGdXLd78mQr3t1Tw",
+      "spotify_id": "0ZUvK7zGdXLd78mQr3t1Tw",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1e0b0e47c89504891b7eb484",
+      "popularity": 72
+    },
+    "0i4M8k5IcQpiEH6nBMdfPT": {
+      "name": "Haley Blais",
+      "spotify_link": "https://open.spotify.com/artist/0i4M8k5IcQpiEH6nBMdfPT",
+      "spotify_id": "0i4M8k5IcQpiEH6nBMdfPT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb07a4d0ce13953ef833ba9ff3",
+      "popularity": 38
+    },
+    "6KUE90RO9byLtgbBFq1W7h": {
+      "name": "Poorblue",
+      "spotify_link": "https://open.spotify.com/artist/6KUE90RO9byLtgbBFq1W7h",
+      "spotify_id": "6KUE90RO9byLtgbBFq1W7h",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc6ede56d2067c1bbdaa3d6ed",
+      "popularity": 9
+    },
+    "7gvbCoLA8lJUktp8G2xIRR": {
+      "name": "Peachy!",
+      "spotify_link": "https://open.spotify.com/artist/7gvbCoLA8lJUktp8G2xIRR",
+      "spotify_id": "7gvbCoLA8lJUktp8G2xIRR",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb047afb8f8e85d11900644f5",
+      "popularity": 52
+    },
+    "47mIJdHORyRerp4os813jD": {
+      "name": "League of Legends",
+      "spotify_link": "https://open.spotify.com/artist/47mIJdHORyRerp4os813jD",
+      "spotify_id": "47mIJdHORyRerp4os813jD",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe80d1ffb81aa6503ad41c574",
+      "popularity": 81
+    },
+    "5FkMS3KgG0cjiRm250NFTJ": {
+      "name": "Coco & Clair Clair",
+      "spotify_link": "https://open.spotify.com/artist/5FkMS3KgG0cjiRm250NFTJ",
+      "spotify_id": "5FkMS3KgG0cjiRm250NFTJ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebdb2df0ce712ac186b45302de",
+      "popularity": 59
+    },
+    "5t2dbwzciTLK5LwHB71doG": {
+      "name": "juliet sunflower",
+      "spotify_link": "https://open.spotify.com/artist/5t2dbwzciTLK5LwHB71doG",
+      "spotify_id": "5t2dbwzciTLK5LwHB71doG",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba2775c84a85c193b163ea67b",
+      "popularity": 18
+    },
+    "0epOFNiUfyON9EYx7Tpr6V": {
+      "name": "The Strokes",
+      "spotify_link": "https://open.spotify.com/artist/0epOFNiUfyON9EYx7Tpr6V",
+      "spotify_id": "0epOFNiUfyON9EYx7Tpr6V",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc3b137793230f4043feb0089",
+      "genres": [
+        "garage rock",
+        "indie rock",
+        "alternative rock"
+      ],
+      "popularity": 78
+    },
+    "35l9BRT7MXmM8bv2WDQiyB": {
+      "name": "beabadoobee",
+      "spotify_link": "https://open.spotify.com/artist/35l9BRT7MXmM8bv2WDQiyB",
+      "spotify_id": "35l9BRT7MXmM8bv2WDQiyB",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe7c6cea0c83857388127fced",
+      "genres": ["bedroom pop"],
+      "popularity": 83
+    },
+    "0wGzciem2JUvglxX6Hr3E9": {
+      "name": "Hot Freaks",
+      "spotify_link": "https://open.spotify.com/artist/0wGzciem2JUvglxX6Hr3E9",
+      "spotify_id": "0wGzciem2JUvglxX6Hr3E9",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7726940bb8be71087b99f5f9",
+      "popularity": 57
+    },
+    "1d4uM0g9449nE9TV5KeWch": {
+      "name": "Lejwe La Motheo Artist Development",
+      "spotify_link": "https://open.spotify.com/artist/1d4uM0g9449nE9TV5KeWch",
+      "spotify_id": "1d4uM0g9449nE9TV5KeWch",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b27308779bde4ae1e4010f9dcf61",
+      "genres": [
+        "gospel",
+        "african gospel"
+      ],
+      "popularity": 33
+    },
+    "7MCJftC3hnkmL0SS7KiDwm": {
+      "name": "Amos Roddy",
+      "spotify_link": "https://open.spotify.com/artist/7MCJftC3hnkmL0SS7KiDwm",
+      "spotify_id": "7MCJftC3hnkmL0SS7KiDwm",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1f806a68defb26fec5ea2066",
+      "popularity": 46
+    },
+    "5JQ1XqKJ2Art01rF4tu1Ra": {
+      "name": "Daniel Allan",
+      "spotify_link": "https://open.spotify.com/artist/5JQ1XqKJ2Art01rF4tu1Ra",
+      "spotify_id": "5JQ1XqKJ2Art01rF4tu1Ra",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0a1e4de70847e06f3683e414",
+      "genres": ["stutter house"],
+      "popularity": 50
+    },
+    "1I9Hqy4QnMyVhZwRM2r41B": {
+      "name": "Gareth Coker",
+      "spotify_link": "https://open.spotify.com/artist/1I9Hqy4QnMyVhZwRM2r41B",
+      "spotify_id": "1I9Hqy4QnMyVhZwRM2r41B",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4a4b0f0781c669cfffb11ebc",
+      "genres": ["soundtrack"],
+      "popularity": 55
+    },
+    "75XDEXxePvX7Hx4T3rUlVS": {
+      "name": "Oh Shu",
+      "spotify_link": "https://open.spotify.com/artist/75XDEXxePvX7Hx4T3rUlVS",
+      "spotify_id": "75XDEXxePvX7Hx4T3rUlVS",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf19ee458374b59cd7ba26f72",
+      "genres": ["japanese indie"],
+      "popularity": 33
+    },
+    "7sGZqnvQxV7qbqF9xbGxZq": {
+      "name": "Sky.High",
+      "spotify_link": "https://open.spotify.com/artist/7sGZqnvQxV7qbqF9xbGxZq",
+      "spotify_id": "7sGZqnvQxV7qbqF9xbGxZq",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb8643f4f2c505d8926cb05e38",
+      "genres": [
+        "lo-fi",
+        "j-dance"
+      ],
+      "popularity": 37
+    },
+    "0OeNCHz66yM6LBGhzq0thz": {
+      "name": "Halfy & Winks",
+      "spotify_link": "https://open.spotify.com/artist/0OeNCHz66yM6LBGhzq0thz",
+      "spotify_id": "0OeNCHz66yM6LBGhzq0thz",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba457947eb256730eb9db37b0",
+      "popularity": 38
+    },
+    "3YQKmKGau1PzlVlkL1iodx": {
+      "name": "Twenty One Pilots",
+      "spotify_link": "https://open.spotify.com/artist/3YQKmKGau1PzlVlkL1iodx",
+      "spotify_id": "3YQKmKGau1PzlVlkL1iodx",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb274df4dfcb960867eccedfb5",
+      "popularity": 85
+    },
+    "6Bo5UEoUopq42HZX3apU1w": {
+      "name": "Philip Brooks",
+      "spotify_link": "https://open.spotify.com/artist/6Bo5UEoUopq42HZX3apU1w",
+      "spotify_id": "6Bo5UEoUopq42HZX3apU1w",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebfcbd3cbc3dacd67b94e71568",
+      "popularity": 40
+    },
+    "73sIBHcqh3Z3NyqHKZ7FOL": {
+      "name": "Childish Gambino",
+      "spotify_link": "https://open.spotify.com/artist/73sIBHcqh3Z3NyqHKZ7FOL",
+      "spotify_id": "73sIBHcqh3Z3NyqHKZ7FOL",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc3dc5429b676b16d451e5f77",
+      "popularity": 82
+    },
+    "3fsEHSLJVeff3aasSOQMgC": {
+      "name": "Osirois Music",
+      "spotify_link": "https://open.spotify.com/artist/3fsEHSLJVeff3aasSOQMgC",
+      "spotify_id": "3fsEHSLJVeff3aasSOQMgC",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273ffbb06bdc2fb7dd71e0b67fa",
+      "popularity": 29
+    },
+    "1ZUDSRNUUa69sTk4pMiyp7": {
+      "name": "Dannie May",
+      "spotify_link": "https://open.spotify.com/artist/1ZUDSRNUUa69sTk4pMiyp7",
+      "spotify_id": "1ZUDSRNUUa69sTk4pMiyp7",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbf41589cd53e7c6af66976d4",
+      "genres": [
+        "j-pop",
+        "city pop"
+      ],
+      "popularity": 36
+    },
+    "2GG40dmLuesjS7vul6btRz": {
+      "name": "Navi Jude",
+      "spotify_link": "https://open.spotify.com/artist/2GG40dmLuesjS7vul6btRz",
+      "spotify_id": "2GG40dmLuesjS7vul6btRz",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb24fe38921f8da010e3c874b",
+      "popularity": 9
+    },
+    "5U6leWxYKsuTkd4kXcF1a6": {
+      "name": "The Crane Wives",
+      "spotify_link": "https://open.spotify.com/artist/5U6leWxYKsuTkd4kXcF1a6",
+      "spotify_id": "5U6leWxYKsuTkd4kXcF1a6",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0f8584197f0995c0776bf87c",
+      "popularity": 64
+    },
+    "4uFZsG1vXrPcvnZ4iSQyrx": {
+      "name": "C418",
+      "spotify_link": "https://open.spotify.com/artist/4uFZsG1vXrPcvnZ4iSQyrx",
+      "spotify_id": "4uFZsG1vXrPcvnZ4iSQyrx",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba9b8234e3071836212561d19",
+      "popularity": 76
+    },
+    "33tFkBLsl6f8TjKkV0uF0C": {
+      "name": "Lovejoy",
+      "spotify_link": "https://open.spotify.com/artist/33tFkBLsl6f8TjKkV0uF0C",
+      "spotify_id": "33tFkBLsl6f8TjKkV0uF0C",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb22689a583f664fe0306f2644",
+      "popularity": 58
+    },
+    "0TIGDhG2md2oyRrYK2bSPQ": {
+      "name": "Trifect",
+      "spotify_link": "https://open.spotify.com/artist/0TIGDhG2md2oyRrYK2bSPQ",
+      "spotify_id": "0TIGDhG2md2oyRrYK2bSPQ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba4e8ca9dd0b768564d674580",
+      "genres": [
+        "future bass",
+        "j-dance"
+      ],
+      "popularity": 34
+    },
+    "30CYXpJrFdQp3RT7IW34ff": {
+      "name": "Miharu Koshi",
+      "spotify_link": "https://open.spotify.com/artist/30CYXpJrFdQp3RT7IW34ff",
+      "spotify_id": "30CYXpJrFdQp3RT7IW34ff",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0616fb8bcdbc5dbe3f6b0b8b",
+      "genres": [
+        "shibuya-kei",
+        "city pop"
+      ],
+      "popularity": 40
+    },
+    "44mVqYPHmFgrDJxv6CWrOo": {
+      "name": "Frankie Rose",
+      "spotify_link": "https://open.spotify.com/artist/44mVqYPHmFgrDJxv6CWrOo",
+      "spotify_id": "44mVqYPHmFgrDJxv6CWrOo",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb45d536f672605ec812ced55e",
+      "genres": ["dream pop"],
+      "popularity": 28
+    },
+    "0nugNBwdWaptgIAsEtx1It": {
+      "name": "Searows",
+      "spotify_link": "https://open.spotify.com/artist/0nugNBwdWaptgIAsEtx1It",
+      "spotify_id": "0nugNBwdWaptgIAsEtx1It",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb46f1a70ee5530cd89a3beeca",
+      "popularity": 60
+    },
+    "75N2nC2KNgaQ1e6bGs0wyc": {
+      "name": "Paradox Interactive",
+      "spotify_link": "https://open.spotify.com/artist/75N2nC2KNgaQ1e6bGs0wyc",
+      "spotify_id": "75N2nC2KNgaQ1e6bGs0wyc",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5b1193b6ebedc83fb1b90137",
+      "genres": ["medieval"],
+      "popularity": 36
+    },
+    "2FzqIT8JP1gd3Tlo6ix1fT": {
+      "name": "tofubeats",
+      "spotify_link": "https://open.spotify.com/artist/2FzqIT8JP1gd3Tlo6ix1fT",
+      "spotify_id": "2FzqIT8JP1gd3Tlo6ix1fT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb5cbb83cf6327d565af2ea89",
+      "genres": [
+        "j-rap",
+        "city pop",
+        "j-r&b",
+        "j-dance",
+        "japanese indie",
+        "j-pop"
+      ],
+      "popularity": 51
+    },
+    "1snhtMLeb2DYoMOcVbb8iB": {
+      "name": "Kenshi Yonezu",
+      "spotify_link": "https://open.spotify.com/artist/1snhtMLeb2DYoMOcVbb8iB",
+      "spotify_id": "1snhtMLeb2DYoMOcVbb8iB",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9abf89574f39f5ed424b968c",
+      "genres": [
+        "j-pop",
+        "anime",
+        "j-rock"
+      ],
+      "popularity": 76
+    },
+    "7dqKRXUJvcgQbg6jq06uFW": {
+      "name": "Mikazuki BIGWAVE",
+      "spotify_link": "https://open.spotify.com/artist/7dqKRXUJvcgQbg6jq06uFW",
+      "spotify_id": "7dqKRXUJvcgQbg6jq06uFW",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebba7c7c718a935b4717729781",
+      "genres": [
+        "city pop",
+        "j-dance",
+        "vaporwave"
+      ],
+      "popularity": 39
+    },
+    "5y8tKLUfMvliMe8IKamR32": {
+      "name": "d4vd",
+      "spotify_link": "https://open.spotify.com/artist/5y8tKLUfMvliMe8IKamR32",
+      "spotify_id": "5y8tKLUfMvliMe8IKamR32",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebee632cde061121a5fe48c1d6",
+      "popularity": 83
+    },
+    "4aEuFytRb43SAgjchJDk5e": {
+      "name": "quinnie",
+      "spotify_link": "https://open.spotify.com/artist/4aEuFytRb43SAgjchJDk5e",
+      "spotify_id": "4aEuFytRb43SAgjchJDk5e",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2158efc0945f9b905eac9a71",
+      "genres": ["bedroom pop"],
+      "popularity": 51
+    },
+    "5CMaNobmJYgXcfiT0zYOwi": {
+      "name": "WHIPPED CREAM",
+      "spotify_link": "https://open.spotify.com/artist/5CMaNobmJYgXcfiT0zYOwi",
+      "spotify_id": "5CMaNobmJYgXcfiT0zYOwi",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb64be1790ebf10babca164ee5",
+      "popularity": 51
+    },
+    "0YJEuTCD642Yp34CoiH0ox": {
+      "name": "Laura Elliott",
+      "spotify_link": "https://open.spotify.com/artist/0YJEuTCD642Yp34CoiH0ox",
+      "spotify_id": "0YJEuTCD642Yp34CoiH0ox",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebdd47e025157fb23ff603e299",
+      "popularity": 35
+    },
+    "2YFEZf3vZZSY3XuqCcsVEW": {
+      "name": "Leo Pargeter",
+      "spotify_link": "https://open.spotify.com/artist/2YFEZf3vZZSY3XuqCcsVEW",
+      "spotify_id": "2YFEZf3vZZSY3XuqCcsVEW",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebfe053f1e964552c639d4138e",
+      "popularity": 2
+    },
+    "2PfBzriIMRsCXPDtSy9vg8": {
+      "name": "Rufus Wainwright",
+      "spotify_link": "https://open.spotify.com/artist/2PfBzriIMRsCXPDtSy9vg8",
+      "spotify_id": "2PfBzriIMRsCXPDtSy9vg8",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc923f0b05284f5517ef9c56d",
+      "genres": [
+        "chamber pop",
+        "singer-songwriter"
+      ],
+      "popularity": 56
+    },
+    "3Uyka21MjsQuDzxoOFgizr": {
+      "name": "Aiobahn +81",
+      "spotify_link": "https://open.spotify.com/artist/3Uyka21MjsQuDzxoOFgizr",
+      "spotify_id": "3Uyka21MjsQuDzxoOFgizr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf7832e70b00005c3b4a19162",
+      "genres": ["vocaloid"],
+      "popularity": 53
+    },
+    "7cvljqLNhWNFMb8wP2NImJ": {
+      "name": "Moe Shop",
+      "spotify_link": "https://open.spotify.com/artist/7cvljqLNhWNFMb8wP2NImJ",
+      "spotify_id": "7cvljqLNhWNFMb8wP2NImJ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb49ba1ed116963eb18dd206a0",
+      "genres": [
+        "j-dance",
+        "hyperpop",
+        "future bass"
+      ],
+      "popularity": 52
+    },
+    "66VgJGpaRMwrNaS2MPqIDf": {
+      "name": "Pauline Herr",
+      "spotify_link": "https://open.spotify.com/artist/66VgJGpaRMwrNaS2MPqIDf",
+      "spotify_id": "66VgJGpaRMwrNaS2MPqIDf",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe74bb4763f493306ed0a9038",
+      "genres": [
+        "future bass",
+        "melodic bass"
+      ],
+      "popularity": 41
+    },
+    "13qypunsJvAWF5smjqfYcp": {
+      "name": "2ToneDisco",
+      "spotify_link": "https://open.spotify.com/artist/13qypunsJvAWF5smjqfYcp",
+      "spotify_id": "13qypunsJvAWF5smjqfYcp",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273a23e6bccf358ce21359c4f7b",
+      "genres": [
+        "j-dance",
+        "future bass"
+      ],
+      "popularity": 18
+    },
+    "1BjaGDkxwa2fb2pSCXlFXb": {
+      "name": "Chet Porter",
+      "spotify_link": "https://open.spotify.com/artist/1BjaGDkxwa2fb2pSCXlFXb",
+      "spotify_id": "1BjaGDkxwa2fb2pSCXlFXb",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc33bca17292798f6d22bd9fb",
+      "popularity": 39
+    },
+    "0PYPjvZaOa7bsCq26JOX8d": {
+      "name": "VK Blanka",
+      "spotify_link": "https://open.spotify.com/artist/0PYPjvZaOa7bsCq26JOX8d",
+      "spotify_id": "0PYPjvZaOa7bsCq26JOX8d",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb13ef353589bc3866bec5a5ce",
+      "genres": [
+        "anime",
+        "j-pop",
+        "j-rock"
+      ],
+      "popularity": 58
+    },
+    "2yf8kEYkBb8FRT8DGQwR4K": {
+      "name": "MathematicPony",
+      "spotify_link": "https://open.spotify.com/artist/2yf8kEYkBb8FRT8DGQwR4K",
+      "spotify_id": "2yf8kEYkBb8FRT8DGQwR4K",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7aebc1307e4eafcaa82ba85b",
+      "popularity": 37
+    },
+    "6jxGLrn1I14RIeRYodOpLN": {
+      "name": "Łaszewo",
+      "spotify_link": "https://open.spotify.com/artist/6jxGLrn1I14RIeRYodOpLN",
+      "spotify_id": "6jxGLrn1I14RIeRYodOpLN",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe8e21cb7b61e3b649c3945c1",
+      "genres": ["stutter house"],
+      "popularity": 62
+    },
+    "5paAp4hjtSahENm3QTNsiP": {
+      "name": "Julien Mier",
+      "spotify_link": "https://open.spotify.com/artist/5paAp4hjtSahENm3QTNsiP",
+      "spotify_id": "5paAp4hjtSahENm3QTNsiP",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb25770e61f6a25aed1397d682",
+      "genres": ["idm"],
+      "popularity": 17
+    },
+    "4IB2TdHMteDOTMAA1UbbcE": {
+      "name": "Tomggg",
+      "spotify_link": "https://open.spotify.com/artist/4IB2TdHMteDOTMAA1UbbcE",
+      "spotify_id": "4IB2TdHMteDOTMAA1UbbcE",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2f8b97180637f3fd1f7cb543",
+      "genres": [
+        "future bass",
+        "j-dance"
+      ],
+      "popularity": 35
+    },
+    "5K4W6rqBFWDnAN6FQUkS6x": {
+      "name": "Kanye West",
+      "spotify_link": "https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x",
+      "spotify_id": "5K4W6rqBFWDnAN6FQUkS6x",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6e835a500e791bf9c27a422a",
+      "genres": ["rap"],
+      "popularity": 93
+    },
+    "3EK1eCIbh3eDCkLdbMQHpT": {
+      "name": "Solo Artist Saxx",
+      "spotify_link": "https://open.spotify.com/artist/3EK1eCIbh3eDCkLdbMQHpT",
+      "spotify_id": "3EK1eCIbh3eDCkLdbMQHpT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebacb6a1310cd73308c2af0c5b",
+      "popularity": 22
+    },
+    "7dOCnyDR2oEa1hQlvTXvdT": {
+      "name": "Cody Fry",
+      "spotify_link": "https://open.spotify.com/artist/7dOCnyDR2oEa1hQlvTXvdT",
+      "spotify_id": "7dOCnyDR2oEa1hQlvTXvdT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebffdd0411a78cad1a844c27cf",
+      "popularity": 58
+    },
+    "3HXP7bQnSqzXn76CRDRDnr": {
+      "name": "paniyolo",
+      "spotify_link": "https://open.spotify.com/artist/3HXP7bQnSqzXn76CRDRDnr",
+      "spotify_id": "3HXP7bQnSqzXn76CRDRDnr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1692ca09804dfd225b26e9c7",
+      "popularity": 39
+    },
+    "1iCnM8foFssWlPRLfAbIwo": {
+      "name": "Gigi Perez",
+      "spotify_link": "https://open.spotify.com/artist/1iCnM8foFssWlPRLfAbIwo",
+      "spotify_id": "1iCnM8foFssWlPRLfAbIwo",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebd58f13475be93b37bb63893f",
+      "popularity": 80
+    },
+    "66ihevNkSYNzRAl44dx6jJ": {
+      "name": "Carin Leon",
+      "spotify_link": "https://open.spotify.com/artist/66ihevNkSYNzRAl44dx6jJ",
+      "spotify_id": "66ihevNkSYNzRAl44dx6jJ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb374620b17c4a16d8c99f2369",
+      "genres": [
+        "banda",
+        "norteño",
+        "sierreño",
+        "corrido",
+        "grupera",
+        "ranchera",
+        "sad sierreño",
+        "música mexicana"
+      ],
+      "popularity": 86
+    },
+    "0kGG4CMi8tBHgT1IX6DWSx": {
+      "name": "Anna Eve",
+      "spotify_link": "https://open.spotify.com/artist/0kGG4CMi8tBHgT1IX6DWSx",
+      "spotify_id": "0kGG4CMi8tBHgT1IX6DWSx",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbcfb113010a84008ece17f39",
+      "popularity": 26
+    },
+    "4fFR4MFp1iaTkBhRe27u3Z": {
+      "name": "Beach Cowboys",
+      "spotify_link": "https://open.spotify.com/artist/4fFR4MFp1iaTkBhRe27u3Z",
+      "spotify_id": "4fFR4MFp1iaTkBhRe27u3Z",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbe9b4d8488f4632b8fa32275",
+      "popularity": 39
+    },
+    "2vXekN8TR5Y2M6WHIjSM5i": {
+      "name": "Sam Berry",
+      "spotify_link": "https://open.spotify.com/artist/2vXekN8TR5Y2M6WHIjSM5i",
+      "spotify_id": "2vXekN8TR5Y2M6WHIjSM5i",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273dbb4eea034d2db2e00c41b4d",
+      "genres": [
+        "electro swing",
+        "swing music"
+      ],
+      "popularity": 12
+    },
+    "0hQBkU2vuMYXucmd89JUSw": {
+      "name": "Tom Cardy",
+      "spotify_link": "https://open.spotify.com/artist/0hQBkU2vuMYXucmd89JUSw",
+      "spotify_id": "0hQBkU2vuMYXucmd89JUSw",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb32a643bdd831ab2e64243a56",
+      "popularity": 59
+    },
+    "3pQCTq5sPCkRV8yOD5dzvR": {
+      "name": "Caroline Carter",
+      "spotify_link": "https://open.spotify.com/artist/3pQCTq5sPCkRV8yOD5dzvR",
+      "spotify_id": "3pQCTq5sPCkRV8yOD5dzvR",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbac355955fe23da8fe5b419b",
+      "popularity": 22
+    },
+    "7x3f7c0fBanNlQwpx1255g": {
+      "name": "Françoise Hardy",
+      "spotify_link": "https://open.spotify.com/artist/7x3f7c0fBanNlQwpx1255g",
+      "spotify_id": "7x3f7c0fBanNlQwpx1255g",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9c7c152f67228ce90b03579a",
+      "genres": [
+        "chanson",
+        "french pop",
+        "variété française",
+        "french jazz"
+      ],
+      "popularity": 60
+    },
+    "1t8LijuXy59r0O5qlLkENl": {
+      "name": "Adam Tell",
+      "spotify_link": "https://open.spotify.com/artist/1t8LijuXy59r0O5qlLkENl",
+      "spotify_id": "1t8LijuXy59r0O5qlLkENl",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf10d510b86892e2319052d75",
+      "genres": ["future bass"],
+      "popularity": 29
+    },
+    "3H6E3FONTtRC5Tn26Ughde": {
+      "name": "Moon Water",
+      "spotify_link": "https://open.spotify.com/artist/3H6E3FONTtRC5Tn26Ughde",
+      "spotify_id": "3H6E3FONTtRC5Tn26Ughde",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6e2fbd1da4d8703aa1bd566a",
+      "genres": ["slowcore"],
+      "popularity": 28
+    },
+    "4AGwPDdh1y8hochNzHy5HC": {
+      "name": "RAC",
+      "spotify_link": "https://open.spotify.com/artist/4AGwPDdh1y8hochNzHy5HC",
+      "spotify_id": "4AGwPDdh1y8hochNzHy5HC",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd073cc30283438f8512ba6",
+      "popularity": 56
+    },
+    "12j6dJrPXanCBwY599pZxf": {
+      "name": "Matt Maltese",
+      "spotify_link": "https://open.spotify.com/artist/12j6dJrPXanCBwY599pZxf",
+      "spotify_id": "12j6dJrPXanCBwY599pZxf",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebacea84e27c6152921e9193b3",
+      "popularity": 70
+    },
+    "5mDE3SHPqdpIZ23zVZaaX4": {
+      "name": "Alessandro Coronas",
+      "spotify_link": "https://open.spotify.com/artist/5mDE3SHPqdpIZ23zVZaaX4",
+      "spotify_id": "5mDE3SHPqdpIZ23zVZaaX4",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb8aa9b70761c14d6fead72d4",
+      "popularity": 16
+    },
+    "4nxKz1dRYXnsGzN1lUURtG": {
+      "name": "Leith Ross",
+      "spotify_link": "https://open.spotify.com/artist/4nxKz1dRYXnsGzN1lUURtG",
+      "spotify_id": "4nxKz1dRYXnsGzN1lUURtG",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba7c4fd464207b12569959207",
+      "popularity": 61
+    },
+    "3P4vW5tzQvmuoNaFQqzy9q": {
+      "name": "chloe moriondo",
+      "spotify_link": "https://open.spotify.com/artist/3P4vW5tzQvmuoNaFQqzy9q",
+      "spotify_id": "3P4vW5tzQvmuoNaFQqzy9q",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebdf7ee1473906b2b1e69228de",
+      "genres": [
+        "bedroom pop",
+        "indie pop"
+      ],
+      "popularity": 60
+    },
+    "1cqyqcrSxlD5gyXodsnQ0P": {
+      "name": "Extra Time",
+      "spotify_link": "https://open.spotify.com/artist/1cqyqcrSxlD5gyXodsnQ0P",
+      "spotify_id": "1cqyqcrSxlD5gyXodsnQ0P",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf936962623b3ddb4bbf6b168",
+      "popularity": 3
+    },
+    "0iJ6VIGJffJ0vCLJHc3xqO": {
+      "name": "Seira Kariya",
+      "spotify_link": "https://open.spotify.com/artist/0iJ6VIGJffJ0vCLJHc3xqO",
+      "spotify_id": "0iJ6VIGJffJ0vCLJHc3xqO",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc6676fb81ef12469e73913cc",
+      "genres": [
+        "j-r&b",
+        "j-pop",
+        "japanese indie"
+      ],
+      "popularity": 29
+    },
+    "3EogvEV9nc7Av6ngy8CIeJ": {
+      "name": "The Vanished People",
+      "spotify_link": "https://open.spotify.com/artist/3EogvEV9nc7Av6ngy8CIeJ",
+      "spotify_id": "3EogvEV9nc7Av6ngy8CIeJ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb63132a99e12dc1a6767ff1ad",
+      "popularity": 54
+    },
+    "5B9EYcbEolyNp6PBPmc1Dg": {
+      "name": "LYNARØ",
+      "spotify_link": "https://open.spotify.com/artist/5B9EYcbEolyNp6PBPmc1Dg",
+      "spotify_id": "5B9EYcbEolyNp6PBPmc1Dg",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2732afe39bac8ee46e7ed3ea8e8",
+      "genres": [
+        "g-house",
+        "slap house"
+      ],
+      "popularity": 3
+    },
+    "142YBUGmLWCJigFLzgguf8": {
+      "name": "Gang of Youths",
+      "spotify_link": "https://open.spotify.com/artist/142YBUGmLWCJigFLzgguf8",
+      "spotify_id": "142YBUGmLWCJigFLzgguf8",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb49cc52e8c14304c5ce368adf",
+      "popularity": 57
+    },
+    "1kwGj7uDO5WXVXtQLvGJr0": {
+      "name": "Just A Gent",
+      "spotify_link": "https://open.spotify.com/artist/1kwGj7uDO5WXVXtQLvGJr0",
+      "spotify_id": "1kwGj7uDO5WXVXtQLvGJr0",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba80a8124c171ca1f5d95d160",
+      "genres": ["future bass"],
+      "popularity": 49
+    },
+    "6jlWj6y00bMQt8XoKuCjyZ": {
+      "name": "Emily King",
+      "spotify_link": "https://open.spotify.com/artist/6jlWj6y00bMQt8XoKuCjyZ",
+      "spotify_id": "6jlWj6y00bMQt8XoKuCjyZ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb01e793c12d7ae5e68cc3acad",
+      "genres": ["pop soul"],
+      "popularity": 48
+    },
+    "2KMuQl0JpZGMCr1NsM7Pii": {
+      "name": "Tom Schley",
+      "spotify_link": "https://open.spotify.com/artist/2KMuQl0JpZGMCr1NsM7Pii",
+      "spotify_id": "2KMuQl0JpZGMCr1NsM7Pii",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb71d10fd15a2d4359c8385975",
+      "popularity": 43
+    },
+    "0FeWKiZSwBRdGzqeCdlH1a": {
+      "name": "Marcus King",
+      "spotify_link": "https://open.spotify.com/artist/0FeWKiZSwBRdGzqeCdlH1a",
+      "spotify_id": "0FeWKiZSwBRdGzqeCdlH1a",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe1d3a17442248cc5584c8781",
+      "genres": [
+        "modern blues",
+        "blues rock"
+      ],
+      "popularity": 63
+    },
+    "3HHfEn7yPOy3IiHS6CHG97": {
+      "name": "Last Heroes",
+      "spotify_link": "https://open.spotify.com/artist/3HHfEn7yPOy3IiHS6CHG97",
+      "spotify_id": "3HHfEn7yPOy3IiHS6CHG97",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9d05c3a84aa2519d67a7cf05",
+      "genres": [
+        "melodic bass",
+        "future bass",
+        "edm",
+        "chillstep"
+      ],
+      "popularity": 44
+    },
+    "4yvcSjfu4PC0CYQyLy4wSq": {
+      "name": "Glass Animals",
+      "spotify_link": "https://open.spotify.com/artist/4yvcSjfu4PC0CYQyLy4wSq",
+      "spotify_id": "4yvcSjfu4PC0CYQyLy4wSq",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebeb2cc96b0ed023c5e3675b6f",
+      "popularity": 77
+    },
+    "05B4OBivJvDx12uuXTBvAs": {
+      "name": "Artist MoMo",
+      "spotify_link": "https://open.spotify.com/artist/05B4OBivJvDx12uuXTBvAs",
+      "spotify_id": "05B4OBivJvDx12uuXTBvAs",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2739b7ad9a95b32b9a49cf9a327",
+      "popularity": 12
+    },
+    "5PPCkoOKabpGGhqrUwSikz": {
+      "name": "Kimya Dawson",
+      "spotify_link": "https://open.spotify.com/artist/5PPCkoOKabpGGhqrUwSikz",
+      "spotify_id": "5PPCkoOKabpGGhqrUwSikz",
+      "image_url": "https://i.scdn.co/image/ab6772690000c46c8449fe23d959942de031655b",
+      "genres": ["folk punk"],
+      "popularity": 60
+    },
+    "1pOKOasTPbC0WJh36IwKI1": {
+      "name": "Koniko",
+      "spotify_link": "https://open.spotify.com/artist/1pOKOasTPbC0WJh36IwKI1",
+      "spotify_id": "1pOKOasTPbC0WJh36IwKI1",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9741fd45fe2396f5139669e9",
+      "popularity": 10
+    },
+    "1KkjjsBwGqU2YjS9OIucZV": {
+      "name": "Hyper Potions",
+      "spotify_link": "https://open.spotify.com/artist/1KkjjsBwGqU2YjS9OIucZV",
+      "spotify_id": "1KkjjsBwGqU2YjS9OIucZV",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6da894a6d7b9a0290abc68cf",
+      "genres": ["future bass"],
+      "popularity": 46
+    },
+    "7cae9Fkz2R1NDHWtdnaE8d": {
+      "name": "MELVV",
+      "spotify_link": "https://open.spotify.com/artist/7cae9Fkz2R1NDHWtdnaE8d",
+      "spotify_id": "7cae9Fkz2R1NDHWtdnaE8d",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0e1a79b77c55f31f5b58c9d3",
+      "popularity": 37
+    },
+    "6kgXeMO4kd68uf4oEFHRS1": {
+      "name": "ORESAMA",
+      "spotify_link": "https://open.spotify.com/artist/6kgXeMO4kd68uf4oEFHRS1",
+      "spotify_id": "6kgXeMO4kd68uf4oEFHRS1",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb142e2219b93087859b126395",
+      "genres": [
+        "anime",
+        "j-pop"
+      ],
+      "popularity": 32
+    },
+    "2zBwozgONxPvn5iOOwuO7g": {
+      "name": "High Sunn",
+      "spotify_link": "https://open.spotify.com/artist/2zBwozgONxPvn5iOOwuO7g",
+      "spotify_id": "2zBwozgONxPvn5iOOwuO7g",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe070f83ba00f5db5fdbaac65",
+      "popularity": 41
+    },
+    "0Re7wtl0w6niMZR0GfROpg": {
+      "name": "Odd Sweetheart",
+      "spotify_link": "https://open.spotify.com/artist/0Re7wtl0w6niMZR0GfROpg",
+      "spotify_id": "0Re7wtl0w6niMZR0GfROpg",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6e4711c2a0f2e3432163fba9",
+      "popularity": 43
+    },
+    "5OeSHuvHTS9qUgAUTt3GIR": {
+      "name": "acloudyskye",
+      "spotify_link": "https://open.spotify.com/artist/5OeSHuvHTS9qUgAUTt3GIR",
+      "spotify_id": "5OeSHuvHTS9qUgAUTt3GIR",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebabdf056a234e2cf534cd8e6e",
+      "popularity": 40
+    },
+    "2uYWxilOVlUdk4oV9DvwqK": {
+      "name": "Mitski",
+      "spotify_link": "https://open.spotify.com/artist/2uYWxilOVlUdk4oV9DvwqK",
+      "spotify_id": "2uYWxilOVlUdk4oV9DvwqK",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4bdb3888818637acb71c4a13",
+      "popularity": 83
+    },
+    "77WqTzN8g3Wr9PeVFoG3Mm": {
+      "name": "Former Hero",
+      "spotify_link": "https://open.spotify.com/artist/77WqTzN8g3Wr9PeVFoG3Mm",
+      "spotify_id": "77WqTzN8g3Wr9PeVFoG3Mm",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf906e0a2e90abff6dd58cbd1",
+      "genres": ["future bass"],
+      "popularity": 31
+    },
+    "7eX8mTJPAukkgwgRvwrgFC": {
+      "name": "NakamuraEmi",
+      "spotify_link": "https://open.spotify.com/artist/7eX8mTJPAukkgwgRvwrgFC",
+      "spotify_id": "7eX8mTJPAukkgwgRvwrgFC",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb487e4aeabf1a41bac8f3f9bb",
+      "genres": [
+        "japanese indie",
+        "j-rock",
+        "j-pop"
+      ],
+      "popularity": 34
+    },
+    "0W8oOa4Oc65CDjiVjdZihf": {
+      "name": "John + Jane Q. Public",
+      "spotify_link": "https://open.spotify.com/artist/0W8oOa4Oc65CDjiVjdZihf",
+      "spotify_id": "0W8oOa4Oc65CDjiVjdZihf",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb878e8a92656510d19a374820",
+      "popularity": 60
+    },
+    "6ZmJg6NCjGmRgC2GEI86pQ": {
+      "name": "camoufly",
+      "spotify_link": "https://open.spotify.com/artist/6ZmJg6NCjGmRgC2GEI86pQ",
+      "spotify_id": "6ZmJg6NCjGmRgC2GEI86pQ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb8c07d966b4f06bdcf03cbcea",
+      "genres": [
+        "uk garage",
+        "stutter house"
+      ],
+      "popularity": 47
+    },
+    "3qPqIxTAOXfIQouTw6dogM": {
+      "name": "MC AIKA",
+      "spotify_link": "https://open.spotify.com/artist/3qPqIxTAOXfIQouTw6dogM",
+      "spotify_id": "3qPqIxTAOXfIQouTw6dogM",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1347d2c2bb6b96a2a3453411",
+      "genres": [
+        "rally house",
+        "brazilian phonk",
+        "phonk"
+      ],
+      "popularity": 45
+    },
+    "56WiHoGRrAnik3ru29V8pM": {
+      "name": "Margot Liotta",
+      "spotify_link": "https://open.spotify.com/artist/56WiHoGRrAnik3ru29V8pM",
+      "spotify_id": "56WiHoGRrAnik3ru29V8pM",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb287107400935978bcd3d6c1a",
+      "popularity": 35
+    },
+    "3qnMl4DHT4gndzFAcG4FlM": {
+      "name": "Kill The Noise",
+      "spotify_link": "https://open.spotify.com/artist/3qnMl4DHT4gndzFAcG4FlM",
+      "spotify_id": "3qnMl4DHT4gndzFAcG4FlM",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb47d6ca1ea7795273556c6a75",
+      "genres": [
+        "dubstep",
+        "melodic bass",
+        "edm"
+      ],
+      "popularity": 56
+    },
+    "4OGodtGAXXUvXC4mmJzZNf": {
+      "name": "Georgia Parker",
+      "spotify_link": "https://open.spotify.com/artist/4OGodtGAXXUvXC4mmJzZNf",
+      "spotify_id": "4OGodtGAXXUvXC4mmJzZNf",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebaaa691edfd8da1cc944838fe",
+      "genres": ["acoustic pop"],
+      "popularity": 36
+    },
+    "0lhcAgqzhRZuhHTXJsilSc": {
+      "name": "Chevy",
+      "spotify_link": "https://open.spotify.com/artist/0lhcAgqzhRZuhHTXJsilSc",
+      "spotify_id": "0lhcAgqzhRZuhHTXJsilSc",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb540943edf401930ba31a2e16",
+      "popularity": 58
+    },
+    "4aKWmkWAKviFlyvHYPTNQY": {
+      "name": "Adrianne Lenker",
+      "spotify_link": "https://open.spotify.com/artist/4aKWmkWAKviFlyvHYPTNQY",
+      "spotify_id": "4aKWmkWAKviFlyvHYPTNQY",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5a7d5278cf9deda53119028c",
+      "popularity": 76
+    },
+    "1yNIb413Bmfs2ZBVuPp9kC": {
+      "name": "Jack Stauber's Micropop",
+      "spotify_link": "https://open.spotify.com/artist/1yNIb413Bmfs2ZBVuPp9kC",
+      "spotify_id": "1yNIb413Bmfs2ZBVuPp9kC",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273d88cb736e807e83fbe7b2882",
+      "popularity": 67
+    },
+    "0DX1pMk1b22S536hNGtFDY": {
+      "name": "Flaws",
+      "spotify_link": "https://open.spotify.com/artist/0DX1pMk1b22S536hNGtFDY",
+      "spotify_id": "0DX1pMk1b22S536hNGtFDY",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb94e993f9e5bc520f8e53000a",
+      "popularity": 27
+    },
+    "4MZlo9D1rJqatK4FQSDUxj": {
+      "name": "The Phi Dept.",
+      "spotify_link": "https://open.spotify.com/artist/4MZlo9D1rJqatK4FQSDUxj",
+      "spotify_id": "4MZlo9D1rJqatK4FQSDUxj",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb65edbb171f89b45725115516",
+      "genres": ["slowcore"],
+      "popularity": 7
+    },
+    "1GmsPCcpKgF9OhlNXjOsbS": {
+      "name": "Lizzy McAlpine",
+      "spotify_link": "https://open.spotify.com/artist/1GmsPCcpKgF9OhlNXjOsbS",
+      "spotify_id": "1GmsPCcpKgF9OhlNXjOsbS",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb912df0c93a5dc290d3c8816e",
+      "popularity": 76
+    },
+    "4mvJltDSlBawXCZhq6NAso": {
+      "name": "Ellie Dixon",
+      "spotify_link": "https://open.spotify.com/artist/4mvJltDSlBawXCZhq6NAso",
+      "spotify_id": "4mvJltDSlBawXCZhq6NAso",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebd5161099ba3a79774b22206f",
+      "popularity": 45
+    },
+    "1nIUhcKHnK6iyumRyoV68C": {
+      "name": "Ennio Morricone",
+      "spotify_link": "https://open.spotify.com/artist/1nIUhcKHnK6iyumRyoV68C",
+      "spotify_id": "1nIUhcKHnK6iyumRyoV68C",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebd0430d67cd189b4b54dcf6f9",
+      "genres": ["soundtrack"],
+      "popularity": 67
+    },
+    "1VQ8riQ31zVHtlxiCC9EZE": {
+      "name": "Will Wood",
+      "spotify_link": "https://open.spotify.com/artist/1VQ8riQ31zVHtlxiCC9EZE",
+      "spotify_id": "1VQ8riQ31zVHtlxiCC9EZE",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb31a821c125d5627614836483",
+      "genres": ["dark cabaret"],
+      "popularity": 64
+    },
+    "2Waw2sSbqvAwK8NwACNjVo": {
+      "name": "Bo Burnham",
+      "spotify_link": "https://open.spotify.com/artist/2Waw2sSbqvAwK8NwACNjVo",
+      "spotify_id": "2Waw2sSbqvAwK8NwACNjVo",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb30d9a4acdf8cd3e8c0ad39ab",
+      "genres": ["comedy"],
+      "popularity": 67
+    },
+    "1dTWubBl5TUp5XQOVzlIof": {
+      "name": "Nemurio",
+      "spotify_link": "https://open.spotify.com/artist/1dTWubBl5TUp5XQOVzlIof",
+      "spotify_id": "1dTWubBl5TUp5XQOVzlIof",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebfabcbcf25c4381eaccf2d1e8",
+      "popularity": 70
+    },
+    "7jGn8qhLb48n7yMMNfAoHv": {
+      "name": "Awesome City Club",
+      "spotify_link": "https://open.spotify.com/artist/7jGn8qhLb48n7yMMNfAoHv",
+      "spotify_id": "7jGn8qhLb48n7yMMNfAoHv",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf09b19822a156ac26c232dd5",
+      "genres": [
+        "j-pop",
+        "japanese indie",
+        "city pop"
+      ],
+      "popularity": 49
+    },
+    "12CJXkHHiMUAzNDr2q5mBc": {
+      "name": "Adam Burgess",
+      "spotify_link": "https://open.spotify.com/artist/12CJXkHHiMUAzNDr2q5mBc",
+      "spotify_id": "12CJXkHHiMUAzNDr2q5mBc",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc51758533b7968d94b3f3930",
+      "popularity": 35
+    },
+    "2he5ORo9A5pwwRKEa1u0jw": {
+      "name": "Roe Kapara",
+      "spotify_link": "https://open.spotify.com/artist/2he5ORo9A5pwwRKEa1u0jw",
+      "spotify_id": "2he5ORo9A5pwwRKEa1u0jw",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb67508727224121f9f4f3591",
+      "popularity": 49
+    },
+    "7a0SE5n7aPUDD3OlAg0hly": {
+      "name": "cute girls doing cute things",
+      "spotify_link": "https://open.spotify.com/artist/7a0SE5n7aPUDD3OlAg0hly",
+      "spotify_id": "7a0SE5n7aPUDD3OlAg0hly",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5a7e7fac9fc9c1ab67e800d5",
+      "genres": [
+        "j-dance",
+        "future bass"
+      ],
+      "popularity": 32
+    },
+    "4jby3degVGgbEuzneg4iU3": {
+      "name": "Bella Porter",
+      "spotify_link": "https://open.spotify.com/artist/4jby3degVGgbEuzneg4iU3",
+      "spotify_id": "4jby3degVGgbEuzneg4iU3",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb276dd0dcb7d3ee75184159fd",
+      "popularity": 25
+    },
+    "2ARHr58aDIdueiixgadosi": {
+      "name": "Emily Hopkins",
+      "spotify_link": "https://open.spotify.com/artist/2ARHr58aDIdueiixgadosi",
+      "spotify_id": "2ARHr58aDIdueiixgadosi",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7fde4cd5efd575a28f366a09",
+      "popularity": 33
+    },
+    "5GNa93WPyItm08ZOTtHLpW": {
+      "name": "Sumi Shimamoto",
+      "spotify_link": "https://open.spotify.com/artist/5GNa93WPyItm08ZOTtHLpW",
+      "spotify_id": "5GNa93WPyItm08ZOTtHLpW",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2732ca65c341b8810efdc647db8",
+      "genres": ["anime"],
+      "popularity": 37
+    },
+    "2Cg4UE0dOib6suUva3ieEH": {
+      "name": "Cowboy Malfoy",
+      "spotify_link": "https://open.spotify.com/artist/2Cg4UE0dOib6suUva3ieEH",
+      "spotify_id": "2Cg4UE0dOib6suUva3ieEH",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc5c094bd85068d3d60779ea6",
+      "popularity": 44
+    },
+    "6Ihais1Q3Uht375CjQqeSR": {
+      "name": "A crow is white",
+      "spotify_link": "https://open.spotify.com/artist/6Ihais1Q3Uht375CjQqeSR",
+      "spotify_id": "6Ihais1Q3Uht375CjQqeSR",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273f9aa8b36b86cd135d7c84fe8",
+      "genres": [
+        "j-rock",
+        "japanese indie",
+        "shibuya-kei"
+      ],
+      "popularity": 29
+    },
+    "6ignRjbPmLvKdtMLj9a5Xs": {
+      "name": "Ichiko Aoba",
+      "spotify_link": "https://open.spotify.com/artist/6ignRjbPmLvKdtMLj9a5Xs",
+      "spotify_id": "6ignRjbPmLvKdtMLj9a5Xs",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0492fac92c61b57890860332",
+      "genres": [
+        "japanese indie",
+        "shibuya-kei"
+      ],
+      "popularity": 64
+    },
+    "6EUPmAvpY341eXZwJVy6dn": {
+      "name": "Berlinist",
+      "spotify_link": "https://open.spotify.com/artist/6EUPmAvpY341eXZwJVy6dn",
+      "spotify_id": "6EUPmAvpY341eXZwJVy6dn",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbb58bf9492983cb91adc7150",
+      "popularity": 47
+    },
+    "1thbOfXak53dM1Xabq3pmb": {
+      "name": "Delacey",
+      "spotify_link": "https://open.spotify.com/artist/1thbOfXak53dM1Xabq3pmb",
+      "spotify_id": "1thbOfXak53dM1Xabq3pmb",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1d1eb677add73befe1a567a6",
+      "popularity": 45
+    },
+    "2hEZUJYO26jhMzfw0ZzrCj": {
+      "name": "Shallow Alcove",
+      "spotify_link": "https://open.spotify.com/artist/2hEZUJYO26jhMzfw0ZzrCj",
+      "spotify_id": "2hEZUJYO26jhMzfw0ZzrCj",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb245e495b2fab009ade7220f9",
+      "popularity": 36
+    },
+    "7qEGDvyYKOw0Nk7pR1KEb4": {
+      "name": "2 Mello",
+      "spotify_link": "https://open.spotify.com/artist/7qEGDvyYKOw0Nk7pR1KEb4",
+      "spotify_id": "7qEGDvyYKOw0Nk7pR1KEb4",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb255fe1e58035339cec23080e",
+      "popularity": 47
+    },
+    "3vldh5Ceynytj6Iglw4haP": {
+      "name": "Tommy Lefroy",
+      "spotify_link": "https://open.spotify.com/artist/3vldh5Ceynytj6Iglw4haP",
+      "spotify_id": "3vldh5Ceynytj6Iglw4haP",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb8205bdda0df1f9648b361b9e",
+      "popularity": 45
+    },
+    "62cQZ6KbSsuYL9P45IynGw": {
+      "name": "Dynox",
+      "spotify_link": "https://open.spotify.com/artist/62cQZ6KbSsuYL9P45IynGw",
+      "spotify_id": "62cQZ6KbSsuYL9P45IynGw",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb690d3e7179accbd77964edba",
+      "genres": ["future house"],
+      "popularity": 10
+    },
+    "6JgC582KHI4BpHIhbFHVAQ": {
+      "name": "Kaleah Lee",
+      "spotify_link": "https://open.spotify.com/artist/6JgC582KHI4BpHIhbFHVAQ",
+      "spotify_id": "6JgC582KHI4BpHIhbFHVAQ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebadc62e356377b6eac4d953b6",
+      "popularity": 31
+    },
+    "7sOR7gk6XUlGnxj3p9F54k": {
+      "name": "half\u2022alive",
+      "spotify_link": "https://open.spotify.com/artist/7sOR7gk6XUlGnxj3p9F54k",
+      "spotify_id": "7sOR7gk6XUlGnxj3p9F54k",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba4f202963dd12ab6044bdb97",
+      "popularity": 62
+    },
+    "6rErJmMCoNHUX0Z99uBB8m": {
+      "name": "Darby",
+      "spotify_link": "https://open.spotify.com/artist/6rErJmMCoNHUX0Z99uBB8m",
+      "spotify_id": "6rErJmMCoNHUX0Z99uBB8m",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5526fe1fe23d2768a4b55eeb",
+      "genres": [
+        "uk garage",
+        "stutter house"
+      ],
+      "popularity": 38
+    },
+    "1NdpjvRYsY6cwAVX9YWzAB": {
+      "name": "Genie High",
+      "spotify_link": "https://open.spotify.com/artist/1NdpjvRYsY6cwAVX9YWzAB",
+      "spotify_id": "1NdpjvRYsY6cwAVX9YWzAB",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb31d5eab062f43e91b298eb4b",
+      "genres": [
+        "j-pop",
+        "j-rock",
+        "japanese indie"
+      ],
+      "popularity": 45
+    },
+    "4aMZfGVvpMTC1TQnQFwezO": {
+      "name": "God3PS",
+      "spotify_link": "https://open.spotify.com/artist/4aMZfGVvpMTC1TQnQFwezO",
+      "spotify_id": "4aMZfGVvpMTC1TQnQFwezO",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb8d4c259f1c26f7b3b7426ddd",
+      "popularity": 20
+    },
+    "1aSxMhuvixZ8h9dK9jIDwL": {
+      "name": "Kate Bush",
+      "spotify_link": "https://open.spotify.com/artist/1aSxMhuvixZ8h9dK9jIDwL",
+      "spotify_id": "1aSxMhuvixZ8h9dK9jIDwL",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb187017724e58e78ee1f5a8e4",
+      "genres": [
+        "art pop",
+        "baroque pop",
+        "art rock"
+      ],
+      "popularity": 71
+    },
+    "4BLdbgVNetzII3ggCMsNtq": {
+      "name": "Madds Buckley",
+      "spotify_link": "https://open.spotify.com/artist/4BLdbgVNetzII3ggCMsNtq",
+      "spotify_id": "4BLdbgVNetzII3ggCMsNtq",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb1783e18fccef73006614d07c",
+      "popularity": 57
+    },
+    "6IW2t8HKJEwygZ5YmgG0bJ": {
+      "name": "HARVEY HILTON",
+      "spotify_link": "https://open.spotify.com/artist/6IW2t8HKJEwygZ5YmgG0bJ",
+      "spotify_id": "6IW2t8HKJEwygZ5YmgG0bJ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebffa47ed8471c802a454b4900",
+      "popularity": 9
+    },
+    "20je656lhatFVl4EoaNupn": {
+      "name": "Sophie May",
+      "spotify_link": "https://open.spotify.com/artist/20je656lhatFVl4EoaNupn",
+      "spotify_id": "20je656lhatFVl4EoaNupn",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba1f84199ef194b0aadc594d0",
+      "popularity": 43
+    },
+    "3AxQ29NqrINrW741rtU9K5": {
+      "name": "formerly.",
+      "spotify_link": "https://open.spotify.com/artist/3AxQ29NqrINrW741rtU9K5",
+      "spotify_id": "3AxQ29NqrINrW741rtU9K5",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb50d96be43b54f53a0e8c7b22",
+      "popularity": 27
+    },
+    "5PmmaiHnrygDvhj3kaPT0f": {
+      "name": "QUIET BISON",
+      "spotify_link": "https://open.spotify.com/artist/5PmmaiHnrygDvhj3kaPT0f",
+      "spotify_id": "5PmmaiHnrygDvhj3kaPT0f",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6f9e82d21de675bbb6f7dfce",
+      "genres": ["future bass"],
+      "popularity": 31
+    },
+    "6ehbjKYJwaDdHpiw52vdGr": {
+      "name": "Sydney Ross Mitchell",
+      "spotify_link": "https://open.spotify.com/artist/6ehbjKYJwaDdHpiw52vdGr",
+      "spotify_id": "6ehbjKYJwaDdHpiw52vdGr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5b1cc223518ebcc5902750d9",
+      "popularity": 49
+    },
+    "5ex40YPLrwqU1Yr6ApCKhr": {
+      "name": "Artista Rosario",
+      "spotify_link": "https://open.spotify.com/artist/5ex40YPLrwqU1Yr6ApCKhr",
+      "spotify_id": "5ex40YPLrwqU1Yr6ApCKhr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9bdd3fade44815d28e0506c8",
+      "genres": ["reggaeton"],
+      "popularity": 17
+    },
+    "4Va7Ku1bN9OyFfAaJRDDp2": {
+      "name": "Artis Lampung",
+      "spotify_link": "https://open.spotify.com/artist/4Va7Ku1bN9OyFfAaJRDDp2",
+      "spotify_id": "4Va7Ku1bN9OyFfAaJRDDp2",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b2733752d70c3dedfc5a07c18da5",
+      "popularity": 10
+    },
+    "1mcTU81TzQhprhouKaTkpq": {
+      "name": "Rauw Alejandro",
+      "spotify_link": "https://open.spotify.com/artist/1mcTU81TzQhprhouKaTkpq",
+      "spotify_id": "1mcTU81TzQhprhouKaTkpq",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5b50fae60980240b4ebd7808",
+      "genres": [
+        "reggaeton",
+        "urbano latino",
+        "trap latino",
+        "latin"
+      ],
+      "popularity": 92
+    },
+    "2fswC3Le1wbUHa9AYEhRyi": {
+      "name": "yungatita",
+      "spotify_link": "https://open.spotify.com/artist/2fswC3Le1wbUHa9AYEhRyi",
+      "spotify_id": "2fswC3Le1wbUHa9AYEhRyi",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba1a8b15bf8e0e3faaaf76a51",
+      "popularity": 56
+    },
+    "0FTwFD2KbrUYFksYoVMELs": {
+      "name": "Cola Splash",
+      "spotify_link": "https://open.spotify.com/artist/0FTwFD2KbrUYFksYoVMELs",
+      "spotify_id": "0FTwFD2KbrUYFksYoVMELs",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4632d48addd042d4fe67d0fa",
+      "genres": ["future bass"],
+      "popularity": 12
+    },
+    "7GlBOeep6PqTfFi59PTUUN": {
+      "name": "Chappell Roan",
+      "spotify_link": "https://open.spotify.com/artist/7GlBOeep6PqTfFi59PTUUN",
+      "spotify_id": "7GlBOeep6PqTfFi59PTUUN",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebcde5a0d57c1b79de5fce6bee",
+      "popularity": 88
+    },
+    "2ixBQngmF4ZFXYHi8sJTfl": {
+      "name": "juuku",
+      "spotify_link": "https://open.spotify.com/artist/2ixBQngmF4ZFXYHi8sJTfl",
+      "spotify_id": "2ixBQngmF4ZFXYHi8sJTfl",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb003df508c5f43a1e5e6425bb",
+      "genres": [
+        "future bass",
+        "melodic bass"
+      ],
+      "popularity": 44
+    },
+    "0VmuJa5WFTghyy3P2ng9HO": {
+      "name": "Peppsen",
+      "spotify_link": "https://open.spotify.com/artist/0VmuJa5WFTghyy3P2ng9HO",
+      "spotify_id": "0VmuJa5WFTghyy3P2ng9HO",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebd065875a5944c9057d334f87",
+      "popularity": 37
+    },
+    "7H0Xu8hdP0tjpZ6z4dHquW": {
+      "name": "Sofia Mills",
+      "spotify_link": "https://open.spotify.com/artist/7H0Xu8hdP0tjpZ6z4dHquW",
+      "spotify_id": "7H0Xu8hdP0tjpZ6z4dHquW",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb219c805937b9bdaa6c06ebd0",
+      "popularity": 47
+    },
+    "2HFEmkJdJwdaSxJbxJpFPs": {
+      "name": "Thomas Sanders",
+      "spotify_link": "https://open.spotify.com/artist/2HFEmkJdJwdaSxJbxJpFPs",
+      "spotify_id": "2HFEmkJdJwdaSxJbxJpFPs",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4e98c16df0de16c91de9f12b",
+      "popularity": 39
+    },
+    "0e86yPdC41PGRkLp2Q1Bph": {
+      "name": "Mother Mother",
+      "spotify_link": "https://open.spotify.com/artist/0e86yPdC41PGRkLp2Q1Bph",
+      "spotify_id": "0e86yPdC41PGRkLp2Q1Bph",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebff7e4ec9ef5102fb0e6851e4",
+      "popularity": 73
+    },
+    "28XlUtvOPiT96u72mJftyS": {
+      "name": "dossyx",
+      "spotify_link": "https://open.spotify.com/artist/28XlUtvOPiT96u72mJftyS",
+      "spotify_id": "28XlUtvOPiT96u72mJftyS",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb22174f3a5bfcf712509620b2",
+      "popularity": 15
+    },
+    "6q8cRPrSLahGAZSVnjIYjF": {
+      "name": "Duumu",
+      "spotify_link": "https://open.spotify.com/artist/6q8cRPrSLahGAZSVnjIYjF",
+      "spotify_id": "6q8cRPrSLahGAZSVnjIYjF",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb5f0934bfd15cde9022eca101",
+      "genres": ["future bass"],
+      "popularity": 35
+    },
+    "6ZBM319vNIirp7FOvvLVD6": {
+      "name": "Kevin Atwater",
+      "spotify_link": "https://open.spotify.com/artist/6ZBM319vNIirp7FOvvLVD6",
+      "spotify_id": "6ZBM319vNIirp7FOvvLVD6",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf6cea831a01ff2113e09e8ea",
+      "popularity": 50
+    },
+    "2vnB6tuQMaQpORiRdvXF9H": {
+      "name": "Beach Bunny",
+      "spotify_link": "https://open.spotify.com/artist/2vnB6tuQMaQpORiRdvXF9H",
+      "spotify_id": "2vnB6tuQMaQpORiRdvXF9H",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebc76f04ab8987c4fb298abb3c",
+      "popularity": 69
+    },
+    "37J1PlAkhRK7yrZUtqaUpQ": {
+      "name": "Caravan Palace",
+      "spotify_link": "https://open.spotify.com/artist/37J1PlAkhRK7yrZUtqaUpQ",
+      "spotify_id": "37J1PlAkhRK7yrZUtqaUpQ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4c74162a4233c9ac70581ef2",
+      "genres": [
+        "electro swing",
+        "swing music",
+        "nu jazz"
+      ],
+      "popularity": 63
+    },
+    "7hDLm8O99kRfpY3DjFHQAP": {
+      "name": "Hop Along, Queen Ansleis",
+      "spotify_link": "https://open.spotify.com/artist/7hDLm8O99kRfpY3DjFHQAP",
+      "spotify_id": "7hDLm8O99kRfpY3DjFHQAP",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0851e137726bd98a1aa26021",
+      "popularity": 51
+    },
+    "246dkjvS1zLTtiykXe5h60": {
+      "name": "Post Malone",
+      "spotify_link": "https://open.spotify.com/artist/246dkjvS1zLTtiykXe5h60",
+      "spotify_id": "246dkjvS1zLTtiykXe5h60",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe17c0aa1714a03d62b5ce4e0",
+      "popularity": 90
+    },
+    "2aKwu9zp7mgo9yyeY6duLn": {
+      "name": "Albert Karch",
+      "spotify_link": "https://open.spotify.com/artist/2aKwu9zp7mgo9yyeY6duLn",
+      "spotify_id": "2aKwu9zp7mgo9yyeY6duLn",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb00962c82cd720f4c8fb773d7",
+      "genres": [
+        "japanese indie",
+        "shibuya-kei"
+      ],
+      "popularity": 24
+    },
+    "2YrfEkWJvn1wue6JqekigJ": {
+      "name": "Daktyl",
+      "spotify_link": "https://open.spotify.com/artist/2YrfEkWJvn1wue6JqekigJ",
+      "spotify_id": "2YrfEkWJvn1wue6JqekigJ",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb91e6ee25bb942d836b046507",
+      "genres": [
+        "stutter house",
+        "future bass"
+      ],
+      "popularity": 33
+    },
+    "1se3w7gpZkwcJYgHSPDoQ8": {
+      "name": "Ramsey",
+      "spotify_link": "https://open.spotify.com/artist/1se3w7gpZkwcJYgHSPDoQ8",
+      "spotify_id": "1se3w7gpZkwcJYgHSPDoQ8",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0a52bede4e65ef0a2965997d",
+      "popularity": 60
+    },
+    "5NmsfVaiCgjqge3U5Zqaws": {
+      "name": "Moonsailor",
+      "spotify_link": "https://open.spotify.com/artist/5NmsfVaiCgjqge3U5Zqaws",
+      "spotify_id": "5NmsfVaiCgjqge3U5Zqaws",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7ad52ecc111032660e777c5c",
+      "popularity": 29
+    },
+    "1FQ2JZsNCdNyFgA1xpC0JY": {
+      "name": "Bella Fiske",
+      "spotify_link": "https://open.spotify.com/artist/1FQ2JZsNCdNyFgA1xpC0JY",
+      "spotify_id": "1FQ2JZsNCdNyFgA1xpC0JY",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7fe7cfae4cf6d9281a8556d9",
+      "popularity": 16
+    },
+    "1WZarnZpWEv7dDtjAETt4X": {
+      "name": "yeule",
+      "spotify_link": "https://open.spotify.com/artist/1WZarnZpWEv7dDtjAETt4X",
+      "spotify_id": "1WZarnZpWEv7dDtjAETt4X",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb6a959158f89858a34ed9aca",
+      "genres": ["art pop"],
+      "popularity": 58
+    },
+    "1B0155rdv175D1tQ8VH7Oy": {
+      "name": "FEVER 333",
+      "spotify_link": "https://open.spotify.com/artist/1B0155rdv175D1tQ8VH7Oy",
+      "spotify_id": "1B0155rdv175D1tQ8VH7Oy",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba8baf13b472a5a9e722684f3",
+      "genres": [
+        "rap metal",
+        "rap rock"
+      ],
+      "popularity": 57
+    },
+    "0qT79UgT5tY4yudH9VfsdT": {
+      "name": "Sum 41",
+      "spotify_link": "https://open.spotify.com/artist/0qT79UgT5tY4yudH9VfsdT",
+      "spotify_id": "0qT79UgT5tY4yudH9VfsdT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb625af80b68ae4eb559c6c417",
+      "genres": [
+        "pop punk",
+        "punk",
+        "skate punk"
+      ],
+      "popularity": 74
+    },
+    "57YFNq46Xx86nl7ETkd1Ei": {
+      "name": "Zach Callison",
+      "spotify_link": "https://open.spotify.com/artist/57YFNq46Xx86nl7ETkd1Ei",
+      "spotify_id": "57YFNq46Xx86nl7ETkd1Ei",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb49415a0bfb5c89352144806",
+      "popularity": 64
+    },
+    "0sYlth2PW1zWJMEU2vCukz": {
+      "name": "Flower Face",
+      "spotify_link": "https://open.spotify.com/artist/0sYlth2PW1zWJMEU2vCukz",
+      "spotify_id": "0sYlth2PW1zWJMEU2vCukz",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb12a129bb56d187c3d17cf634",
+      "popularity": 53
+    },
+    "2FXC3k01G6Gw61bmprjgqS": {
+      "name": "Hozier",
+      "spotify_link": "https://open.spotify.com/artist/2FXC3k01G6Gw61bmprjgqS",
+      "spotify_id": "2FXC3k01G6Gw61bmprjgqS",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebad85a585103dfc2f3439119a",
+      "popularity": 86
+    },
+    "23xqmJEN3oVxwzqtNIyR5m": {
+      "name": "AnnenMayKantereit",
+      "spotify_link": "https://open.spotify.com/artist/23xqmJEN3oVxwzqtNIyR5m",
+      "spotify_id": "23xqmJEN3oVxwzqtNIyR5m",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebbcf79c131f4ddb3635dd60bb",
+      "genres": ["german pop"],
+      "popularity": 69
+    },
+    "0hJu98X7eKFanMFjJ6eUZF": {
+      "name": "Faith Zapata",
+      "spotify_link": "https://open.spotify.com/artist/0hJu98X7eKFanMFjJ6eUZF",
+      "spotify_id": "0hJu98X7eKFanMFjJ6eUZF",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb270bcefc70bca0e6f3b904f",
+      "popularity": 31
+    },
+    "3XRj6XMmub9546oUagEqHY": {
+      "name": "Hannah Cole",
+      "spotify_link": "https://open.spotify.com/artist/3XRj6XMmub9546oUagEqHY",
+      "spotify_id": "3XRj6XMmub9546oUagEqHY",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf60538deab749fca80cd0331",
+      "popularity": 32
+    },
+    "2hR4h1Cao2ueuI7Cx9c7V8": {
+      "name": "Cavetown",
+      "spotify_link": "https://open.spotify.com/artist/2hR4h1Cao2ueuI7Cx9c7V8",
+      "spotify_id": "2hR4h1Cao2ueuI7Cx9c7V8",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebef138aa4569dba63ee549997",
+      "genres": ["bedroom pop"],
+      "popularity": 71
+    },
+    "0e5Rda7VQAY786739xp0Jt": {
+      "name": "Rare Americans",
+      "spotify_link": "https://open.spotify.com/artist/0e5Rda7VQAY786739xp0Jt",
+      "spotify_id": "0e5Rda7VQAY786739xp0Jt",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0d6c71027c2437b2f274dca2",
+      "popularity": 59
+    },
+    "4Uc8Dsxct0oMqx0P6i60ea": {
+      "name": "Conan Gray",
+      "spotify_link": "https://open.spotify.com/artist/4Uc8Dsxct0oMqx0P6i60ea",
+      "spotify_id": "4Uc8Dsxct0oMqx0P6i60ea",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebcc2d67917c6dc6cdfd009964",
+      "popularity": 81
+    },
+    "1rw8ZTLnDHd74TWDDukjVi": {
+      "name": "Conrad Sewell",
+      "spotify_link": "https://open.spotify.com/artist/1rw8ZTLnDHd74TWDDukjVi",
+      "spotify_id": "1rw8ZTLnDHd74TWDDukjVi",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4d9d3638440162d4f73af64c",
+      "popularity": 64
+    },
+    "0dgJbQ0bKPyUXco8hEXN7X": {
+      "name": "Øneheart",
+      "spotify_link": "https://open.spotify.com/artist/0dgJbQ0bKPyUXco8hEXN7X",
+      "spotify_id": "0dgJbQ0bKPyUXco8hEXN7X",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb42cb036251a6e79cdb99ec69",
+      "genres": [
+        "dark ambient",
+        "ambient"
+      ],
+      "popularity": 75
+    },
+    "2HCsMc18MHvpDACmNhbpQ5": {
+      "name": "Lauren Juzang",
+      "spotify_link": "https://open.spotify.com/artist/2HCsMc18MHvpDACmNhbpQ5",
+      "spotify_id": "2HCsMc18MHvpDACmNhbpQ5",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb2b70184a058bb0ecd0d70184",
+      "popularity": 18
+    },
+    "4OyqzBV6i2e7Ycs5LwLDxE": {
+      "name": "in the blue shirt",
+      "spotify_link": "https://open.spotify.com/artist/4OyqzBV6i2e7Ycs5LwLDxE",
+      "spotify_id": "4OyqzBV6i2e7Ycs5LwLDxE",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb01e9155f4dbb3182e29bcf9",
+      "genres": [
+        "future bass",
+        "j-dance"
+      ],
+      "popularity": 30
+    },
+    "4rF7c8zpCKzuSXohs2HIpA": {
+      "name": "Steven Universe",
+      "spotify_link": "https://open.spotify.com/artist/4rF7c8zpCKzuSXohs2HIpA",
+      "spotify_id": "4rF7c8zpCKzuSXohs2HIpA",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb47c07cbe7a8c84be28511781",
+      "popularity": 71
+    },
+    "2PZThLYBW7XtcYVzQms8oM": {
+      "name": "Infinity Song",
+      "spotify_link": "https://open.spotify.com/artist/2PZThLYBW7XtcYVzQms8oM",
+      "spotify_id": "2PZThLYBW7XtcYVzQms8oM",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb33b139b5fbd1d0097a4e32c5",
+      "popularity": 51
+    },
+    "0IVWeUVFPCMT7MmhvqmfUr": {
+      "name": "clear eyes",
+      "spotify_link": "https://open.spotify.com/artist/0IVWeUVFPCMT7MmhvqmfUr",
+      "spotify_id": "0IVWeUVFPCMT7MmhvqmfUr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb57d71231f4d0cdebc53633b1",
+      "popularity": 29
+    },
+    "1RtC7yCvyYWS7z9HD61HgL": {
+      "name": "Stijn van Wakeren",
+      "spotify_link": "https://open.spotify.com/artist/1RtC7yCvyYWS7z9HD61HgL",
+      "spotify_id": "1RtC7yCvyYWS7z9HD61HgL",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebd2b86596b4faa1b08407f6f1",
+      "popularity": 7
+    },
+    "0jNDKefhfSbLR9sFvcPLHo": {
+      "name": "San Holo",
+      "spotify_link": "https://open.spotify.com/artist/0jNDKefhfSbLR9sFvcPLHo",
+      "spotify_id": "0jNDKefhfSbLR9sFvcPLHo",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb83d104b036ea35dd4aa8b820",
+      "genres": [
+        "future bass",
+        "edm"
+      ],
+      "popularity": 56
+    },
+    "1ts9YsGOQHW0vzUrhG4ZpH": {
+      "name": "小畑貴裕",
+      "spotify_link": "https://open.spotify.com/artist/1ts9YsGOQHW0vzUrhG4ZpH",
+      "spotify_id": "1ts9YsGOQHW0vzUrhG4ZpH",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb61367f82c165dc2fe7f1d79a",
+      "genres": ["anime"],
+      "popularity": 47
+    },
+    "5YuI7N0N78d9o1ew1Edcd5": {
+      "name": "Scott Benson Band",
+      "spotify_link": "https://open.spotify.com/artist/5YuI7N0N78d9o1ew1Edcd5",
+      "spotify_id": "5YuI7N0N78d9o1ew1Edcd5",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb610007776100c8a6e2b9b68d",
+      "popularity": 38
+    },
+    "2EtksajEPOMDkyVKMZi1eO": {
+      "name": "Life on Planets",
+      "spotify_link": "https://open.spotify.com/artist/2EtksajEPOMDkyVKMZi1eO",
+      "spotify_id": "2EtksajEPOMDkyVKMZi1eO",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb01b13add900891c97410fead",
+      "popularity": 45
+    },
+    "2l1xo0P1oTE66MYpoThI6u": {
+      "name": "Scott Reeder",
+      "spotify_link": "https://open.spotify.com/artist/2l1xo0P1oTE66MYpoThI6u",
+      "spotify_id": "2l1xo0P1oTE66MYpoThI6u",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb25f007211abc64160de6e7a",
+      "popularity": 40
+    },
+    "5Qeyh2XKoITt1mlEVtzazC": {
+      "name": "Daoko",
+      "spotify_link": "https://open.spotify.com/artist/5Qeyh2XKoITt1mlEVtzazC",
+      "spotify_id": "5Qeyh2XKoITt1mlEVtzazC",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4bcd7dfa75039998db41f360",
+      "genres": [
+        "j-pop",
+        "anime",
+        "j-rock"
+      ],
+      "popularity": 55
+    },
+    "2FRXiAz5Uz78LLLSwEUhLt": {
+      "name": "Miracle Musical",
+      "spotify_link": "https://open.spotify.com/artist/2FRXiAz5Uz78LLLSwEUhLt",
+      "spotify_id": "2FRXiAz5Uz78LLLSwEUhLt",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb904bf7e11545f9cb5feaf1b2",
+      "popularity": 62
+    },
+    "5YVpCleE4Ysa6YRa66nzIN": {
+      "name": "DADARAY",
+      "spotify_link": "https://open.spotify.com/artist/5YVpCleE4Ysa6YRa66nzIN",
+      "spotify_id": "5YVpCleE4Ysa6YRa66nzIN",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb37f7e37ee40c68392c4051dd",
+      "genres": [
+        "japanese indie",
+        "j-rock",
+        "city pop",
+        "j-pop"
+      ],
+      "popularity": 32
+    },
+    "6HJqGr9QfxzdYyV7Ux3u4J": {
+      "name": "Yunus Durali",
+      "spotify_link": "https://open.spotify.com/artist/6HJqGr9QfxzdYyV7Ux3u4J",
+      "spotify_id": "6HJqGr9QfxzdYyV7Ux3u4J",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7c98c6a4123192c6fcb13b29",
+      "popularity": 14
+    },
+    "6j0sVXUMU7BEZZ5cfEwjkq": {
+      "name": "The Black Ghosts",
+      "spotify_link": "https://open.spotify.com/artist/6j0sVXUMU7BEZZ5cfEwjkq",
+      "spotify_id": "6j0sVXUMU7BEZZ5cfEwjkq",
+      "image_url": "https://i.scdn.co/image/ab67616d0000b273ad4da2bf36fbf572f60baea9",
+      "popularity": 45
+    },
+    "3TCkIp7RQLM4MzP5q9iyzj": {
+      "name": "Keni Titus",
+      "spotify_link": "https://open.spotify.com/artist/3TCkIp7RQLM4MzP5q9iyzj",
+      "spotify_id": "3TCkIp7RQLM4MzP5q9iyzj",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eba4ea0b51c490c541518f4756",
+      "popularity": 47
+    },
+    "4AA8eXtzqh5ykxtafLaPOi": {
+      "name": "What So Not",
+      "spotify_link": "https://open.spotify.com/artist/4AA8eXtzqh5ykxtafLaPOi",
+      "spotify_id": "4AA8eXtzqh5ykxtafLaPOi",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb53ef0919b00b7c6a099ff266",
+      "genres": ["future bass"],
+      "popularity": 57
+    },
+    "2DaxqgrOhkeH0fpeiQq2f4": {
+      "name": "Oasis",
+      "spotify_link": "https://open.spotify.com/artist/2DaxqgrOhkeH0fpeiQq2f4",
+      "spotify_id": "2DaxqgrOhkeH0fpeiQq2f4",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb0522e98a6f0cf1ddbee9a74f",
+      "genres": [
+        "britpop",
+        "madchester",
+        "rock"
+      ],
+      "popularity": 80
+    },
+    "6UqUYZ8pMGiYhuyIcsH61y": {
+      "name": "Kathleen",
+      "spotify_link": "https://open.spotify.com/artist/6UqUYZ8pMGiYhuyIcsH61y",
+      "spotify_id": "6UqUYZ8pMGiYhuyIcsH61y",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb418bfc34e4b4f9fd23cb4e34",
+      "popularity": 38
+    },
+    "32k7rSC70F3C7qif9Pgavi": {
+      "name": "Humbreaders",
+      "spotify_link": "https://open.spotify.com/artist/32k7rSC70F3C7qif9Pgavi",
+      "spotify_id": "32k7rSC70F3C7qif9Pgavi",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebb8647ea656f0462b3c25a54f",
+      "genres": [
+        "j-rock",
+        "japanese indie"
+      ],
+      "popularity": 50
+    },
+    "6Xb4ezwoAQC4516kI89nWz": {
+      "name": "Imogen Heap",
+      "spotify_link": "https://open.spotify.com/artist/6Xb4ezwoAQC4516kI89nWz",
+      "spotify_id": "6Xb4ezwoAQC4516kI89nWz",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7ed0386d30b59531eddd34ba",
+      "popularity": 80
+    },
+    "6hNArc2Vya9KBBDhvIj1BM": {
+      "name": "Tyler Burkhart",
+      "spotify_link": "https://open.spotify.com/artist/6hNArc2Vya9KBBDhvIj1BM",
+      "spotify_id": "6hNArc2Vya9KBBDhvIj1BM",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb60a7bdfb90eb6759c86aaf2e",
+      "popularity": 42
+    },
+    "38SKxCyfrmNWqWunb9wGHP": {
+      "name": "Good Kid",
+      "spotify_link": "https://open.spotify.com/artist/38SKxCyfrmNWqWunb9wGHP",
+      "spotify_id": "38SKxCyfrmNWqWunb9wGHP",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe825d8ceaa3bb7ce3151f3a5",
+      "popularity": 67
+    },
+    "6qqNVTkY8uBg9cP3Jd7DAH": {
+      "name": "Billie Eilish",
+      "spotify_link": "https://open.spotify.com/artist/6qqNVTkY8uBg9cP3Jd7DAH",
+      "spotify_id": "6qqNVTkY8uBg9cP3Jd7DAH",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb4a21b4760d2ecb7b0dcdc8da",
+      "popularity": 95
+    },
+    "13kMpt8IdcHcdxPLcJrgU2": {
+      "name": "Christopher Larkin",
+      "spotify_link": "https://open.spotify.com/artist/13kMpt8IdcHcdxPLcJrgU2",
+      "spotify_id": "13kMpt8IdcHcdxPLcJrgU2",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb22c3ebc48fc86c3bfdc47dfe",
+      "genres": ["soundtrack"],
+      "popularity": 63
+    },
+    "7nlyMY2FWpc2hDfc40a6Gy": {
+      "name": "TEMPURA KIDZ",
+      "spotify_link": "https://open.spotify.com/artist/7nlyMY2FWpc2hDfc40a6Gy",
+      "spotify_id": "7nlyMY2FWpc2hDfc40a6Gy",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb51e97bb12d70852207b715e7",
+      "genres": [
+        "j-dance",
+        "future bass"
+      ],
+      "popularity": 30
+    },
+    "47MGg5VHBSS5yHRuMGt6b0": {
+      "name": "Montell2099",
+      "spotify_link": "https://open.spotify.com/artist/47MGg5VHBSS5yHRuMGt6b0",
+      "spotify_id": "47MGg5VHBSS5yHRuMGt6b0",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb802f4bb8ead8c213327954ce",
+      "genres": ["drum and bass"],
+      "popularity": 40
+    },
+    "6wxfx1yhyqjCPYwwxJktR2": {
+      "name": "King Gnu",
+      "spotify_link": "https://open.spotify.com/artist/6wxfx1yhyqjCPYwwxJktR2",
+      "spotify_id": "6wxfx1yhyqjCPYwwxJktR2",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb420186de6166368e93187b5f",
+      "genres": [
+        "j-pop",
+        "anime",
+        "j-rock"
+      ],
+      "popularity": 71
+    },
+    "01olvHW7uzIInQx9VTNuJm": {
+      "name": "Rootkit",
+      "spotify_link": "https://open.spotify.com/artist/01olvHW7uzIInQx9VTNuJm",
+      "spotify_id": "01olvHW7uzIInQx9VTNuJm",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb6330049383858870447bcfb6",
+      "genres": [
+        "stutter house",
+        "drumstep"
+      ],
+      "popularity": 49
+    }
+  }
 }

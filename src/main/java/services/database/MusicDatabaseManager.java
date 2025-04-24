@@ -3,6 +3,7 @@ package services.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +30,8 @@ import models.User;
  */
 public class MusicDatabaseManager {
     private static final String DB_URL = "jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres";
-    private static final String DB_USER = "postgres.ovinvbshhlfiazazcsaw";
-    private static final String DB_PASSWORD = "BS1l7MtXTDZ2pfd5";
+    private static final String DB_USER = "postgres.mowurhjpxbsxlyvapejv";
+    private static final String DB_PASSWORD = "SomePasswordSUPABASE";
     private static final Logger LOGGER = LoggerFactory.getLogger(MusicDatabaseManager.class);
     private static final HikariDataSource connectionPool;
 
@@ -337,26 +338,25 @@ public class MusicDatabaseManager {
      * @throws SQLException If there's an error querying the database
      */
     private void fetchArtistGenresInBatch(Connection conn, List<Artist> artists) throws SQLException {
-        // Get artist names for artists that need genres
-        List<String> artistNames = artists.stream()
+        // Get artists for which we need genres
+        List<UUID> artistIds = artists.stream()
             .filter(artist -> artist.getGenres() == null || artist.getGenres().isEmpty())
-            .map(Artist::getName)
+            .filter(artist -> artist.getId() != null)
+            .map(artist -> UUID.fromString(artist.getId()))
             .collect(Collectors.toList());
         
-        if (artistNames.isEmpty()) {
+        if (artistIds.isEmpty()) {
             return; // No artists need genres
         }
         
-        // Build query to get all genres for all artists in one query
-        String query = "SELECT artist_name, genre FROM artist_genres WHERE LOWER(artist_name) = ANY(?)";
+        // Build query to get all genres for all artists in one query using artist_id
+        String query = "SELECT ag.artist_id, g.name as genre FROM artist_genres ag " +
+                       "JOIN genres g ON ag.genre_id = g.id " +
+                       "WHERE ag.artist_id = ANY(?)";
         
         try (java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
-            // Set the array parameter with all artist names
-            String[] namesArray = artistNames.stream()
-                .map(String::toLowerCase)
-                .toArray(String[]::new);
-            
-            stmt.setArray(1, conn.createArrayOf("text", namesArray));
+            // Set the array parameter with all artist IDs
+            stmt.setArray(1, conn.createArrayOf("uuid", artistIds.toArray()));
             
             // Execute the query and process results
             try (java.sql.ResultSet rs = stmt.executeQuery()) {
@@ -364,17 +364,17 @@ public class MusicDatabaseManager {
                 Map<String, List<String>> genresByArtist = new HashMap<>();
                 
                 while (rs.next()) {
-                    String artistName = rs.getString("artist_name");
+                    String artistId = rs.getString("artist_id");
                     String genre = rs.getString("genre");
                     
-                    genresByArtist.computeIfAbsent(artistName.toLowerCase(), k -> new ArrayList<>())
+                    genresByArtist.computeIfAbsent(artistId, k -> new ArrayList<>())
                         .add(genre);
                 }
                 
                 // Update artists with the retrieved genres
                 for (Artist artist : artists) {
-                    if (artist.getGenres() == null || artist.getGenres().isEmpty()) {
-                        List<String> genres = genresByArtist.get(artist.getName().toLowerCase());
+                    if ((artist.getGenres() == null || artist.getGenres().isEmpty()) && artist.getId() != null) {
+                        List<String> genres = genresByArtist.get(artist.getId());
                         if (genres != null && !genres.isEmpty()) {
                             artist.setGenres(genres);
                         }

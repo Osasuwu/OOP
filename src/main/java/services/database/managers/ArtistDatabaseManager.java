@@ -58,8 +58,8 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
             .map(Artist::getName)
             .collect(Collectors.toSet());
 
-        // Batch lookup existing artists
-        String lookupSql = "SELECT id, name FROM artists WHERE name = ANY(?)";
+        // Use the get_artists_by_names stored procedure
+        String lookupSql = "SELECT * FROM get_artists_by_names(?)";
         try (PreparedStatement stmt = conn.prepareStatement(lookupSql)) {
             stmt.setArray(1, conn.createArrayOf("text", artistNames.toArray()));
             ResultSet rs = stmt.executeQuery();
@@ -261,19 +261,16 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
             return;
         }
 
-        String sql = """
-            INSERT INTO artist_genres (artist_name, genre)
-            VALUES (?, ?)
-            ON CONFLICT (artist_name, genre) DO NOTHING
-        """;
+        // Use the save_artist_genre stored procedure
+        String sql = "SELECT save_artist_genre(?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             for (Artist artist : artists) {
-                if (artist.getName() == null || artist.getGenres() == null) {
+                if (artist.getName() == null || artist.getGenres() == null || artist.getId() == null) {
                     continue;
                 }
                 for (String genre : artist.getGenres()) {
-                    stmt.setString(1, artist.getName());;
+                    stmt.setObject(1, UUID.fromString(artist.getId()));
                     stmt.setString(2, GenreMapper.normalizeGenre(genre));
                     stmt.addBatch();
                 }
@@ -344,24 +341,26 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
     }
 
     public Artist getArtistBySong(Connection conn, Song song) throws SQLException {
-        // Adjust the query according to your actual database schema.
-        String query = "SELECT id, name FROM artists WHERE id = ?";
+        // Use the get_artist_by_id stored procedure
+        String query = "SELECT * FROM get_artist_by_id(?)";
         
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            // Assuming song.getArtistId() returns a String that can be converted to UUID.
             stmt.setObject(1, UUID.fromString(song.getArtist().getId()));
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Artist artist = new Artist();
-                    artist.setId(rs.getString("id"));  // Assuming 'id' is stored as a UUID converted to String.
+                    artist.setId(rs.getString("id"));
                     artist.setName(rs.getString("name"));
-                    // Set any additional fields for Artist as needed.
+                    artist.setSpotifyId(rs.getString("spotify_id"));
+                    artist.setSpotifyLink(rs.getString("spotify_link"));
+                    artist.setPopularity(rs.getInt("popularity"));
+                    artist.setImageUrl(rs.getString("image_url"));
                     return artist;
                 }
             }
         }
         
-        return null;  // Return null if no matching artist is found.
+        return null;
     }
 }

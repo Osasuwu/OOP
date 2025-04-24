@@ -325,16 +325,8 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             return getSongsByGenreOffline(genre);
         }
 
-        String sql = """
-            SELECT s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit,
-                   a.id as artist_id, a.name as artist_name, a.image_url as artist_image_url
-            FROM songs s
-            JOIN artists a ON s.artist_id = a.id
-            JOIN song_genres sg ON s.id = sg.song_id
-            WHERE LOWER(sg.genre) = LOWER(?)
-            ORDER BY s.popularity DESC
-            LIMIT 100
-        """;
+        // Use the get_songs_by_genre stored procedure
+        String sql = "SELECT * FROM get_songs_by_genre(?, 100)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, genre);
@@ -364,14 +356,8 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             return getSongsByArtistNameOffline(artistName);
         }
 
-        String sql = """
-            SELECT s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit,
-                   a.id as artist_id, a.name as artist_name, a.image_url as artist_image_url
-            FROM songs s
-            JOIN artists a ON s.artist_id = a.id
-            WHERE LOWER(a.name) = LOWER(?)
-            ORDER BY s.popularity DESC
-        """;
+        // Use the get_songs_by_artist stored procedure
+        String sql = "SELECT * FROM get_songs_by_artist(?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, artistName);
@@ -401,14 +387,8 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             return getPopularSongsOffline(limit);
         }
 
-        String sql = """
-            SELECT s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit,
-                   a.id as artist_id, a.name as artist_name, a.image_url as artist_image_url
-            FROM songs s
-            JOIN artists a ON s.artist_id = a.id
-            ORDER BY s.popularity DESC
-            LIMIT ?
-        """;
+        // Use the get_popular_songs stored procedure
+        String sql = "SELECT * FROM get_popular_songs(?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, limit);

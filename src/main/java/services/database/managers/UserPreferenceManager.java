@@ -61,7 +61,9 @@ public class UserPreferenceManager extends BaseDatabaseManager {
         }
         
         Map<String, List<Object>> preferences = new HashMap<>();
-        String sql = "SELECT type, item_name, item_id, score FROM user_preferences WHERE user_id = ?";
+        
+        // Use the get_user_preferences stored procedure
+        String sql = "SELECT * FROM get_user_preferences(?)";
         
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, UUID.fromString(user.getId()));
@@ -70,14 +72,14 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                 while (rs.next()) {
                     String type = rs.getString("type");
                     String itemName = rs.getString("item_name");
-                    String itemId = rs.getString("item_id");
+                    UUID itemId = rs.getObject("item_id", UUID.class);
                     double score = rs.getDouble("score");
                     
                     // Group by type
                     switch (type) {
                         case "artist":
                             Artist artist = new Artist(itemName);
-                            artist.setId(itemId);
+                            artist.setId(itemId.toString());
                             artist.setScore(score);
                             if(!preferences.containsKey("favorite_artist")) {
                                 preferences.put("favorite_artist", new ArrayList<>());
@@ -86,7 +88,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             break;
                         case "song":
                             Song song = new Song(itemName, null);
-                            song.setId(itemId);
+                            song.setId(itemId.toString());
                             song.setScore(score);
                             song.setArtist(dbManager.getArtistBySong(song));
                             if(!preferences.containsKey("favorite_song")) {
@@ -112,7 +114,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             if (!preferences.containsKey(type)) {
                                 preferences.put(type, new ArrayList<>());
                             }
-                            preferences.get(type).add(itemId);
+                            preferences.get(type).add(itemId.toString());
                     }
                 }
             }
@@ -147,11 +149,8 @@ public class UserPreferenceManager extends BaseDatabaseManager {
             return;
         }
         
-        String sql = """
-            INSERT INTO user_preferences (user_id, type, item_name, item_id, score)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT (user_id, item_name, item_id, type) DO UPDATE SET score = EXCLUDED.score
-        """;
+        // Use the save_user_preference stored procedure
+        String sql = "SELECT save_user_preference(?, ?, ?, ?, ?)";
 
         UUID userId = UUID.fromString(user.getId());
 
@@ -165,7 +164,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             stmt.setObject(1, userId);
                             stmt.setString(2, "artist");
                             stmt.setString(3, favoriteArtist.getName());
-                            stmt.setString(4, favoriteArtist.getId());
+                            stmt.setObject(4, UUID.fromString(favoriteArtist.getId()));
                             stmt.setDouble(5, favoriteArtist.getScore());
                             stmt.addBatch();
                         }
@@ -176,7 +175,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             stmt.setObject(1, userId);
                             stmt.setString(2, "song");
                             stmt.setString(3, favoriteSong.getTitle());
-                            stmt.setString(4, favoriteSong.getId());
+                            stmt.setObject(4, UUID.fromString(favoriteSong.getId()));
                             stmt.setDouble(5, favoriteSong.getScore());
                             stmt.addBatch();
                         }
@@ -187,7 +186,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             stmt.setObject(1, userId);
                             stmt.setString(2, "genre");
                             stmt.setString(3, favoriteGenre.getName());
-                            stmt.setString(4, null);
+                            stmt.setObject(4, null);
                             stmt.setDouble(5, favoriteGenre.getScore());
                             stmt.addBatch();
                         }
@@ -198,7 +197,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             stmt.setObject(1, userId);
                             stmt.setString(2, "mood");
                             stmt.setString(3, favoriteMood.getName());
-                            stmt.setString(4, null);
+                            stmt.setObject(4, null);
                             stmt.setDouble(5, favoriteMood.getScore());
                             stmt.addBatch();
                         }
@@ -211,7 +210,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             stmt.setObject(1, userId);
                             stmt.setString(2, entryKey);
                             stmt.setString(3, itemName);
-                            stmt.setString(4, null); // Assuming no ID for custom types
+                            stmt.setObject(4, null); // Assuming no ID for custom types
                             stmt.setDouble(5, 1.0); // Example score
                             stmt.addBatch();
                         }

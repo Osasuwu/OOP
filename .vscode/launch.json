@@ -8,6 +8,13 @@
             "type": "java",
             "name": "Application",
             "request": "launch",
+            "mainClass": "main.java.app.Application",
+            "projectName": "OOP_1898f58e"
+        },
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
             "mainClass": "app.Application",
             "projectName": "your-project-name"
         },

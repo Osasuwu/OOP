@@ -58,15 +58,18 @@ public class PlayHistoryManager extends BaseDatabaseManager {
             return;
         }
 
-        // Ensure we have a valid batch size - too large can cause memory issues
-        int batchSize = 100;
-        int totalRecords = playHistories.size();
-        
-        String sql = "INSERT INTO play_history (user_id, song_id, listened_at) VALUES (?, ?, ?) " +
-                     "ON CONFLICT (user_id, song_id, listened_at) DO NOTHING";
+        if (isOfflineMode()) {
+            savePlayHistoryOffline(playHistories);
+            return;
+        }
+
+        // Use the save_play_history stored procedure
+        String sql = "SELECT save_play_history(?, ?, ?)";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             int count = 0;
+            int totalRecords = playHistories.size();
+            int batchSize = 100;
             
             for (PlayHistory playHistory : playHistories) {
                 stmt.setObject(1, UUID.fromString(user.getId()));
@@ -165,19 +168,8 @@ public class PlayHistoryManager extends BaseDatabaseManager {
 
         List<Song> topSongs = new ArrayList<>();
         
-        String sql = """
-            SELECT s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit,
-                   a.id as artist_id, a.name as artist_name, a.image_url as artist_image_url,
-                   COUNT(ph.song_id) as play_count
-            FROM play_history ph
-            JOIN songs s ON ph.song_id = s.id
-            JOIN artists a ON s.artist_id = a.id
-            WHERE ph.user_id = ?
-            GROUP BY s.id, s.title, s.spotify_id, s.album_name, s.popularity, s.duration_ms, s.is_explicit, 
-                     a.id, a.name, a.image_url
-            ORDER BY play_count DESC, s.popularity DESC
-            LIMIT ?
-        """;
+        // Use the get_user_top_songs stored procedure
+        String sql = "SELECT * FROM get_user_top_songs(?, ?)";
         
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, UUID.fromString(user.getId()));
