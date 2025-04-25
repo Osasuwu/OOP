@@ -65,22 +65,7 @@ public class SongDatabaseManager extends BaseDatabaseManager {
             }
         }
 
-        String sql = """
-            INSERT INTO songs (id, artist_id, spotify_id, title, spotify_link, popularity, album_name, release_date, preview_url, image_url, duration_ms, is_explicit)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (id) DO UPDATE SET
-            artist_id = EXCLUDED.artist_id,
-            spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL AND EXCLUDED.spotify_id != '' THEN EXCLUDED.spotify_id ELSE songs.spotify_id END,
-            title = EXCLUDED.title,
-            spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL AND EXCLUDED.spotify_link != '' THEN EXCLUDED.spotify_link ELSE songs.spotify_link END,
-            popularity = CASE WHEN EXCLUDED.popularity > 0 THEN EXCLUDED.popularity ELSE songs.popularity END,
-            album_name = CASE WHEN EXCLUDED.album_name IS NOT NULL AND EXCLUDED.album_name != '' THEN EXCLUDED.album_name ELSE songs.album_name END,
-            release_date = CASE WHEN EXCLUDED.release_date IS NOT NULL THEN EXCLUDED.release_date ELSE songs.release_date END,
-            preview_url = CASE WHEN EXCLUDED.preview_url IS NOT NULL AND EXCLUDED.preview_url != '' THEN EXCLUDED.preview_url ELSE songs.preview_url END,
-            image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL AND EXCLUDED.image_url != '' THEN EXCLUDED.image_url ELSE songs.image_url END,
-            duration_ms = CASE WHEN EXCLUDED.duration_ms > 0 THEN EXCLUDED.duration_ms ELSE songs.duration_ms END,
-            is_explicit = EXCLUDED.is_explicit            
-        """;
+        String sql = "SELECT save_or_update_song(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int batchCount = 0;
@@ -142,7 +127,7 @@ public class SongDatabaseManager extends BaseDatabaseManager {
         }
         
         // Query database for existing songs with these Spotify IDs
-        String sql = "SELECT id, spotify_id FROM songs WHERE spotify_id = ANY(?)";
+        String sql = "SELECT * FROM get_songs_by_spotify_id(?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setArray(1, conn.createArrayOf("text", spotifyIds.toArray()));
             
@@ -285,30 +270,6 @@ public class SongDatabaseManager extends BaseDatabaseManager {
         }
         
         return existingIds;
-    }
-
-    public List<Song> loadSongs(Connection conn) throws SQLException {
-        List<Song> songs = new ArrayList<>();
-        
-        if (isOnline) {
-            String query = "SELECT id, title, artist_id, duration, genre FROM songs WHERE user_id = ?";
-            try (java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
-                stmt.setObject(1, UUID.fromString(user.getId()));
-                try (ResultSet rs = stmt.executeQuery()) {
-                    while (rs.next()) {
-                        Song song = new Song(rs.getString("title"), rs.getString("artist_name"));
-                        song.setId(rs.getString("id"));
-                        song.setArtistId(rs.getString("artist_id"));
-                        song.setDurationMs(rs.getLong("duration"));
-                        songs.add(song);
-                    }
-                }
-            }
-        } else {
-            // Load from local storage implementation
-        }
-        
-        return songs;
     }
 
     /**

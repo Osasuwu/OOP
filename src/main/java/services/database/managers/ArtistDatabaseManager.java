@@ -127,16 +127,7 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
             }
         }
 
-        String sql = """
-            INSERT INTO artists (id, name, spotify_id, popularity, spotify_link, image_url)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT (id) DO UPDATE SET 
-            name = EXCLUDED.name,
-            spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL AND EXCLUDED.spotify_id != '' THEN EXCLUDED.spotify_id ELSE artists.spotify_id END,
-            popularity = CASE WHEN EXCLUDED.popularity > 0 THEN EXCLUDED.popularity ELSE artists.popularity END,
-            spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL AND EXCLUDED.spotify_link != '' THEN EXCLUDED.spotify_link ELSE artists.spotify_link END,
-            image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL AND EXCLUDED.image_url != '' THEN EXCLUDED.image_url ELSE artists.image_url END
-        """;
+        String sql = "SELECT save_or_update_artist(?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int batchCount = 0;
@@ -190,7 +181,7 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
         }
 
         // Query database for existing artists with these names
-        String sql = "SELECT id, name FROM artists WHERE lower(name) = ANY(?)";
+        String sql = "SELECT * FROM find_artists_by_names(?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             String[] nameArray = artistNames.stream()
                 .map(String::toLowerCase)
@@ -306,7 +297,7 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
 
     public List<Artist> loadArtists(Connection conn) throws SQLException {
         List<Artist> artists = new ArrayList<>();
-        String sql = "SELECT id, name, image_url FROM artists WHERE user_id = ?";
+        String sql = "SELECT * FROM get_user_favorite_artists(?)";
         
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getId());
@@ -323,7 +314,7 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
             }
         }
 
-        String genreSql = "SELECT artist_id, genre FROM artist_genres WHERE artist_id = ?";
+        String genreSql = "SELECT * FROM get_artist_genres(?)";
         try (PreparedStatement stmt = conn.prepareStatement(genreSql)) {
             for (Artist artist : artists) {
                 stmt.setString(1, artist.getId());

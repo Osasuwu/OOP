@@ -134,7 +134,7 @@ public class PlayHistoryManager extends BaseDatabaseManager {
     }
     
     List<PlayHistory> history = new ArrayList<>();
-    String sql = "SELECT * FROM play_history WHERE user_id = ?";
+    String sql = "SELECT * FROM get_play_history_raw(?)";
     try (PreparedStatement stmt = conn.prepareStatement(sql)) {
         stmt.setObject(1, UUID.fromString(user.getId()));
         try (ResultSet rs = stmt.executeQuery()) {
