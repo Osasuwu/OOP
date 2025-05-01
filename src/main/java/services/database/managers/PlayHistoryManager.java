@@ -64,7 +64,7 @@ public class PlayHistoryManager extends BaseDatabaseManager {
         }
 
         // Use the save_play_history stored procedure
-        String sql = "SELECT save_play_history(?, ?, ?)";
+        String sql = "SELECT save_play_history(?, ?, CAST(? AS TIMESTAMP))";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             int count = 0;

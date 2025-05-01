@@ -347,4 +347,45 @@ public class CacheManager {
             LOGGER.warn("Error caching MusicBrainz data: {}", e.getMessage());
         }
     }
+
+    /**
+     * Verifies that the cache is loaded and reports statistics about its contents
+     * Useful for debugging cache loading issues
+     * @return A report of the cache contents
+     */
+    public static String verifyCacheLoaded() {
+        StringBuilder report = new StringBuilder();
+        report.append("Cache status report:\n");
+        
+        try {
+            int spotifyArtists = cacheData.getJSONObject(SPOTIFY_ARTIST_CACHE).length();
+            int spotifySongs = cacheData.getJSONObject(SPOTIFY_SONG_CACHE).length();
+            int lastfmEntries = cacheData.getJSONObject(LASTFM_CACHE).length();
+            int musicbrainzEntries = cacheData.getJSONObject(MUSICBRAINZ_CACHE).length();
+            
+            report.append("- Spotify Artists: ").append(spotifyArtists).append("\n");
+            report.append("- Spotify Songs: ").append(spotifySongs).append("\n");
+            report.append("- LastFM Data: ").append(lastfmEntries).append("\n");
+            report.append("- MusicBrainz Data: ").append(musicbrainzEntries).append("\n");
+            
+            if (spotifySongs > 0) {
+                // Sample a few song titles from cache to verify content
+                report.append("\nSample song titles from cache:\n");
+                JSONObject songCache = cacheData.getJSONObject(SPOTIFY_SONG_CACHE);
+                int count = 0;
+                for (String key : songCache.keySet()) {
+                    if (count >= 5) break; // Just show 5 samples
+                    JSONObject songData = songCache.getJSONObject(key);
+                    if (songData.has("title")) {
+                        report.append("- ").append(songData.getString("title")).append("\n");
+                    }
+                    count++;
+                }
+            }
+            
+            return report.toString();
+        } catch (Exception e) {
+            return "Error checking cache: " + e.getMessage();
+        }
+    }
 }
