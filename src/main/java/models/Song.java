@@ -31,6 +31,12 @@ public class Song {
         this.isExplicit = false;
     }
 
+    public Song(String songId, String title, Artist artist) {
+        this.id = songId;
+        this.title = title;
+        this.artist = artist;
+    }
+
     // Getters and setters
     public String getId() {
         return id;

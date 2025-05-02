@@ -23,6 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import models.Artist;
+import models.Genre;
+import models.Mood;
 import models.Song;
 import models.User;
 import services.database.MusicDatabaseManager;
@@ -164,7 +166,7 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             stmt.setString(2, "artist");
                             stmt.setString(3, favoriteArtist.getName());
                             stmt.setString(4, favoriteArtist.getId());
-                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.setDouble(5, favoriteArtist.getScore());
                             stmt.addBatch();
                         }
                         break;
@@ -175,29 +177,29 @@ public class UserPreferenceManager extends BaseDatabaseManager {
                             stmt.setString(2, "song");
                             stmt.setString(3, favoriteSong.getTitle());
                             stmt.setString(4, favoriteSong.getId());
-                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.setDouble(5, favoriteSong.getScore());
                             stmt.addBatch();
                         }
                         break;
                     case "favorite_genres":
                         for (Object obj : entry.getValue()) {
-                            String favoriteGenre = (String) obj;
+                            Genre favoriteGenre = (Genre) obj;
                             stmt.setObject(1, userId);
                             stmt.setString(2, "genre");
-                            stmt.setString(3, favoriteGenre);
+                            stmt.setString(3, favoriteGenre.getName());
                             stmt.setString(4, null);
-                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.setDouble(5, favoriteGenre.getScore());
                             stmt.addBatch();
                         }
                         break;
                     case "favorite_moods":
                         for (Object obj : entry.getValue()) {
-                            String favoriteMood = (String) obj;
+                            Mood favoriteMood = (Mood) obj;
                             stmt.setObject(1, userId);
                             stmt.setString(2, "mood");
-                            stmt.setString(3, favoriteMood);
+                            stmt.setString(3, favoriteMood.getName());
                             stmt.setString(4, null);
-                            stmt.setDouble(5, 1.0); // Example score
+                            stmt.setDouble(5, favoriteMood.getScore());
                             stmt.addBatch();
                         }
                         break;

@@ -132,10 +132,10 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
             VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET 
             name = EXCLUDED.name,
-            spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL THEN EXCLUDED.spotify_id ELSE artists.spotify_id END,
+            spotify_id = CASE WHEN EXCLUDED.spotify_id IS NOT NULL AND EXCLUDED.spotify_id != '' THEN EXCLUDED.spotify_id ELSE artists.spotify_id END,
             popularity = CASE WHEN EXCLUDED.popularity > 0 THEN EXCLUDED.popularity ELSE artists.popularity END,
-            spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL THEN EXCLUDED.spotify_link ELSE artists.spotify_link END,
-            image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL THEN EXCLUDED.image_url ELSE artists.image_url END
+            spotify_link = CASE WHEN EXCLUDED.spotify_link IS NOT NULL AND EXCLUDED.spotify_link != '' THEN EXCLUDED.spotify_link ELSE artists.spotify_link END,
+            image_url = CASE WHEN EXCLUDED.image_url IS NOT NULL AND EXCLUDED.image_url != '' THEN EXCLUDED.image_url ELSE artists.image_url END
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -150,6 +150,7 @@ public class ArtistDatabaseManager extends BaseDatabaseManager {
                 stmt.setInt(4, artist.getPopularity());
                 stmt.setString(5, artist.getSpotifyLink());
                 stmt.setString(6, artist.getImageUrl());
+                
                 stmt.addBatch();
                 batchCount++;
                 

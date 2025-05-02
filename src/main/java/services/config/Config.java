@@ -63,6 +63,7 @@ public class Config {
         settings.putIfAbsent("lastUsername", null);
         settings.putIfAbsent("defaultUserId", "default");
         settings.putIfAbsent("dataDirectory", "./data");
+        settings.putIfAbsent("exportPath", "./exports");
         
         // API keys
         settings.putIfAbsent("apiKeys", new HashMap<String, String>());
