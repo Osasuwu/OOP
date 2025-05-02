@@ -1,7 +1,6 @@
 package app;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -10,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import models.Playlist;
 import models.PlaylistParameters;
-import models.PlaylistPreferences;
 import models.User;
 import models.UserMusicData;
+import models.UserPreferences;
 import models.PlayHistory;
 import models.Song;
 import services.AppAPI.AppSpotifyAPIManager;
@@ -45,6 +44,7 @@ public class Application  {
     private LastFmAPIManager lastFmManager;
     private DataEnrichmentManager enrichmentManager;
     private PlaylistGenerator playlistGenerator;
+    private PlaylistExporter playlistExporter;
     private GenreManager genreManager;
     private User currentUser;
     private boolean isOnline;
@@ -138,7 +138,7 @@ public class Application  {
         this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager, dbManager);
         
         // Set the database manager in the playlist generator
-        this.playlistGenerator.setDatabaseManager(dbManager);
+        playlistGenerator.setDatabaseManager(dbManager);
         
         System.out.println("Services initialized."); // Diagnostic output
     }
@@ -208,6 +208,7 @@ public class Application  {
             if (isOnline) {
                 enrichmentManager.enrichUserData(userData);
                 
+                // Saved in enriching process
                 LOGGER.info("Saved enriched data to database");
                 System.out.println("Saved enriched user data."); // Diagnostic output
             }
@@ -238,6 +239,7 @@ public class Application  {
             // Step 4: Save listening history
             dbManager.savePlayHistory(userData);
             LOGGER.info("Saved {} listening history entries", userData.getPlayHistory().size());
+            System.out.println("Saved listening history."); // Diagnostic output
             
             return true;
         } catch (Exception e) {
@@ -249,45 +251,49 @@ public class Application  {
     public boolean generatePlaylist(PlaylistParameters params) {
         try {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
+            System.out.println("Generating playlist with name: " + params.getName()); // Diagnostic output
         
-            // Retrieve the user preferences map (Map<String, List<Object>>)
-            Map<String, List<Object>> userPreferencesMap = dbManager.getCurrentUserPreferences();
-        
-            PlaylistPreferences playlistPreferences = new PlaylistPreferences(userPreferencesMap);
+            // get user preferences from the database
+            UserPreferences userPreferences = new UserPreferences(dbManager.getCurrentUserPreferences());
         
             // Generate the playlist
-            generatedPlaylist = playlistGenerator.generatePlaylist(params, playlistPreferences);
+            this.generatedPlaylist = playlistGenerator.generatePlaylist(params, userPreferences);  
         
-            if (generatedPlaylist != null) {
-                LOGGER.info("Playlist generated successfully.");
+            if (generatedPlaylist != null && !generatedPlaylist.getSongs().isEmpty()) {
+                LOGGER.info("Playlist generated successfully with {} songs.", generatedPlaylist.getSongs().size());
+                System.out.println("Playlist generated successfully with " + generatedPlaylist.getSongs().size() + " songs."); // Diagnostic output
                 return true;
             } else {
                 LOGGER.warn("Playlist generation returned null.");
+                LOGGER.warn("Playlist generation returned empty playlist.");
+                System.out.println("Playlist generation returned empty playlist."); // Diagnostic output
                 return false;
             }
         }
         catch (Exception e) {
             LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
+            System.out.println("Error generating playlist: " + e.getMessage()); // Diagnostic output
         }
-        return isOnline;
+        return false;
     }
 
     public void exportPlaylist(String format) {
-        if (generatedPlaylist == null) {
-            LOGGER.warn("No playlist generated to export.");
-            return;
-        }
+        try {
+            LOGGER.info("Exporting playlist: {}", generatedPlaylist.getName());
+            System.out.println("Exporting playlist: " + generatedPlaylist.getName()); // Diagnostic output
         
-        PlaylistExporter exporter = PlaylistExporterFactory.getExporter(format);
-        if (exporter != null) {
-            try {
-                exporter.export(generatedPlaylist, config.get("exportPath").toString());
-                LOGGER.info("Playlist exported successfully in {} format.", format);
-            } catch (Exception e) {
-                LOGGER.error("Error exporting playlist: {}", e.getMessage(), e);
-            }
-        } else {
-            LOGGER.error("Unsupported export format: {}", format);
+            PlaylistExporter PlaylistExporter = PlaylistExporterFactory.getExporter(format);
+            PlaylistExporter.export(generatedPlaylist, config.get("exportPath").toString());
+        
+            LOGGER.info("Playlist exported successfully.");
+            System.out.println("Playlist exported successfully."); // Diagnostic output
+        } catch (Exception e) {
+            LOGGER.error("Error exporting playlist: {}", e.getMessage(), e);
+            System.out.println("Error exporting playlist: " + e.getMessage()); // Diagnostic output
         }
+    }
+
+    public Playlist getGeneratedPlaylist() {
+        return generatedPlaylist;
     }
 }

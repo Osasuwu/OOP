@@ -166,16 +166,25 @@ public class AuthenticationService {
     }
 
     public User signUp(String username, String email, String password) throws SQLException {
-        // Check if user already exists
-        String checkSql = "SELECT id FROM users WHERE username = ? OR email = ?";
         try (Connection conn = dbManager.getConnection()) {
+            // Check if user already exists
+            String checkSql = "SELECT id, password_hash FROM users WHERE username = ? OR email = ?";
+            String userId = null;
+            boolean userExistsWithoutPassword = false;
+            
             try (PreparedStatement stmt = conn.prepareStatement(checkSql)) {
                 stmt.setString(1, username);
                 stmt.setString(2, email);
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    LOGGER.warn("User already exists: {}", username);
-                    return null;
+                    userId = rs.getString("id");
+                    String existingPasswordHash = rs.getString("password_hash");
+                    userExistsWithoutPassword = (existingPasswordHash == null || existingPasswordHash.isEmpty());
+                    
+                    if (!userExistsWithoutPassword) {
+                        LOGGER.warn("User already exists: {}", username);
+                        return null;
+                    }
                 }
             }
 
@@ -183,23 +192,41 @@ public class AuthenticationService {
             String salt = PasswordUtils.generateSalt();
             String passwordHash = PasswordUtils.hashPassword(password, salt);
 
-            // Create new user
-            String insertSql = "INSERT INTO users (id, username, email, password_hash, password_salt, created_at) VALUES (?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
-                String userId = UUID.randomUUID().toString();
-                stmt.setObject(1, UUID.fromString(userId));
-                stmt.setString(2, username);
-                stmt.setString(3, email);
-                stmt.setString(4, passwordHash);
-                stmt.setString(5, salt);
-                stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
-                
-                int rows = stmt.executeUpdate();
-                if (rows > 0) {
-                    this.currentUser = new User(userId, username, email, passwordHash, salt);
-                    saveLogin();
-                    LOGGER.info("New user created successfully: {}", username);
-                    return currentUser;
+            if (userExistsWithoutPassword) {
+                // Update existing user with password
+                String updateSql = "UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
+                    stmt.setString(1, passwordHash);
+                    stmt.setString(2, salt);
+                    stmt.setObject(3, UUID.fromString(userId));
+                    
+                    int rows = stmt.executeUpdate();
+                    if (rows > 0) {
+                        this.currentUser = new User(userId, username, email, passwordHash, salt);
+                        saveLogin();
+                        LOGGER.info("Password added to existing user: {}", username);
+                        return currentUser;
+                    }
+                }
+            } else {
+                // Create new user
+                String insertSql = "INSERT INTO users (id, username, email, password_hash, password_salt, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+                    userId = UUID.randomUUID().toString();
+                    stmt.setObject(1, UUID.fromString(userId));
+                    stmt.setString(2, username);
+                    stmt.setString(3, email);
+                    stmt.setString(4, passwordHash);
+                    stmt.setString(5, salt);
+                    stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+                    
+                    int rows = stmt.executeUpdate();
+                    if (rows > 0) {
+                        this.currentUser = new User(userId, username, email, passwordHash, salt);
+                        saveLogin();
+                        LOGGER.info("New user created successfully: {}", username);
+                        return currentUser;
+                    }
                 }
             }
         } catch (SQLException e) {
