@@ -165,13 +165,5 @@ public class MusicDatabaseManager {
     
         public User getUser() {
             return user;
-        }
-        
-        public UserMusicData loadUserData() {
-            // Create a new instance of UserMusicData, ensuring all collections are initialized (if needed)
-            UserMusicData data = new UserMusicData();
-            return data;
-        }
-    
-    
+        }    
     }

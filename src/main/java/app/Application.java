@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import models.Playlist;
 import models.PlaylistParameters;
-import models.PlaylistPreferences;
 import models.User;
 import models.UserMusicData;
+import models.UserPreferences;
 import models.PlayHistory;
 import models.Song;
 import services.AppAPI.AppSpotifyAPIManager;
@@ -22,6 +22,8 @@ import services.PlaylistGenerator;
 import services.config.Config;
 import services.database.MusicDatabaseManager;
 import services.enrichment.DataEnrichmentManager;
+import services.output.PlaylistExporter;
+import services.output.PlaylistExporterFactory;
 import services.ui.CliController;
 import services.ui.GuiLauncher;
 import services.ui.SetupWizard;
@@ -42,6 +44,7 @@ public class Application  {
     private LastFmAPIManager lastFmManager;
     private DataEnrichmentManager enrichmentManager;
     private PlaylistGenerator playlistGenerator;
+    private PlaylistExporter playlistExporter;
     private GenreManager genreManager;
     private User currentUser;
     private boolean isOnline;
@@ -134,6 +137,10 @@ public class Application  {
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
         this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager);
+        
+        // Set the database manager in the playlist generator
+        playlistGenerator.setDatabaseManager(dbManager);
+        
         System.out.println("Services initialized."); // Diagnostic output
     }
     
@@ -249,31 +256,19 @@ public class Application  {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
             System.out.println("Generating playlist with name: " + params.getName()); // Diagnostic output
         
-            // Retrieve the user preferences map (Map<String, List<Object>>)
-            Map<String, java.util.List<Object>> userPreferencesMap = dbManager.getCurrentUserPreferences();
-        
-            // Use the preferences map directly in PlaylistPreferences
-            // NOTE: Ensure that the PlaylistPreferences constructor accepts a Map<String, List<Object>>
-            PlaylistPreferences playlistPreferences = new PlaylistPreferences(userPreferencesMap);
-        
-            // Retrieve user music data
-            UserMusicData userData = dbManager.loadUserData();
-            if (userData == null) {
-                LOGGER.error("Failed to retrieve user music data.");
-                System.out.println("User music data is null."); // Diagnostic output
-                return false;
-            }
+            // get user preferences from the database
+            UserPreferences userPreferences = new UserPreferences(dbManager.getCurrentUserPreferences());
         
             // Generate the playlist
-            generatedPlaylist = playlistGenerator.generatePlaylist(userData, params, playlistPreferences);
+            this.generatedPlaylist = playlistGenerator.generatePlaylist(params, userPreferences);  
         
-            if (generatedPlaylist != null) {
-                LOGGER.info("Playlist generated successfully.");
-                System.out.println("Playlist generated successfully."); // Diagnostic output
+            if (generatedPlaylist != null && !generatedPlaylist.getSongs().isEmpty()) {
+                LOGGER.info("Playlist generated successfully with {} songs.", generatedPlaylist.getSongs().size());
+                System.out.println("Playlist generated successfully with " + generatedPlaylist.getSongs().size() + " songs."); // Diagnostic output
                 return true;
             } else {
-                LOGGER.warn("Playlist generation returned null.");
-                System.out.println("Playlist generation returned null."); // Diagnostic output
+                LOGGER.warn("Playlist generation returned empty playlist.");
+                System.out.println("Playlist generation returned empty playlist."); // Diagnostic output
                 return false;
             }
         }
@@ -281,6 +276,26 @@ public class Application  {
             LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
             System.out.println("Error generating playlist: " + e.getMessage()); // Diagnostic output
         }
-        return isOnline;
+        return false;
+    }
+
+    public void exportPlaylist(String format) {
+        try {
+            LOGGER.info("Exporting playlist: {}", generatedPlaylist.getName());
+            System.out.println("Exporting playlist: " + generatedPlaylist.getName()); // Diagnostic output
+        
+            PlaylistExporter PlaylistExporter = PlaylistExporterFactory.getExporter(format);
+            PlaylistExporter.export(generatedPlaylist, "ExportedPlaylists/");
+        
+            LOGGER.info("Playlist exported successfully.");
+            System.out.println("Playlist exported successfully."); // Diagnostic output
+        } catch (Exception e) {
+            LOGGER.error("Error exporting playlist: {}", e.getMessage(), e);
+            System.out.println("Error exporting playlist: " + e.getMessage()); // Diagnostic output
+        }
+    }
+
+    public Playlist getGeneratedPlaylist() {
+        return generatedPlaylist;
     }
 }
