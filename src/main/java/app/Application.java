@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import models.Playlist;
 import models.PlaylistParameters;
-import models.PlaylistPreferences;
 import models.User;
 import models.UserMusicData;
+import models.UserPreferences;
 import models.PlayHistory;
 import models.Song;
 import services.AppAPI.AppSpotifyAPIManager;
@@ -45,6 +45,7 @@ public class Application  {
     private LastFmAPIManager lastFmManager;
     private DataEnrichmentManager enrichmentManager;
     private PlaylistGenerator playlistGenerator;
+    private PlaylistExporter playlistExporter;
     private GenreManager genreManager;
     private User currentUser;
     private boolean isOnline;
@@ -135,10 +136,17 @@ public class Application  {
         this.spotifyManager = new AppSpotifyAPIManager();
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
+<<<<<<< HEAD
         this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager, dbManager);
         
         // Set the database manager in the playlist generator
         this.playlistGenerator.setDatabaseManager(dbManager);
+=======
+        this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager);
+        
+        // Set the database manager in the playlist generator
+        playlistGenerator.setDatabaseManager(dbManager);
+>>>>>>> generator
         
         System.out.println("Services initialized."); // Diagnostic output
     }
@@ -250,6 +258,7 @@ public class Application  {
         try {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
         
+<<<<<<< HEAD
             // Retrieve the user preferences map (Map<String, List<Object>>)
             Map<String, List<Object>> userPreferencesMap = dbManager.getCurrentUserPreferences();
         
@@ -263,13 +272,48 @@ public class Application  {
                 return true;
             } else {
                 LOGGER.warn("Playlist generation returned null.");
+=======
+            // get user preferences from the database
+            UserPreferences userPreferences = new UserPreferences(dbManager.getCurrentUserPreferences());
+        
+            // Generate the playlist
+            this.generatedPlaylist = playlistGenerator.generatePlaylist(params, userPreferences);  
+        
+            if (generatedPlaylist != null && !generatedPlaylist.getSongs().isEmpty()) {
+                LOGGER.info("Playlist generated successfully with {} songs.", generatedPlaylist.getSongs().size());
+                System.out.println("Playlist generated successfully with " + generatedPlaylist.getSongs().size() + " songs."); // Diagnostic output
+                return true;
+            } else {
+                LOGGER.warn("Playlist generation returned empty playlist.");
+                System.out.println("Playlist generation returned empty playlist."); // Diagnostic output
+>>>>>>> generator
                 return false;
             }
         }
         catch (Exception e) {
             LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
         }
-        return isOnline;
+        return false;
+    }
+
+    public void exportPlaylist(String format) {
+        try {
+            LOGGER.info("Exporting playlist: {}", generatedPlaylist.getName());
+            System.out.println("Exporting playlist: " + generatedPlaylist.getName()); // Diagnostic output
+        
+            PlaylistExporter PlaylistExporter = PlaylistExporterFactory.getExporter(format);
+            PlaylistExporter.export(generatedPlaylist, "ExportedPlaylists/");
+        
+            LOGGER.info("Playlist exported successfully.");
+            System.out.println("Playlist exported successfully."); // Diagnostic output
+        } catch (Exception e) {
+            LOGGER.error("Error exporting playlist: {}", e.getMessage(), e);
+            System.out.println("Error exporting playlist: " + e.getMessage()); // Diagnostic output
+        }
+    }
+
+    public Playlist getGeneratedPlaylist() {
+        return generatedPlaylist;
     }
 
     public void exportPlaylist(String format) {

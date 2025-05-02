@@ -1,7 +1,9 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Parameters for playlist generation
@@ -9,13 +11,21 @@ import java.util.List;
 public class PlaylistParameters {
     private String name;
     private int songCount;
-    private List<String> genres;
-    private List<String> artists;
-    private List<String> excludeArtists;
     private int minDuration; // in seconds
     private int maxDuration; // in seconds
     private boolean preferImportedMusic;
     private PlaylistSelectionStrategy selectionStrategy;
+    private Map<String, Set<String>> inclusionCriteria = new HashMap<>();
+    private Map<String, Set<String>> exclusionCriteria = new HashMap<>();
+    
+    {
+        // Initialize all criteria sets
+        String[] criteriaTypes = {"genres", "artists", "albums", "moods", "decades", "languages", "countries"};
+        for (String type : criteriaTypes) {
+            inclusionCriteria.put(type, new HashSet<>());
+            exclusionCriteria.put(type, new HashSet<>());
+        }
+    }
     
     public enum PlaylistSelectionStrategy {
         RANDOM, POPULAR, DIVERSE, BALANCED
@@ -24,9 +34,6 @@ public class PlaylistParameters {
     public PlaylistParameters() {
         this.name = "New Playlist";
         this.songCount = 20;
-        this.genres = new ArrayList<>();
-        this.artists = new ArrayList<>();
-        this.excludeArtists = new ArrayList<>();
         this.minDuration = 0;
         this.maxDuration = Integer.MAX_VALUE;
         this.preferImportedMusic = false;
@@ -47,48 +54,6 @@ public class PlaylistParameters {
 
     public void setSongCount(int songCount) {
         this.songCount = songCount;
-    }
-
-    public List<String> getGenres() {
-        return genres;
-    }
-
-    public void setGenres(List<String> genres) {
-        this.genres = genres;
-    }
-    
-    public void addGenre(String genre) {
-        if (!this.genres.contains(genre)) {
-            this.genres.add(genre);
-        }
-    }
-
-    public List<String> getArtists() {
-        return artists;
-    }
-
-    public void setArtists(List<String> artists) {
-        this.artists = artists;
-    }
-    
-    public void addArtist(String artist) {
-        if (!this.artists.contains(artist)) {
-            this.artists.add(artist);
-        }
-    }
-
-    public List<String> getExcludeArtists() {
-        return excludeArtists;
-    }
-
-    public void setExcludeArtists(List<String> excludeArtists) {
-        this.excludeArtists = excludeArtists;
-    }
-    
-    public void addExcludedArtist(String artist) {
-        if (!this.excludeArtists.contains(artist)) {
-            this.excludeArtists.add(artist);
-        }
     }
 
     public int getMinDuration() {
@@ -121,5 +86,57 @@ public class PlaylistParameters {
 
     public void setSelectionStrategy(PlaylistSelectionStrategy selectionStrategy) {
         this.selectionStrategy = selectionStrategy;
+    }
+
+    public Map<String, Set<String>> getInclusionCriteria() {
+        return inclusionCriteria;
+    }
+
+    public void setInclusionCriteria(Map<String, Set<String>> inclusionCriteria) {
+        this.inclusionCriteria = inclusionCriteria;
+    }
+
+    public void setInclusionCriteria(String type, Set<String> values) {
+        inclusionCriteria.put(type, values);
+    }
+
+    public Map<String, Set<String>> getExclusionCriteria() {
+        return exclusionCriteria;
+    }
+
+    public void setExclusionCriteria(Map<String, Set<String>> exclusionCriteria) {
+        this.exclusionCriteria = exclusionCriteria;
+    }
+
+    public void setExclusionCriteria(String type, Set<String> values) {
+        exclusionCriteria.put(type, values);
+    }
+
+    public void addInclusionCriterion(String type, String value) {
+        inclusionCriteria.computeIfAbsent(type, k -> new HashSet<>()).add(value);
+    }
+
+    public void addExclusionCriterion(String type, String value) {
+        exclusionCriteria.computeIfAbsent(type, k -> new HashSet<>()).add(value);
+    }
+
+    public void removeInclusionCriterion(String type, String value) {
+        Set<String> criteria = inclusionCriteria.get(type);
+        if (criteria != null) {
+            criteria.remove(value);
+            if (criteria.isEmpty()) {
+                inclusionCriteria.remove(type);
+            }
+        }
+    }
+
+    public void removeExclusionCriterion(String type, String value) {
+        Set<String> criteria = exclusionCriteria.get(type);
+        if (criteria != null) {
+            criteria.remove(value);
+            if (criteria.isEmpty()) {
+                exclusionCriteria.remove(type);
+            }
+        }
     }
 }

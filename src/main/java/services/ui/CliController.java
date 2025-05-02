@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import app.Application;
 import models.PlaylistParameters;
@@ -106,7 +107,7 @@ public class CliController {
         System.out.println("1. Random");
         System.out.println("2. Popular");
         System.out.println("3. Diverse");
-        System.out.println("4. Balanced (default)");
+        System.out.println("4. Balanced");
         System.out.print("Enter your choice: ");
         int strategyChoice = getUserChoice(1, 4);
     
@@ -122,6 +123,65 @@ public class CliController {
                 break;
             default:
                 params.setSelectionStrategy(PlaylistParameters.PlaylistSelectionStrategy.BALANCED);
+        }
+
+        System.out.print("Enter minimum duration (in seconds, default 0): ");
+        try {
+            int minDuration = Integer.parseInt(scanner.nextLine().trim());
+            params.setMinDuration(minDuration);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input, setting minimum duration to 0");
+        }
+
+        System.out.print("Enter maximum duration (in seconds, default 3600): ");
+        try {
+            int maxDuration = Integer.parseInt(scanner.nextLine().trim());
+            params.setMaxDuration(maxDuration);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input, setting maximum duration to 3600 seconds");
+            params.setMaxDuration(3600); // Default to 1 hour
+        }
+
+        System.out.print("Do you have custom parameters? (yes/no): ");
+        String customParamsResponse = scanner.nextLine().trim().toLowerCase();
+        if (customParamsResponse.equals("yes")) {
+            Map<String, Set<String>> parameterMap = params.getInclusionCriteria();
+            System.out.println("Available custom parameters:");
+
+            int paramIndex = 1;
+            Map<Integer, String> paramIndexMap = new HashMap<>();
+
+            for (String key : parameterMap.keySet()) {
+                System.out.println(paramIndex + ". Include " + key);
+                paramIndexMap.put(paramIndex++, "include:" + key);
+                System.out.println(paramIndex + ". Exclude " + key);
+                paramIndexMap.put(paramIndex++, "exclude:" + key);
+            }
+
+            System.out.print("Enter your choice (or 0 to finish): ");
+            int paramChoice = getUserChoice(0, paramIndexMap.size());
+
+            while (paramChoice != 0) {
+                String selectedParam = paramIndexMap.get(paramChoice);
+                String[] parts = selectedParam.split(":");
+                String action = parts[0];
+                String key = parts[1];
+                
+                System.out.print("Enter " + key + " values (comma-separated): ");
+                String input = scanner.nextLine().trim();
+                Set<String> values = Set.of(input.split(","));
+                
+                if (action.equals("include")) {
+                    params.setInclusionCriteria(key, values);
+                    System.out.println("Added inclusion filter for " + key);
+                } else {
+                    params.setExclusionCriteria(key, values);
+                    System.out.println("Added exclusion filter for " + key);
+                }
+                
+                System.out.print("Enter another parameter choice (or 0 to finish): ");
+                paramChoice = getUserChoice(0, paramIndexMap.size());
+            }
         }
     
         System.out.println("Generating playlist...");
