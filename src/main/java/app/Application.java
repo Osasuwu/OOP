@@ -1,7 +1,6 @@
 package app;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -136,17 +135,10 @@ public class Application  {
         this.spotifyManager = new AppSpotifyAPIManager();
         this.musicBrainzManager = new MusicBrainzAPIManager();
         this.lastFmManager = new LastFmAPIManager();
-<<<<<<< HEAD
         this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager, dbManager);
         
         // Set the database manager in the playlist generator
-        this.playlistGenerator.setDatabaseManager(dbManager);
-=======
-        this.enrichmentManager = new DataEnrichmentManager(isOnline, spotifyManager, musicBrainzManager, lastFmManager);
-        
-        // Set the database manager in the playlist generator
         playlistGenerator.setDatabaseManager(dbManager);
->>>>>>> generator
         
         System.out.println("Services initialized."); // Diagnostic output
     }
@@ -216,6 +208,7 @@ public class Application  {
             if (isOnline) {
                 enrichmentManager.enrichUserData(userData);
                 
+                // Saved in enriching process
                 LOGGER.info("Saved enriched data to database");
                 System.out.println("Saved enriched user data."); // Diagnostic output
             }
@@ -246,6 +239,7 @@ public class Application  {
             // Step 4: Save listening history
             dbManager.savePlayHistory(userData);
             LOGGER.info("Saved {} listening history entries", userData.getPlayHistory().size());
+            System.out.println("Saved listening history."); // Diagnostic output
             
             return true;
         } catch (Exception e) {
@@ -257,22 +251,8 @@ public class Application  {
     public boolean generatePlaylist(PlaylistParameters params) {
         try {
             LOGGER.info("Generating playlist with parameters: {}", params.getName());
+            System.out.println("Generating playlist with name: " + params.getName()); // Diagnostic output
         
-<<<<<<< HEAD
-            // Retrieve the user preferences map (Map<String, List<Object>>)
-            Map<String, List<Object>> userPreferencesMap = dbManager.getCurrentUserPreferences();
-        
-            PlaylistPreferences playlistPreferences = new PlaylistPreferences(userPreferencesMap);
-        
-            // Generate the playlist
-            generatedPlaylist = playlistGenerator.generatePlaylist(params, playlistPreferences);
-        
-            if (generatedPlaylist != null) {
-                LOGGER.info("Playlist generated successfully.");
-                return true;
-            } else {
-                LOGGER.warn("Playlist generation returned null.");
-=======
             // get user preferences from the database
             UserPreferences userPreferences = new UserPreferences(dbManager.getCurrentUserPreferences());
         
@@ -284,14 +264,15 @@ public class Application  {
                 System.out.println("Playlist generated successfully with " + generatedPlaylist.getSongs().size() + " songs."); // Diagnostic output
                 return true;
             } else {
+                LOGGER.warn("Playlist generation returned null.");
                 LOGGER.warn("Playlist generation returned empty playlist.");
                 System.out.println("Playlist generation returned empty playlist."); // Diagnostic output
->>>>>>> generator
                 return false;
             }
         }
         catch (Exception e) {
             LOGGER.error("Error generating playlist: {}", e.getMessage(), e);
+            System.out.println("Error generating playlist: " + e.getMessage()); // Diagnostic output
         }
         return false;
     }
@@ -302,7 +283,7 @@ public class Application  {
             System.out.println("Exporting playlist: " + generatedPlaylist.getName()); // Diagnostic output
         
             PlaylistExporter PlaylistExporter = PlaylistExporterFactory.getExporter(format);
-            PlaylistExporter.export(generatedPlaylist, "ExportedPlaylists/");
+            PlaylistExporter.export(generatedPlaylist, config.get("exportPath").toString());
         
             LOGGER.info("Playlist exported successfully.");
             System.out.println("Playlist exported successfully."); // Diagnostic output
@@ -314,24 +295,5 @@ public class Application  {
 
     public Playlist getGeneratedPlaylist() {
         return generatedPlaylist;
-    }
-
-    public void exportPlaylist(String format) {
-        if (generatedPlaylist == null) {
-            LOGGER.warn("No playlist generated to export.");
-            return;
-        }
-        
-        PlaylistExporter exporter = PlaylistExporterFactory.getExporter(format);
-        if (exporter != null) {
-            try {
-                exporter.export(generatedPlaylist, config.get("exportPath").toString());
-                LOGGER.info("Playlist exported successfully in {} format.", format);
-            } catch (Exception e) {
-                LOGGER.error("Error exporting playlist: {}", e.getMessage(), e);
-            }
-        } else {
-            LOGGER.error("Unsupported export format: {}", format);
-        }
     }
 }
